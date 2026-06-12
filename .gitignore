@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Build and tool output
+dist/
+coverage/
+.smoke/
+*.tsbuildinfo
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+*.local
+
+# Local balance exports
+balance-report*.json
+balance-export*.json
+
+# Editor and operating system files
+.idea/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~

@@ -1,0 +1,38 @@
+{
+  "name": "everlasting-oblivion-limbo-trial",
+  "version": "0.1.0",
+  "description": "A browser-playable dark fantasy arena roguelite prototype.",
+  "private": true,
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Veno89/limbotrials.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Veno89/limbotrials/issues"
+  },
+  "homepage": "https://github.com/Veno89/limbotrials#readme",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b --pretty false",
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "phaser": "^4.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "eslint": "^9.28.0",
+    "playwright-core": "^1.60.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.0",
+    "vite": "^7.0.0",
+    "vitest": "^4.1.8"
+  }
+}
