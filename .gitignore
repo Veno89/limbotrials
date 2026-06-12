@@ -5,6 +5,7 @@ node_modules/
 dist/
 coverage/
 .smoke/
+.netlify/
 *.tsbuildinfo
 *.log
 npm-debug.log*

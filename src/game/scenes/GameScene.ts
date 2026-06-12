@@ -30,6 +30,7 @@ import { FEATURE_FLAGS } from '../config/featureFlags';
 import { PlayerStatusVisualSystem } from '../ui/PlayerStatusVisualSystem';
 import { LootRevealSystem } from '../ui/LootRevealSystem';
 import { PlayerVisualSystem } from '../systems/PlayerVisualSystem';
+import { submitRunScore } from '../../leaderboard/leaderboardService';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -423,6 +424,9 @@ export class GameScene extends Phaser.Scene {
       writeSave(recorded.save);
     }
     writeLastRunSummary(summary);
+    if (this.balancePresetId === 'standard') {
+      void submitRunScore(summary);
+    }
     this.scene.stop('UpgradeScene');
     this.scene.stop('PauseScene');
     this.scene.start(victory ? 'VictoryScene' : 'GameOverScene', summary);

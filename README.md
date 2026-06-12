@@ -17,6 +17,7 @@ browser.
 - Run-only artifacts, themed reliquaries, curses, rare powerups, and a blood shrine
 - Categorized upgrade offers, rerolls, skip rewards, weapon synergies, and permanent progression
 - Source-aware combat telemetry, multi-tab balance reports, JSON export, and deterministic balance labs
+- Tailwind landing page, public Supabase leaderboard, and bounded Netlify Function score submissions
 - Strict TypeScript, Vitest coverage, ESLint, production builds, and a full browser smoke test
 
 Development status, known issues, and the next recommended work are tracked in
@@ -94,10 +95,13 @@ scripting or monolithic scene files. Start with
 - [Balance testing workflow](docs/BALANCE_TESTING.md)
 - [Next combat expansion](docs/NEXT_COMBAT_EXPANSION.md)
 - [Longer-term roadmap](docs/ROADMAP.md)
+- [Netlify and Supabase deployment](docs/DEPLOYMENT.md)
 
 ## Repository Notes
 
 - Generated builds, dependencies, local smoke captures, environment files, and
   exported balance reports are intentionally excluded from Git.
+- Copy `.env.example` for local leaderboard configuration; never expose a Supabase
+  secret key through a `VITE_` variable.
 - The repository does not currently include an open-source license. All rights are
   reserved unless a license is added later.

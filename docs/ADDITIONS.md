@@ -29,6 +29,7 @@ Completed in the first expansion milestone:
 - [x] Authored upgrade-effects foundation: projectile splintering, spreading area blasts, delayed echoes, Forbidden Tutelage, and an F10 Upgrade Effects Lab
 - [x] Bloodletter capstone correction: Headsman's Procession multi-throws and a stronger three-to-five-axe Crimson Orbit with wider bounded coverage
 - [x] Late-run specialization pass: remaining focused weapon upgrades return after evolution, stay bounded by max stacks, and no longer imply invalid level-eight progression
+- [x] Public web shell: thematic Tailwind landing page, lazy browser-game launch, Supabase damage/kill leaderboard, and bounded Netlify Function submissions
 
 The first completed standard run proved that the baseline is survivable. Active-run timing, bounded adaptive threat, the Warden rebuild, Crimson Orbit, and the existing-weapon identity pass are now implemented. The next immediate milestone is the broader upgrade-choice expansion recorded in `docs/NEXT_COMBAT_EXPANSION.md`; Phases 5-8 remain intentionally delayed until that combat foundation is stable.
 

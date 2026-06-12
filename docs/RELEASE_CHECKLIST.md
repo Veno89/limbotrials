@@ -8,6 +8,8 @@
 - [x] Production output includes only referenced supplied art.
 - [x] Controls are shown on the menu and briefly introduced in the arena.
 - [x] The game can reach both game-over and victory scenes.
+- [x] The landing page, lazy game launch, and return-to-site flow are covered by the browser smoke test.
+- [x] Leaderboard score parsing and bounds have deterministic tests.
 
 ## Required Before Public Demo
 
@@ -24,6 +26,8 @@
 - [ ] Add a short epilepsy/photosensitivity notice if effects warrant it.
 - [ ] Add title art, store capsule images, screenshots, and a short trailer.
 - [ ] Verify save behavior after a deployed build update.
+- [ ] Apply `supabase/leaderboard.sql`, configure Netlify environment variables, and verify a real score submission.
+- [ ] Confirm direct anonymous Supabase inserts fail while public leaderboard reads succeed.
 - [ ] Host a private itch.io build and collect external playtest feedback.
 
 ## Later Desktop Release

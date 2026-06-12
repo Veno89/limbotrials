@@ -37,6 +37,10 @@ try {
   });
 
   await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(1200);
+  await page.screenshot({ path: `${outputDirectory}/landing-page.png`, fullPage: true });
+  await page.locator('[data-start-game]').first().click();
+  await page.locator('canvas').waitFor({ state: 'visible', timeout: 15000 });
   await page.waitForTimeout(2500);
   await page.screenshot({ path: `${outputDirectory}/menu.png` });
   await page.mouse.click(640, 455);

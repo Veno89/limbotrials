@@ -150,6 +150,18 @@ XP-risk upgrades use the normal typed stat-modifier path. `xpGain` changes colle
 run XP, while `threatPowerBonus` contributes directly to the bounded power score in
 `threatRules.ts`; it does not bypass the threat cap or mutate existing enemies.
 
+## Website And Leaderboard
+
+`src/main.ts` owns the website shell and lazy-loads Phaser only after the visitor
+starts the game. `site/landingPage.ts` owns the static marketing page composition,
+while `site/leaderboardPanel.ts` owns leaderboard rendering and interaction.
+
+The public browser client reads `leaderboard_entries` through Supabase using the
+publishable key. Completed standard runs submit through the bounded
+`netlify/functions/submit-score.ts` endpoint, which owns the server-only secret key.
+Pure score limits and parsing live in `leaderboard/scoreSubmissionRules.ts` so the
+function boundary remains deterministic and tested.
+
 ## Add An Enemy
 
 1. Add its ID to `EnemyId`.

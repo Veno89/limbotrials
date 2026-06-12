@@ -2,6 +2,7 @@ Has been implemented?
 - Finishing a run unlocks NG+ where the player gets to fight harder enemies and more bosses. FOr increased rewards they may also add from a set of modifiers which makes the game even harder.
 - Right now artifacts are just a bunch of increased stats, let's create some more unique ones that can define a run.
 - Create a unique asset for every artifact, that fits well into our theme.
+- Add a "suction" effect to xp globes when using the magnet pick-up.
 
 Latest feedback implemented:
 - [x] Elite charges now travel the complete telegraphed distance and use a red danger telegraph.
