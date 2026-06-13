@@ -5,8 +5,6 @@ import penitentImage from '../../assets/sprites/playersprites/bulwark.png?url';
 import ashwalkerImage from '../../assets/sprites/playersprites/Arcanist.png?url';
 import reliquaryImage from '../../assets/sprites/items/reliquary_chest.png?url';
 import voidSwordImage from '../../assets/sprites/items/icon_sword_void.png?url';
-import bowImage from '../../assets/sprites/items/icon_bow_long.png?url';
-import staffImage from '../../assets/sprites/items/icon_staff_archmage.png?url';
 import { loadPlayerName, savePlayerName } from '../leaderboard/playerIdentity';
 import { mountLeaderboardPanel } from './leaderboardPanel';
 
