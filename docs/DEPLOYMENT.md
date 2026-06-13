@@ -13,10 +13,10 @@ designed to deploy together from the repository root.
 The browser receives read-only access. Inserts happen only through the Netlify
 Function using a server-only secret key.
 
-The currently deployed site is already connected to a Supabase project, but that
-project returns `PGRST205` because `public.leaderboard_entries` has not yet been
-created. Run the SQL file in the same project whose URL is stored in
-`VITE_SUPABASE_URL`.
+The currently deployed function can reach `public.leaderboard_entries`, but the
+public browser read still returns `PGRST205`. The public and server URLs match, so
+rerun the complete SQL file in that project to apply the anonymous read grant,
+read policy, and PostgREST schema reload.
 
 ## 2. Netlify Build Settings
 
@@ -49,12 +49,14 @@ Add these in Netlify under **Site configuration > Environment variables**:
 Never prefix the secret key with `VITE_`; Vite-prefixed values are embedded in the
 public browser bundle. Trigger a new deploy after changing build-time variables.
 
-The public `VITE_` variables are already present on the current site. The remaining
-required dashboard work is:
+All five production variables are present on the current site, and the public and
+server Supabase URLs match. The remaining required dashboard work is:
 
-1. Run `supabase/leaderboard.sql`.
-2. Add `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, and `ALLOWED_ORIGIN` to Netlify.
-3. Trigger a new production deploy.
+1. Rerun `supabase/leaderboard.sql` in the matching Supabase project.
+2. Reload the landing page and confirm the public leaderboard becomes available.
+
+A new Netlify deploy is only required after changing an environment variable or
+application code. Applying the SQL takes effect without a redeploy.
 
 For local end-to-end function testing, copy `.env.example` to `.env` and run
 `npx netlify dev`. Ordinary `npm run dev` serves the landing page and game but does
@@ -81,10 +83,11 @@ not emulate the Netlify Function.
 | Symptom | Meaning | Fix |
 | --- | --- | --- |
 | Landing page says `AWAITING SUPABASE` | Public build variables are missing | Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY`, then redeploy |
-| Landing page says `RECORDS UNAVAILABLE` and Supabase returns `PGRST205` | The leaderboard table does not exist in the configured project | Run `supabase/leaderboard.sql` in that project |
+| Landing page says `RECORDS UNAVAILABLE` and Supabase returns `PGRST205` | The table is absent or hidden from the anonymous Data API role | Rerun the complete `supabase/leaderboard.sql` in that project |
 | `/api/leaderboard` returns `404` | The Netlify Function was not deployed | Confirm Functions directory is `netlify/functions` and redeploy |
 | Health endpoint returns `configured: false` | Server-only Netlify variables are missing | Add `SUPABASE_URL` and `SUPABASE_SECRET_KEY`, then redeploy |
 | Health endpoint returns `configured: true, databaseReachable: false` | Function credentials exist but the table/key is wrong | Run the SQL in the matching project and verify the secret key |
+| Health endpoint is healthy but landing page returns `PGRST205` | The function can reach the table, but the anonymous read grant/policy is missing or stale | Rerun the complete SQL file to restore grants and reload PostgREST |
 
 ## Security Boundary
 

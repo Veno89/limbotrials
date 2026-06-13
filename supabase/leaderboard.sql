@@ -28,3 +28,5 @@ create policy "Public leaderboard read"
   for select
   to anon, authenticated
   using (true);
+
+notify pgrst, 'reload schema';
