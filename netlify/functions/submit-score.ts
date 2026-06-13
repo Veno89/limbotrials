@@ -66,9 +66,7 @@ async function leaderboardHealth(headers: Record<string, string>): Promise<Handl
   }
 
   const supabase = createSupabaseClient(supabaseUrl, secretKey);
-  const { error } = await supabase
-    .from('leaderboard_entries')
-    .select('id', { count: 'exact', head: true });
+  const { error } = await supabase.from('leaderboard_entries').select('id').limit(1);
 
   return error
     ? json(
