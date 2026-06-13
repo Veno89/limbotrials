@@ -75,12 +75,36 @@ async function leaderboardHealth(headers: Record<string, string>): Promise<Handl
         {
           configured: true,
           databaseReachable: false,
-          databaseErrorCode: error.code || 'unknown',
+          databaseErrorCode: classifyDatabaseError(error),
         },
         503,
         headers,
       )
     : json({ configured: true, databaseReachable: true }, 200, headers);
+}
+
+function classifyDatabaseError(error: { code?: string; details?: string; message?: string }): string {
+  if (error.code) {
+    return error.code;
+  }
+
+  const description = `${error.message ?? ''} ${error.details ?? ''}`.toLowerCase();
+  if (description.includes('fetch failed') || description.includes('failed to fetch')) {
+    return 'fetch_failed';
+  }
+  if (description.includes('invalid api key') || description.includes('api key is invalid')) {
+    return 'invalid_api_key';
+  }
+  if (description.includes('jwt')) {
+    return 'invalid_jwt';
+  }
+  if (description.includes('permission denied')) {
+    return 'permission_denied';
+  }
+  if (description.includes('could not find the table') || description.includes('relation')) {
+    return 'table_not_found';
+  }
+  return 'unknown';
 }
 
 function createSupabaseClient(url: string, key: string) {
