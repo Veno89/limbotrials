@@ -86,6 +86,7 @@ not emulate the Netlify Function.
 | `/api/leaderboard` returns `404` | The Netlify Function was not deployed | Confirm Functions directory is `netlify/functions` and redeploy |
 | Health endpoint returns `configured: false` | Server-only Netlify variables are missing | Add `SUPABASE_URL` and `SUPABASE_SECRET_KEY`, then redeploy |
 | Health endpoint returns `configured: true, databaseReachable: false` | Function credentials exist but the table/key is wrong | Run the SQL in the matching project and verify the secret key |
+| Health endpoint returns database error `42501` | Automatic table grants are disabled and `service_role` lacks access | Rerun the complete SQL file to grant narrowly scoped server read/insert access |
 | Health endpoint is healthy but landing page returns `PGRST205` | The function can reach the table, but the anonymous read grant/policy is missing or stale | Rerun the complete SQL file to restore grants and reload PostgREST |
 
 ## Security Boundary

@@ -22,6 +22,10 @@ grant usage on schema public to anon, authenticated;
 revoke all on table public.leaderboard_entries from anon, authenticated;
 grant select on table public.leaderboard_entries to anon, authenticated;
 
+grant usage on schema public to service_role;
+grant select, insert on table public.leaderboard_entries to service_role;
+grant usage, select on sequence public.leaderboard_entries_id_seq to service_role;
+
 drop policy if exists "Public leaderboard read" on public.leaderboard_entries;
 create policy "Public leaderboard read"
   on public.leaderboard_entries
