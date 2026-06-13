@@ -1,22 +1,25 @@
-import type { Config } from '@netlify/functions';
+import type { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
 import { createClient } from '@supabase/supabase-js';
 import { parseScoreSubmission } from '../../src/leaderboard/scoreSubmissionRules';
 
-export default async function submitScore(request: Request): Promise<Response> {
-  const headers = corsHeaders(request);
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers });
+export const handler: Handler = async (event) => {
+  const headers = corsHeaders(event);
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers };
   }
-  if (request.method !== 'POST') {
+  if (event.httpMethod === 'GET') {
+    return leaderboardHealth(headers);
+  }
+  if (event.httpMethod !== 'POST') {
     return json({ error: 'Method not allowed.' }, 405, headers);
   }
-  if (!originAllowed(request)) {
+  if (!originAllowed(event)) {
     return json({ error: 'Origin not allowed.' }, 403, headers);
   }
 
   let input: unknown;
   try {
-    input = await request.json();
+    input = JSON.parse(event.body ?? '');
   } catch {
     return json({ error: 'Invalid JSON.' }, 400, headers);
   }
@@ -31,13 +34,7 @@ export default async function submitScore(request: Request): Promise<Response> {
     return json({ error: 'Leaderboard service is not configured.' }, 503, headers);
   }
 
-  const supabase = createClient(supabaseUrl, secretKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false,
-    },
-  });
+  const supabase = createSupabaseClient(supabaseUrl, secretKey);
   const { error } = await supabase
     .from('leaderboard_entries')
     .insert({
@@ -59,35 +56,59 @@ export default async function submitScore(request: Request): Promise<Response> {
     );
   }
   return json({ recorded: true }, 201, headers);
-}
-
-export const config: Config = {
-  path: '/api/leaderboard',
-  method: ['POST', 'OPTIONS'],
-  rateLimit: {
-    windowSize: 60,
-    windowLimit: 8,
-    aggregateBy: ['ip'],
-  },
 };
 
-function originAllowed(request: Request): boolean {
+async function leaderboardHealth(headers: Record<string, string>): Promise<HandlerResponse> {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const secretKey = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !secretKey) {
+    return json({ configured: false, databaseReachable: false }, 503, headers);
+  }
+
+  const supabase = createSupabaseClient(supabaseUrl, secretKey);
+  const { error } = await supabase
+    .from('leaderboard_entries')
+    .select('id', { count: 'exact', head: true });
+
+  return error
+    ? json({ configured: true, databaseReachable: false }, 503, headers)
+    : json({ configured: true, databaseReachable: true }, 200, headers);
+}
+
+function createSupabaseClient(url: string, key: string) {
+  return createClient(url, key, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+}
+
+function originAllowed(event: HandlerEvent): boolean {
   const allowedOrigin = process.env.ALLOWED_ORIGIN;
-  const origin = request.headers.get('origin');
+  const origin = event.headers.origin;
   return !allowedOrigin || !origin || origin === allowedOrigin;
 }
 
-function corsHeaders(request: Request): HeadersInit {
+function corsHeaders(event: HandlerEvent): Record<string, string> {
   const allowedOrigin = process.env.ALLOWED_ORIGIN;
   return {
-    'access-control-allow-origin': allowedOrigin ?? request.headers.get('origin') ?? '*',
-    'access-control-allow-methods': 'POST, OPTIONS',
+    'access-control-allow-origin': allowedOrigin ?? event.headers.origin ?? '*',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
     'access-control-allow-headers': 'content-type',
     'cache-control': 'no-store',
     vary: 'origin',
   };
 }
 
-function json(body: object, status: number, headers: HeadersInit): Response {
-  return Response.json(body, { status, headers });
+function json(body: object, statusCode: number, headers: Record<string, string>): HandlerResponse {
+  return {
+    statusCode,
+    headers: {
+      ...headers,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  };
 }

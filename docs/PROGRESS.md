@@ -7,7 +7,7 @@
 - Implemented a complete start-run-to-death-or-victory loop.
 - Added nine weapons, categorized progression definitions, ten regular enemies, two elites, and one boss.
 - Added run rewards, versioned local save data, and three permanent upgrades.
-- Added strict type checking, linting, 110 pure-logic tests, production build, and a Chrome smoke test.
+- Added strict type checking, linting, 112 automated tests, production build, and a Chrome smoke test.
 - Added save-backed feedback and volume settings plus procedural placeholder audio.
 - Added spatial-hash enemy separation and a phased Warden soul-prison attack.
 - Reduced the production build from roughly 106 MB to roughly 22 MB by shipping only referenced art.
@@ -61,7 +61,8 @@
 - Added Forbidden Tutelage with visible XP gain and explicit bounded threat-power cost, plus the F10 Upgrade Effects Lab and deterministic effect-rule coverage.
 - Added Headsman's Procession so Bloodletter projectile count creates multiple returning throws and strengthens Crimson Orbit from three baseline axes up to five with wider bounded coverage.
 - Kept unused focused weapon upgrades eligible after evolution as clearly labeled level-seven specializations, with level six reserved for explicit evolution and the F7 Crimson Orbit Lab applying axe-count stacks after evolution.
-- Added a thematic Tailwind landing page, lazy game launch/return flow, public Supabase damage and kill leaderboards, and bounded server-only score submission through a rate-limited Netlify Function.
+- Added a thematic Tailwind landing page, lazy game launch/return flow, public Supabase damage and kill leaderboards, and bounded server-only score submission through a Netlify Function.
+- Added a non-destructive leaderboard health endpoint and conservative Netlify Function packaging after live deployment diagnostics exposed a missing function route and an uncreated Supabase leaderboard table.
 
 ## Current State
 

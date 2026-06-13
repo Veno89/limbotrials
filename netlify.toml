@@ -6,6 +6,9 @@
 [build.environment]
   NODE_VERSION = "22"
 
+[functions]
+  directory = "netlify/functions"
+
 [[headers]]
   for = "/*"
   [headers.values]
@@ -15,6 +18,12 @@
 
 [[redirects]]
   from = "/api/leaderboard"
+  to = "/.netlify/functions/submit-score"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/leaderboard/"
   to = "/.netlify/functions/submit-score"
   status = 200
   force = true
