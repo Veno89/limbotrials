@@ -71,7 +71,15 @@ async function leaderboardHealth(headers: Record<string, string>): Promise<Handl
     .select('id', { count: 'exact', head: true });
 
   return error
-    ? json({ configured: true, databaseReachable: false }, 503, headers)
+    ? json(
+        {
+          configured: true,
+          databaseReachable: false,
+          databaseErrorCode: error.code || 'unknown',
+        },
+        503,
+        headers,
+      )
     : json({ configured: true, databaseReachable: true }, 200, headers);
 }
 

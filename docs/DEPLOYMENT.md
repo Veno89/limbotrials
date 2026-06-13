@@ -13,10 +13,9 @@ designed to deploy together from the repository root.
 The browser receives read-only access. Inserts happen only through the Netlify
 Function using a server-only secret key.
 
-The currently deployed function can reach `public.leaderboard_entries`, but the
-public browser read still returns `PGRST205`. The public and server URLs match, so
-rerun the complete SQL file in that project to apply the anonymous read grant,
-read policy, and PostgREST schema reload.
+The public browser read is confirmed healthy after applying the complete SQL file.
+The health endpoint also returns a non-sensitive Supabase error code when the
+server-only score submission connection needs attention.
 
 ## 2. Netlify Build Settings
 
@@ -49,11 +48,11 @@ Add these in Netlify under **Site configuration > Environment variables**:
 Never prefix the secret key with `VITE_`; Vite-prefixed values are embedded in the
 public browser bundle. Trigger a new deploy after changing build-time variables.
 
-All five production variables are present on the current site, and the public and
-server Supabase URLs match. The remaining required dashboard work is:
+All five production variables must be present on the current site. The public and
+server Supabase URLs must point to the same project.
 
-1. Rerun `supabase/leaderboard.sql` in the matching Supabase project.
-2. Reload the landing page and confirm the public leaderboard becomes available.
+1. Reload the landing page and confirm the public leaderboard is available.
+2. Open the health endpoint and confirm the server connection is healthy.
 
 A new Netlify deploy is only required after changing an environment variable or
 application code. Applying the SQL takes effect without a redeploy.
