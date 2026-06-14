@@ -17,7 +17,7 @@ browser.
 - Run-only artifacts, themed reliquaries, curses, rare powerups, and a blood shrine
 - Categorized upgrade offers, rerolls, skip rewards, weapon synergies, and permanent progression
 - Source-aware combat telemetry, multi-tab balance reports, JSON export, and deterministic balance labs
-- Tailwind landing page, public Supabase leaderboard, and bounded Netlify Function score submissions
+- Tailwind landing page, public Supabase leaderboard, private run analytics, and bounded Netlify Function submissions
 - Strict TypeScript, Vitest coverage, ESLint, production builds, and a full browser smoke test
 
 Development status, known issues, and the next recommended work are tracked in
@@ -96,6 +96,7 @@ scripting or monolithic scene files. Start with
 - [Next combat expansion](docs/NEXT_COMBAT_EXPANSION.md)
 - [Longer-term roadmap](docs/ROADMAP.md)
 - [Netlify and Supabase deployment](docs/DEPLOYMENT.md)
+- [Run analytics and persistence boundaries](docs/RUN_ANALYTICS.md)
 
 ## Repository Notes
 

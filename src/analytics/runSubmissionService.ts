@@ -1,0 +1,78 @@
+import type { RunSummary } from '../game/types/gameTypes';
+import { loadPlayerName } from '../leaderboard/playerIdentity';
+import { createRunRecordSubmission } from './runSubmissionRules';
+
+export interface RunSubmissionResult {
+  status: 'recorded' | 'partial' | 'failed';
+  analyticsRecorded: boolean;
+  leaderboardRecorded: boolean;
+  message: string;
+}
+
+export async function submitCompletedRun(summary: RunSummary): Promise<RunSubmissionResult> {
+  const playerName = loadPlayerName();
+  const submission = createRunRecordSubmission(summary, playerName);
+
+  try {
+    const response = await fetch('/api/runs', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(submission),
+    });
+    const result = await readResponse(response);
+    if (!response.ok) {
+      return {
+        status: result.analyticsRecorded ? 'partial' : 'failed',
+        analyticsRecorded: result.analyticsRecorded,
+        leaderboardRecorded: result.leaderboardRecorded,
+        message: result.error ?? 'The run could not be recorded.',
+      };
+    }
+    if (!result.leaderboardEligible) {
+      return {
+        status: 'recorded',
+        analyticsRecorded: true,
+        leaderboardRecorded: false,
+        message: 'Run analytics recorded. Set a name on the site to enter the leaderboard.',
+      };
+    }
+    return {
+      status: 'recorded',
+      analyticsRecorded: true,
+      leaderboardRecorded: true,
+      message: 'Run analytics and leaderboard score recorded.',
+    };
+  } catch {
+    return {
+      status: 'failed',
+      analyticsRecorded: false,
+      leaderboardRecorded: false,
+      message: 'Global run recording could not be reached.',
+    };
+  }
+}
+
+interface RunSubmissionResponse {
+  analyticsRecorded: boolean;
+  leaderboardRecorded: boolean;
+  leaderboardEligible: boolean;
+  error?: string;
+}
+
+async function readResponse(response: Response): Promise<RunSubmissionResponse> {
+  try {
+    const value = await response.json() as Partial<RunSubmissionResponse>;
+    return {
+      analyticsRecorded: value.analyticsRecorded === true,
+      leaderboardRecorded: value.leaderboardRecorded === true,
+      leaderboardEligible: value.leaderboardEligible === true,
+      ...(typeof value.error === 'string' ? { error: value.error } : {}),
+    };
+  } catch {
+    return {
+      analyticsRecorded: false,
+      leaderboardRecorded: false,
+      leaderboardEligible: false,
+    };
+  }
+}

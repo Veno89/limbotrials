@@ -6,6 +6,7 @@ import ashwalkerImage from '../../assets/sprites/playersprites/Arcanist.png?url'
 import reliquaryImage from '../../assets/sprites/items/reliquary_chest.png?url';
 import voidSwordImage from '../../assets/sprites/items/icon_sword_void.png?url';
 import { loadPlayerName, savePlayerName } from '../leaderboard/playerIdentity';
+import { parsePlayerName } from '../leaderboard/scoreSubmissionRules';
 import { mountLeaderboardPanel } from './leaderboardPanel';
 
 export function renderLandingPage(root: HTMLElement, onStart: () => void): void {
@@ -77,13 +78,13 @@ export function renderLandingPage(root: HTMLElement, onStart: () => void): void 
                     data-player-name
                     maxlength="24"
                     autocomplete="nickname"
-                    placeholder="Optional: enter a name"
+                    placeholder="Enter a name for public records"
                     class="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm text-fog outline-none placeholder:text-mist/40"
                   />
                   <span data-name-status class="px-4 text-[10px] uppercase tracking-[0.14em] text-mist/55">Local only</span>
                 </div>
                 <p class="mt-2 text-xs leading-5 text-mist/55">
-                  Completed standard runs submit automatically when a name is set.
+                  Every standard run contributes private balance analytics. Add a name to also enter the public leaderboard.
                 </p>
               </div>
             </div>
@@ -211,7 +212,7 @@ export function renderLandingPage(root: HTMLElement, onStart: () => void): void 
     input.value = loadPlayerName();
     updateNameStatus(status, input.value);
     input.addEventListener('input', () => {
-      updateNameStatus(status, input.value);
+      updateNameStatus(status, savePlayerName(input.value));
     });
     input.addEventListener('change', () => {
       input.value = savePlayerName(input.value);
@@ -225,8 +226,9 @@ function updateNameStatus(status: HTMLElement | null, value: string): void {
   if (!status) {
     return;
   }
-  status.textContent = value.length >= 2 ? 'Runs submit' : 'Local only';
-  status.classList.toggle('text-soul', value.length >= 2);
+  const valid = Boolean(parsePlayerName(value));
+  status.textContent = valid ? 'Runs submit' : 'Analytics only';
+  status.classList.toggle('text-soul', valid);
 }
 
 function statCard(value: string, label: string): string {

@@ -24,16 +24,12 @@ export function parseScoreSubmission(input: unknown): ScoreSubmission | undefine
     return undefined;
   }
   const value = input as Record<string, unknown>;
-  const playerName = typeof value.playerName === 'string'
-    ? value.playerName.trim().replace(/\s+/g, ' ')
-    : '';
+  const playerName = parsePlayerName(value.playerName);
 
   if (
     typeof value.runId !== 'string' ||
     !UUID_PATTERN.test(value.runId) ||
-    playerName.length < 2 ||
-    playerName.length > SCORE_LIMITS.maxPlayerNameLength ||
-    !PLAYER_NAME_PATTERN.test(playerName) ||
+    !playerName ||
     !isBoundedInteger(value.damageDealt, SCORE_LIMITS.maxDamageDealt) ||
     !isBoundedInteger(value.enemiesKilled, SCORE_LIMITS.maxEnemiesKilled) ||
     !isBoundedInteger(value.survivalMs, SCORE_LIMITS.maxSurvivalMs) ||
@@ -53,6 +49,18 @@ export function parseScoreSubmission(input: unknown): ScoreSubmission | undefine
     characterId: value.characterId,
     victory: value.victory,
   };
+}
+
+export function parsePlayerName(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+  const playerName = value.trim().replace(/\s+/g, ' ');
+  return playerName.length >= 2 &&
+    playerName.length <= SCORE_LIMITS.maxPlayerNameLength &&
+    PLAYER_NAME_PATTERN.test(playerName)
+    ? playerName
+    : undefined;
 }
 
 function isBoundedInteger(value: unknown, maximum: number): value is number {

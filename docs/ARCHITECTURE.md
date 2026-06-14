@@ -158,9 +158,14 @@ while `site/leaderboardPanel.ts` owns leaderboard rendering and interaction.
 
 The public browser client reads `leaderboard_entries` through Supabase using the
 publishable key. Completed standard runs submit through the bounded
-`netlify/functions/submit-score.ts` endpoint, which owns the server-only secret key.
-Pure score limits and parsing live in `leaderboard/scoreSubmissionRules.ts` so the
-function boundary remains deterministic and tested.
+`netlify/functions/submit-run.ts` endpoint, which owns the server-only secret key.
+`analytics/runSubmissionRules.ts` validates and size-bounds the complete run record.
+The function privately stores full run analytics and conditionally writes a public
+leaderboard row when a valid player name is present.
+
+Permanent progression remains in the versioned local `SaveSystem`. Moving it to
+Supabase requires authenticated ownership and user-specific RLS; it must not share
+the anonymous run-analytics write boundary.
 
 ## Add An Enemy
 

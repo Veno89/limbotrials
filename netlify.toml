@@ -18,13 +18,25 @@
 
 [[redirects]]
   from = "/api/leaderboard"
-  to = "/.netlify/functions/submit-score"
+  to = "/.netlify/functions/submit-run"
   status = 200
   force = true
 
 [[redirects]]
   from = "/api/leaderboard/"
-  to = "/.netlify/functions/submit-score"
+  to = "/.netlify/functions/submit-run"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/runs"
+  to = "/.netlify/functions/submit-run"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/runs/"
+  to = "/.netlify/functions/submit-run"
   status = 200
   force = true
 

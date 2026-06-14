@@ -1,6 +1,9 @@
 import type { HandlerEvent } from '@netlify/functions';
 import { afterEach, describe, expect, it } from 'vitest';
-import { handler } from '../../netlify/functions/submit-score';
+import { handler } from '../../netlify/functions/submit-run';
+import { createDefaultSave } from '../game/systems/SaveSystem';
+import { RunState } from '../game/systems/RunState';
+import { createRunRecordSubmission } from './runSubmissionRules';
 
 const originalEnvironment = {
   SUPABASE_URL: process.env.SUPABASE_URL,
@@ -14,7 +17,7 @@ afterEach(() => {
   restoreEnvironment('SUPABASE_SERVICE_ROLE_KEY', originalEnvironment.SUPABASE_SERVICE_ROLE_KEY);
 });
 
-describe('leaderboard Netlify Function', () => {
+describe('run-recording Netlify Function', () => {
   it('reports an unconfigured health state without exposing environment details', async () => {
     delete process.env.SUPABASE_URL;
     delete process.env.SUPABASE_SECRET_KEY;
@@ -26,19 +29,35 @@ describe('leaderboard Netlify Function', () => {
     expect(JSON.parse(response?.body ?? '')).toEqual({ configured: false, databaseReachable: false });
   });
 
-  it('rejects malformed score submissions before contacting Supabase', async () => {
+  it('rejects malformed run submissions before contacting Supabase', async () => {
     const response = await handler(event('POST', '{}'), {} as never);
 
     expect(response?.statusCode).toBe(400);
-    expect(JSON.parse(response?.body ?? '')).toEqual({ error: 'Invalid score submission.' });
+    expect(JSON.parse(response?.body ?? '')).toEqual({ error: 'Invalid run submission.' });
+  });
+
+  it('accepts a bounded full run record before checking server configuration', async () => {
+    delete process.env.SUPABASE_URL;
+    delete process.env.SUPABASE_SECRET_KEY;
+    delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const submission = createRunRecordSubmission(
+      new RunState(createDefaultSave()).summary(false),
+      'Veno 89',
+      'c2c75283-aeee-49b8-96f2-b07a2c55a6b4',
+    );
+
+    const response = await handler(event('POST', JSON.stringify(submission)), {} as never);
+
+    expect(response?.statusCode).toBe(503);
+    expect(JSON.parse(response?.body ?? '')).toEqual({ error: 'Run recording service is not configured.' });
   });
 });
 
 function event(httpMethod: string, body: string | null = null): HandlerEvent {
   return {
-    rawUrl: 'https://limbotrials.netlify.app/api/leaderboard',
+    rawUrl: 'https://limbotrials.netlify.app/api/runs',
     rawQuery: '',
-    path: '/api/leaderboard',
+    path: '/api/runs',
     httpMethod,
     headers: {
       origin: 'https://limbotrials.netlify.app',

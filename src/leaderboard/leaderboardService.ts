@@ -1,7 +1,4 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { RunSummary } from '../game/types/gameTypes';
-import { loadPlayerName } from './playerIdentity';
-import { parseScoreSubmission } from './scoreSubmissionRules';
 import type { LeaderboardEntry, LeaderboardMetric, LeaderboardResult } from './leaderboardTypes';
 
 const LEADERBOARD_TABLE = 'leaderboard_entries';
@@ -35,36 +32,6 @@ export async function loadLeaderboard(metric: LeaderboardMetric): Promise<Leader
     status: 'ready',
     entries: (data ?? []) as LeaderboardEntry[],
   };
-}
-
-export async function submitRunScore(summary: RunSummary): Promise<void> {
-  const playerName = loadPlayerName();
-  if (!playerName || summary.balance.presetId !== 'standard') {
-    return;
-  }
-  const submission = parseScoreSubmission({
-    runId: crypto.randomUUID(),
-    playerName,
-    damageDealt: Math.round(summary.balance.totalDamageDealt),
-    enemiesKilled: summary.kills,
-    survivalMs: Math.round(summary.elapsedMs),
-    characterId: summary.characterId,
-    victory: summary.victory,
-  });
-  if (!submission) {
-    return;
-  }
-
-  try {
-    await fetch('/api/leaderboard', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(submission),
-      keepalive: true,
-    });
-  } catch {
-    // A failed public leaderboard submission must never interrupt the end-of-run flow.
-  }
 }
 
 function getSupabaseClient(): SupabaseClient | undefined {

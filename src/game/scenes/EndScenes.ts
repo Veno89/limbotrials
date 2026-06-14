@@ -5,6 +5,7 @@ import { addButton, addTitle, formatTime } from '../ui/uiHelpers';
 import { WEAPONS } from '../data/weapons';
 import { CHARACTERS } from '../data/characters';
 import { FEATURE_FLAGS } from '../config/featureFlags';
+import { submitCompletedRun } from '../../analytics/runSubmissionService';
 
 abstract class EndScene extends Phaser.Scene {
   private summary!: RunSummary;
@@ -69,6 +70,24 @@ abstract class EndScene extends Phaser.Scene {
           align: 'center',
         })
         .setOrigin(0.5);
+    }
+    if (this.summary.balance.presetId === 'standard') {
+      const submissionStatus = this.add
+        .text(GAME_WIDTH / 2, 625, 'RECORDING RUN...', {
+          fontFamily: 'Cinzel, serif',
+          fontSize: '11px',
+          color: '#9fb8c2',
+          align: 'center',
+        })
+        .setOrigin(0.5);
+      void submitCompletedRun(this.summary).then((result) => {
+        if (!submissionStatus.active) {
+          return;
+        }
+        submissionStatus
+          .setText(result.message.toUpperCase())
+          .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
+      });
     }
     addButton(this, GAME_WIDTH / 2, 490, 'BALANCE REPORT', () => {
       this.scene.pause();

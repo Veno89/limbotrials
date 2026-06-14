@@ -1,0 +1,90 @@
+# Run Analytics
+
+Completed standard runs are submitted to `public.run_analytics` through the
+server-only Netlify Function. The table stores useful indexed summary columns plus
+the complete local `RunSummary` as JSONB, including the balance report that was
+previously copied into `docs/data.md`.
+
+Anonymous runs are accepted for balance analysis. A valid saved player name also
+creates a row in the public `leaderboard_entries` table using the same `run_id`.
+
+## Privacy And Access
+
+- Browser clients cannot read or write `run_analytics`.
+- Only the Netlify Function's `service_role` may select or insert analytics rows.
+- The optional leaderboard name is the only player-provided identity stored.
+- The public leaderboard remains read-only for browser clients.
+
+Use the Supabase SQL Editor or authenticated administrative tooling to analyze
+private run data.
+
+## Useful Queries
+
+Recent runs:
+
+```sql
+select
+  created_at,
+  player_name,
+  character_id,
+  victory,
+  survival_ms,
+  enemies_killed,
+  damage_dealt,
+  level_reached
+from public.run_analytics
+order by created_at desc
+limit 50;
+```
+
+Overall difficulty:
+
+```sql
+select
+  count(*) as runs,
+  round(avg(survival_ms) / 60000.0, 2) as average_minutes,
+  round(avg(enemies_killed), 1) as average_kills,
+  round(avg(damage_dealt), 1) as average_damage,
+  round(100.0 * avg(victory::int), 1) as victory_percent
+from public.run_analytics;
+```
+
+Weapon performance across recorded runs:
+
+```sql
+select
+  weapon ->> 'id' as weapon_id,
+  count(*) as runs_equipped,
+  round(avg((weapon ->> 'damage')::numeric), 1) as average_damage,
+  round(avg((weapon ->> 'dps')::numeric), 1) as average_dps,
+  sum((weapon ->> 'kills')::integer) as total_kills
+from public.run_analytics
+cross join lateral jsonb_array_elements(
+  run_summary -> 'balance' -> 'weaponResults'
+) as weapon
+group by weapon_id
+order by average_damage desc;
+```
+
+Most common death sources:
+
+```sql
+select
+  run_summary #>> '{balance,deathSource}' as death_source,
+  count(*) as deaths
+from public.run_analytics
+where victory = false
+group by death_source
+order by deaths desc;
+```
+
+## Player Progression
+
+Unlocks, souls, meta-upgrade levels, character statistics, and settings remain in
+the versioned local save. That is the correct boundary while the game has no
+accounts: a public database save endpoint would not have a trustworthy owner.
+
+Reliable cross-device or recoverable cloud saves should be a separate future
+system built on Supabase Auth. Each authenticated user would own one save row
+protected by user-specific Row Level Security. Local storage can then remain an
+offline cache and migration source.
