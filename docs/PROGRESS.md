@@ -7,7 +7,7 @@
 - Implemented a complete start-run-to-death-or-victory loop.
 - Added nine weapons, categorized progression definitions, ten regular enemies, two elites, and one boss.
 - Added run rewards, versioned local save data, and three permanent upgrades.
-- Added strict type checking, linting, 117 automated tests, production build, and a Chrome smoke test.
+- Added strict type checking, linting, 118 automated tests, production build, and a Chrome smoke test.
 - Added save-backed feedback and volume settings plus procedural placeholder audio.
 - Added spatial-hash enemy separation and a phased Warden soul-prison attack.
 - Reduced the production build from roughly 106 MB to roughly 22 MB by shipping only referenced art.
@@ -64,6 +64,7 @@
 - Added a thematic Tailwind landing page, lazy game launch/return flow, public Supabase damage and kill leaderboards, and bounded server-only score submission through a Netlify Function.
 - Added a non-destructive leaderboard health endpoint and conservative Netlify Function packaging after live deployment diagnostics exposed a missing function route and an uncreated Supabase leaderboard table.
 - Added private Supabase run analytics, combined bounded run submissions, visible result-screen submission status, and persistent typed leaderboard names.
+- Added an end-screen leaderboard-name form and idempotent run submissions so anonymous analytics can become a named public score without duplication.
 
 ## Current State
 

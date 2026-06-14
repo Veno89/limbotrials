@@ -85,6 +85,8 @@ not emulate the Netlify Function.
    anonymous inserts into both Supabase tables fail.
 7. Confirm the result screen reports that analytics and the named leaderboard
    score were recorded.
+8. Finish a run without a saved name, enter one on the result screen, and confirm
+   the same run appears on the public leaderboard without a duplicate analytics row.
 
 ## Troubleshooting
 

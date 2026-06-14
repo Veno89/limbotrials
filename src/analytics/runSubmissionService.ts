@@ -9,10 +9,21 @@ export interface RunSubmissionResult {
   message: string;
 }
 
-export async function submitCompletedRun(summary: RunSummary): Promise<RunSubmissionResult> {
-  const playerName = loadPlayerName();
-  const submission = createRunRecordSubmission(summary, playerName);
+export interface RunSubmissionSession {
+  submit(playerName?: string): Promise<RunSubmissionResult>;
+}
 
+export function createRunSubmissionSession(summary: RunSummary): RunSubmissionSession {
+  const runId = crypto.randomUUID();
+  return {
+    submit: (playerName = loadPlayerName()) =>
+      submitRunRecord(createRunRecordSubmission(summary, playerName, runId)),
+  };
+}
+
+async function submitRunRecord(
+  submission: ReturnType<typeof createRunRecordSubmission>,
+): Promise<RunSubmissionResult> {
   try {
     const response = await fetch('/api/runs', {
       method: 'POST',

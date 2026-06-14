@@ -124,3 +124,57 @@ input {
 body.game-running {
   overflow: hidden;
 }
+
+.result-name-form {
+  width: 520px;
+  color: #9aadb5;
+  font-family: "Cinzel", serif;
+  text-align: center;
+}
+
+.result-name-form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #c7a76a;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+}
+
+.result-name-form div {
+  display: grid;
+  grid-template-columns: 1fr 170px;
+  border: 1px solid rgb(154 173 181 / 35%);
+  background: rgb(5 7 9 / 88%);
+}
+
+.result-name-form input,
+.result-name-form button {
+  min-height: 42px;
+  border: 0;
+  color: #e1e8ea;
+  outline: 0;
+}
+
+.result-name-form input {
+  min-width: 0;
+  padding: 0 14px;
+  background: transparent;
+}
+
+.result-name-form button {
+  border-left: 1px solid rgb(154 173 181 / 35%);
+  background: rgb(18 27 32 / 96%);
+  font-size: 11px;
+  letter-spacing: 0.13em;
+  cursor: pointer;
+}
+
+.result-name-form button:disabled {
+  color: rgb(154 173 181 / 45%);
+  cursor: not-allowed;
+}
+
+.result-name-form button:not(:disabled):hover {
+  color: #69d9ff;
+  background: rgb(24 36 43 / 96%);
+}

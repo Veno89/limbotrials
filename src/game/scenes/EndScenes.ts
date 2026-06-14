@@ -5,10 +5,12 @@ import { addButton, addTitle, formatTime } from '../ui/uiHelpers';
 import { WEAPONS } from '../data/weapons';
 import { CHARACTERS } from '../data/characters';
 import { FEATURE_FLAGS } from '../config/featureFlags';
-import { submitCompletedRun } from '../../analytics/runSubmissionService';
+import { createRunSubmissionSession, type RunSubmissionResult } from '../../analytics/runSubmissionService';
+import { ResultLeaderboardForm } from '../ui/ResultLeaderboardForm';
 
 abstract class EndScene extends Phaser.Scene {
   private summary!: RunSummary;
+  private nameForm?: ResultLeaderboardForm;
   protected abstract readonly victory: boolean;
 
   init(summary: RunSummary): void {
@@ -49,7 +51,7 @@ abstract class EndScene extends Phaser.Scene {
       .map((result) => `${WEAPONS[result.id].name.toUpperCase()}  ${result.damage} DMG  ${result.kills} KILLS`)
       .join('\n');
     this.add
-      .text(GAME_WIDTH / 2, 390, weaponResults, {
+      .text(GAME_WIDTH / 2, 365, weaponResults, {
         fontFamily: 'Cinzel, serif',
         fontSize: '13px',
         color: '#9fb8c2',
@@ -63,7 +65,7 @@ abstract class EndScene extends Phaser.Scene {
     ];
     if (unlocks.length > 0) {
       this.add
-        .text(GAME_WIDTH / 2, 440, unlocks.join('\n'), {
+        .text(GAME_WIDTH / 2, 410, unlocks.join('\n'), {
           fontFamily: 'Cinzel, serif',
           fontSize: '14px',
           color: '#d8c49b',
@@ -72,29 +74,35 @@ abstract class EndScene extends Phaser.Scene {
         .setOrigin(0.5);
     }
     if (this.summary.balance.presetId === 'standard') {
+      const session = createRunSubmissionSession(this.summary);
       const submissionStatus = this.add
-        .text(GAME_WIDTH / 2, 625, 'RECORDING RUN...', {
+        .text(GAME_WIDTH / 2, 685, 'RECORDING RUN...', {
           fontFamily: 'Cinzel, serif',
           fontSize: '11px',
           color: '#9fb8c2',
           align: 'center',
         })
         .setOrigin(0.5);
-      void submitCompletedRun(this.summary).then((result) => {
-        if (!submissionStatus.active) {
-          return;
+      const showResult = (result: RunSubmissionResult): void => {
+        if (submissionStatus.active) {
+          submissionStatus
+            .setText(result.message.toUpperCase())
+            .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
         }
-        submissionStatus
-          .setText(result.message.toUpperCase())
-          .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
+      };
+      this.nameForm = new ResultLeaderboardForm(this, session, showResult);
+      void session.submit().then(showResult);
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+        this.nameForm?.destroy();
+        this.nameForm = undefined;
       });
     }
-    addButton(this, GAME_WIDTH / 2, 490, 'BALANCE REPORT', () => {
+    addButton(this, GAME_WIDTH / 2, 470, 'BALANCE REPORT', () => {
       this.scene.pause();
       this.scene.launch('BalanceReportScene', { summary: this.summary, returnScene: this.scene.key });
     }, 320);
-    addButton(this, 455, 565, 'RETURN TO LIMBO', () => this.scene.start('MainMenuScene'), 320);
-    addButton(this, 825, 565, 'TRY AGAIN', () => {
+    addButton(this, 455, 625, 'RETURN TO LIMBO', () => this.scene.start('MainMenuScene'), 320);
+    addButton(this, 825, 625, 'TRY AGAIN', () => {
       this.scene.start(FEATURE_FLAGS.characters ? 'CharacterSelectScene' : 'GameScene');
     }, 320);
   }
