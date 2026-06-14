@@ -1,5 +1,4 @@
 import type { RunSummary } from '../game/types/gameTypes';
-import { loadPlayerName } from '../leaderboard/playerIdentity';
 import { createRunRecordSubmission } from './runSubmissionRules';
 
 export interface RunSubmissionResult {
@@ -16,7 +15,7 @@ export interface RunSubmissionSession {
 export function createRunSubmissionSession(summary: RunSummary): RunSubmissionSession {
   const runId = crypto.randomUUID();
   return {
-    submit: (playerName = loadPlayerName()) =>
+    submit: (playerName = '') =>
       submitRunRecord(createRunRecordSubmission(summary, playerName, runId)),
   };
 }
@@ -44,7 +43,7 @@ async function submitRunRecord(
         status: 'recorded',
         analyticsRecorded: true,
         leaderboardRecorded: false,
-        message: 'Run analytics recorded. Set a name on the site to enter the leaderboard.',
+        message: 'Run analytics recorded. Submit a name above to publish this score.',
       };
     }
     return {

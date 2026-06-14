@@ -68,7 +68,7 @@ not emulate the Netlify Function.
 1. Open `https://limbotrials.netlify.app`.
 2. Confirm the leaderboard reports `LIVE RECORDS` or `NO SOULS RECORDED`, not
    `AWAITING SUPABASE`.
-3. Enter a leaderboard name and complete or end a standard run.
+3. Complete or end a standard run, enter a name on the result screen, and publish the score.
 4. Return to the landing page and confirm the score appears under damage and kills.
 5. Open `https://limbotrials.netlify.app/api/runs` and confirm it returns:
 

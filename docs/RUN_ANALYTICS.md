@@ -5,11 +5,11 @@ server-only Netlify Function. The table stores useful indexed summary columns pl
 the complete local `RunSummary` as JSONB, including the balance report that was
 previously copied into `docs/data.md`.
 
-Anonymous runs are accepted for balance analysis. A valid saved player name also
-creates a row in the public `leaderboard_entries` table using the same `run_id`.
-The result screen always offers a leaderboard-name form. Entering a name after an
-anonymous analytics submission safely reuses the same run ID for the leaderboard
-without creating a second analytics record.
+Every standard run is first recorded anonymously for balance analysis. The result
+screen then offers an optional leaderboard-name form. Explicitly publishing the
+score creates a public `leaderboard_entries` row using the same `run_id`, without
+creating a second analytics record. The landing page only displays the leaderboard
+and does not submit or change scores.
 
 ## Privacy And Access
 

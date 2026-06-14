@@ -5,8 +5,6 @@ import penitentImage from '../../assets/sprites/playersprites/bulwark.png?url';
 import ashwalkerImage from '../../assets/sprites/playersprites/Arcanist.png?url';
 import reliquaryImage from '../../assets/sprites/items/reliquary_chest.png?url';
 import voidSwordImage from '../../assets/sprites/items/icon_sword_void.png?url';
-import { loadPlayerName, savePlayerName } from '../leaderboard/playerIdentity';
-import { parsePlayerName } from '../leaderboard/scoreSubmissionRules';
 import { mountLeaderboardPanel } from './leaderboardPanel';
 
 export function renderLandingPage(root: HTMLElement, onStart: () => void): void {
@@ -67,25 +65,6 @@ export function renderLandingPage(root: HTMLElement, onStart: () => void): void 
                   <span class="block font-display text-sm font-bold tracking-[0.2em] text-fog">VIEW THE FALLEN</span>
                   <span class="mt-1 block text-xs text-mist">Damage and kill records</span>
                 </a>
-              </div>
-              <div class="mt-10 max-w-xl border-l border-relic/45 pl-5">
-                <label for="leaderboard-name" class="font-display text-[10px] font-bold uppercase tracking-[0.2em] text-relic">
-                  Name carved into the leaderboard
-                </label>
-                <div class="mt-3 flex items-center border-b border-mist/25 bg-abyss/35">
-                  <input
-                    id="leaderboard-name"
-                    data-player-name
-                    maxlength="24"
-                    autocomplete="nickname"
-                    placeholder="Enter a name for public records"
-                    class="min-w-0 flex-1 bg-transparent px-4 py-3 text-sm text-fog outline-none placeholder:text-mist/40"
-                  />
-                  <span data-name-status class="px-4 text-[10px] uppercase tracking-[0.14em] text-mist/55">Local only</span>
-                </div>
-                <p class="mt-2 text-xs leading-5 text-mist/55">
-                  Every standard run contributes private balance analytics. Add a name to also enter the public leaderboard.
-                </p>
               </div>
             </div>
 
@@ -164,6 +143,7 @@ export function renderLandingPage(root: HTMLElement, onStart: () => void): void 
               <div data-leaderboard-body></div>
             </div>
             <p class="mx-auto mt-5 max-w-3xl text-center text-xs leading-6 text-mist/50">
+              Scores are published explicitly from the in-game result screen after each run.
               Leaderboard submissions are bounded and validated server-side. Because the game runs
               in the browser, public scores should be treated as playtest records rather than cheat-proof competition.
             </p>
@@ -206,29 +186,7 @@ export function renderLandingPage(root: HTMLElement, onStart: () => void): void 
     button.addEventListener('click', onStart);
   }
 
-  const input = root.querySelector<HTMLInputElement>('[data-player-name]');
-  const status = root.querySelector<HTMLElement>('[data-name-status]');
-  if (input) {
-    input.value = loadPlayerName();
-    updateNameStatus(status, input.value);
-    input.addEventListener('input', () => {
-      updateNameStatus(status, savePlayerName(input.value));
-    });
-    input.addEventListener('change', () => {
-      input.value = savePlayerName(input.value);
-      updateNameStatus(status, input.value);
-    });
-  }
   mountLeaderboardPanel(root);
-}
-
-function updateNameStatus(status: HTMLElement | null, value: string): void {
-  if (!status) {
-    return;
-  }
-  const valid = Boolean(parsePlayerName(value));
-  status.textContent = valid ? 'Runs submit' : 'Analytics only';
-  status.classList.toggle('text-soul', valid);
 }
 
 function statCard(value: string, label: string): string {

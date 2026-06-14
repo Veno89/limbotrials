@@ -140,11 +140,20 @@ body.game-running {
   letter-spacing: 0.18em;
 }
 
-.result-name-form div {
+.result-name-form > div {
   display: grid;
   grid-template-columns: 1fr 170px;
-  border: 1px solid rgb(154 173 181 / 35%);
+  border: 1px solid rgb(199 167 106 / 55%);
   background: rgb(5 7 9 / 88%);
+  box-shadow: 0 0 30px rgb(199 167 106 / 10%);
+}
+
+.result-name-form p {
+  margin: 7px 0 0;
+  color: rgb(154 173 181 / 70%);
+  font-family: "Inter", sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.03em;
 }
 
 .result-name-form input,
@@ -177,4 +186,9 @@ body.game-running {
 .result-name-form button:not(:disabled):hover {
   color: #69d9ff;
   background: rgb(24 36 43 / 96%);
+}
+
+.result-name-form--recorded label,
+.result-name-form--recorded button {
+  color: #69d9ff;
 }

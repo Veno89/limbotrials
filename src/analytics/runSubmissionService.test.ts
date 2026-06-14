@@ -20,7 +20,7 @@ describe('run submission session', () => {
     }));
 
     const session = createRunSubmissionSession(new RunState(createDefaultSave()).summary(false));
-    await session.submit('');
+    await session.submit();
     await session.submit('Veno 89');
 
     expect(requests).toHaveLength(2);

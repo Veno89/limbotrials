@@ -16,7 +16,7 @@ export class ResultLeaderboardForm {
     this.root = document.createElement('form');
     this.root.className = 'result-name-form';
     this.root.innerHTML = `
-      <label for="result-leaderboard-name">CARVE YOUR NAME INTO THE LEDGER</label>
+      <label for="result-leaderboard-name">PUBLISH THIS RUN TO THE LEDGER</label>
       <div>
         <input
           id="result-leaderboard-name"
@@ -24,8 +24,9 @@ export class ResultLeaderboardForm {
           autocomplete="nickname"
           placeholder="Enter leaderboard name"
         />
-        <button type="submit">SUBMIT SCORE</button>
+        <button type="submit">PUBLISH SCORE</button>
       </div>
+      <p>Private balance analytics are saved automatically. Publishing the score is optional.</p>
     `;
     this.input = this.root.querySelector('input')!;
     this.button = this.root.querySelector('button')!;
@@ -33,7 +34,6 @@ export class ResultLeaderboardForm {
     this.updateButton();
 
     this.input.addEventListener('input', () => {
-      this.input.value = savePlayerName(this.input.value);
       this.updateButton();
     });
     this.root.addEventListener('submit', (event) => {
@@ -43,10 +43,15 @@ export class ResultLeaderboardForm {
         this.updateButton();
         return;
       }
+      this.input.value = savePlayerName(playerName);
       this.setPending(true);
       void session.submit(playerName).then((result) => {
         if (this.root.isConnected) {
-          this.setPending(false);
+          if (result.leaderboardRecorded) {
+            this.setRecorded();
+          } else {
+            this.setPending(false);
+          }
           onResult(result);
         }
       });
@@ -62,7 +67,14 @@ export class ResultLeaderboardForm {
   private setPending(pending: boolean): void {
     this.input.disabled = pending;
     this.button.disabled = pending;
-    this.button.textContent = pending ? 'RECORDING...' : 'SUBMIT SCORE';
+    this.button.textContent = pending ? 'PUBLISHING...' : 'PUBLISH SCORE';
+  }
+
+  private setRecorded(): void {
+    this.root.classList.add('result-name-form--recorded');
+    this.input.disabled = true;
+    this.button.disabled = true;
+    this.button.textContent = 'SCORE PUBLISHED';
   }
 
   private updateButton(): void {
