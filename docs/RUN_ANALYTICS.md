@@ -21,6 +21,34 @@ without creating a second analytics record.
 Use the Supabase SQL Editor or authenticated administrative tooling to analyze
 private run data.
 
+## Local Workspace Access
+
+Copy `.env.example` to the ignored `.env` file and fill in `SUPABASE_URL` and
+`SUPABASE_SECRET_KEY`. The secret key must never use a `VITE_` prefix or be
+committed.
+
+Inspect the five latest runs without printing their full JSON summaries:
+
+```powershell
+npm run analytics:latest
+```
+
+Inspect one full stored run summary:
+
+```powershell
+npm run analytics:latest -- --limit=1 --full
+```
+
+Filter by an exact run ID:
+
+```powershell
+npm run analytics:latest -- --run-id=00000000-0000-0000-0000-000000000000 --full
+```
+
+The command performs read-only queries against `run_analytics` and never prints
+the configured credentials. Treat the local secret key as an administrator
+credential and rotate it immediately if it is exposed.
+
 ## Useful Queries
 
 Recent runs:
