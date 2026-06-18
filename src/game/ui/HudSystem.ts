@@ -120,7 +120,12 @@ export class HudSystem {
     );
     this.timerText.setText(formatTime(this.run.elapsedMs));
     const status = this.weapons.getActiveSynergies();
-    this.relicsText.setText(`UPGRADES ${this.totalRelics()}${status.length > 0 ? `\n${status.join('\n')}` : ''}`);
+    const curse = this.run.curse.snapshot();
+    this.relicsText.setText(
+      `CURSE ${curse.level}  ${curse.tierLabel.toUpperCase()}\nUPGRADES ${this.totalRelics()}${
+        status.length > 0 ? `\n${status.join('\n')}` : ''
+      }`,
+    );
     const healthRatio = this.run.health / this.run.stats.maxHealth;
     this.lowHealthVignette.setAlpha(healthRatio < 0.3 ? 0.2 + Math.sin(time * 0.008) * 0.08 : 0);
 

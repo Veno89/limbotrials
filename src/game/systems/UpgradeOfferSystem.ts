@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import type { UpgradeDefinition, UpgradeId, UpgradeOfferKind } from '../types/gameTypes';
+import type { AppliedRewardResult, UpgradeDefinition, UpgradeOfferKind } from '../types/gameTypes';
 import type { RunState } from './RunState';
 import { selectCurseChoices, selectUpgradeChoices } from './UpgradeSystem';
+import { mutateUpgradeChoices } from './CursedRewardMutationSystem';
 
 const OFFER_COPY: Record<UpgradeOfferKind, { title: string; subtitle: string; canSkip: boolean }> = {
   standard: {
@@ -23,7 +24,7 @@ export class UpgradeOfferSystem {
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly run: RunState,
-    private readonly onApplied: (id: UpgradeId) => void,
+    private readonly onApplied: (choice: UpgradeDefinition, result: AppliedRewardResult) => void,
     private readonly onSkipped: (souls: number) => void,
   ) {}
 
@@ -60,10 +61,11 @@ export class UpgradeOfferSystem {
       subtitle: copy.subtitle,
       rerolls: this.run.rerolls,
       canSkip: copy.canSkip,
-      onChoose: (id: UpgradeId) => {
-        if (this.run.applyUpgrade(id)) {
-          this.run.balance.recordChoice(kind, 'selected', this.run.elapsedMs, id);
-          this.onApplied(id);
+      onChoose: (choice: UpgradeDefinition) => {
+        const result = this.run.applyUpgradeChoice(choice);
+        if (result.applied) {
+          this.run.balance.recordChoice(kind, 'selected', this.run.elapsedMs, choice.id);
+          this.onApplied(choice, result);
         }
         this.finish();
       },
@@ -98,7 +100,8 @@ export class UpgradeOfferSystem {
       playerLevel: this.run.level,
       weaponCap: this.run.getWeaponCap(),
     };
-    return kind === 'curse' ? selectCurseChoices(context) : selectUpgradeChoices(context);
+    const choices = kind === 'curse' ? selectCurseChoices(context) : selectUpgradeChoices(context);
+    return mutateUpgradeChoices(choices, this.run.curse.snapshot(), kind);
   }
 
   private finish(): void {

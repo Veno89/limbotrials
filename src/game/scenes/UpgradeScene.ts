@@ -22,7 +22,7 @@ export interface UpgradeSceneData {
   subtitle: string;
   rerolls: number;
   canSkip: boolean;
-  onChoose: (id: UpgradeId) => void;
+  onChoose: (choice: UpgradeDefinition) => void;
   onReroll: () => UpgradeOfferUpdate | undefined;
   onSkip: () => void;
 }
@@ -93,16 +93,21 @@ export class UpgradeScene extends Phaser.Scene {
   }
 
   private createCard(choice: UpgradeDefinition, index: number, x: number, y: number): void {
-    const rarityColor =
-      choice.rarity === 'rare' ? 0xb687ed : choice.rarity === 'uncommon' ? 0x65cce8 : COLORS.border;
-    const categoryColor = CATEGORY_COLOR[choice.category];
+    const rarityColor = choice.curse
+      ? COLORS.blood
+      : choice.rarity === 'rare'
+        ? 0xb687ed
+        : choice.rarity === 'uncommon'
+          ? 0x65cce8
+          : COLORS.border;
+    const categoryColor = choice.curse ? COLORS.blood : CATEGORY_COLOR[choice.category];
     const panel = this.add
       .rectangle(x, y, 330, 390, COLORS.panel, 0.98)
       .setStrokeStyle(3, rarityColor)
       .setInteractive({ useHandCursor: true });
-    const rarityStrip = this.add.rectangle(x, y - 191, 326, 7, categoryColor, 0.9);
+    const rarityStrip = this.add.rectangle(x, y - 191, 326, 7, categoryColor, choice.curse ? 1 : 0.9);
     this.add
-      .text(x, y - 171, CATEGORY_LABEL[choice.category], {
+      .text(x, y - 171, choice.curse ? `CURSED ${CATEGORY_LABEL[choice.category]}` : CATEGORY_LABEL[choice.category], {
         fontFamily: 'Cinzel, serif',
         fontSize: '11px',
         color: `#${categoryColor.toString(16).padStart(6, '0')}`,
@@ -122,12 +127,23 @@ export class UpgradeScene extends Phaser.Scene {
     this.add
       .text(x, y + 58, this.descriptionFor(choice), {
         fontFamily: 'Inter, sans-serif',
-        fontSize: '15px',
+        fontSize: choice.curse ? '13px' : '15px',
         color: '#aabcc4',
         align: 'center',
         wordWrap: { width: 270 },
       })
       .setOrigin(0.5);
+    if (choice.curse) {
+      this.add
+        .text(x, y + 121, `CURSE +${choice.curse.curseGain}`, {
+          fontFamily: 'Cinzel, serif',
+          fontSize: '14px',
+          color: '#d26468',
+          stroke: '#050708',
+          strokeThickness: 3,
+        })
+        .setOrigin(0.5);
+    }
     this.add
       .text(x, y + 143, choice.rarity.toUpperCase(), {
         fontFamily: 'Cinzel, serif',
@@ -215,7 +231,7 @@ export class UpgradeScene extends Phaser.Scene {
       return;
     }
     this.selected = true;
-    this.choiceData.onChoose(choice.id);
+    this.choiceData.onChoose(choice);
   }
 
   private reroll(): void {

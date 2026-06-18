@@ -6,6 +6,7 @@ import type { EnemyAbilityId } from '../types/gameTypes';
 import type { JuiceSystem } from './JuiceSystem';
 import { scaleThreatDamage } from './threatRules';
 import { calculateBruteCharge } from './enemyAbilityRules';
+import type { DeathEchoAbility, DeathEchoProfile } from './deathEchoRules';
 
 interface AbilityRuntime {
   nextAbilityAt: number;
@@ -14,6 +15,7 @@ interface AbilityRuntime {
   targetAngle: number;
   strafeDirection: number;
   damageMultiplier: number;
+  specialIndex: number;
 }
 
 interface EnemyProjectileRuntime {
@@ -48,6 +50,7 @@ export class EnemyAbilitySystem {
     private readonly player: Phaser.Physics.Arcade.Image,
     private readonly juice: JuiceSystem,
     private readonly onPlayerHit: (damage: number, source: EnemyAbilityId) => void,
+    private readonly getDeathEchoProfile: () => DeathEchoProfile | undefined = () => undefined,
   ) {
     this.projectiles = scene.physics.add.group();
   }
@@ -64,6 +67,7 @@ export class EnemyAbilitySystem {
       targetAngle: 0,
       strafeDirection: Math.random() < 0.5 ? -1 : 1,
       damageMultiplier,
+      specialIndex: 0,
     });
   }
 
@@ -103,6 +107,9 @@ export class EnemyAbilitySystem {
     }
     if (definition.behavior === 'bomb-thrower') {
       return this.updateBombThrower(sprite, runtime, time, pursuitAngle, distance);
+    }
+    if (definition.behavior === 'death-echo') {
+      return this.updateDeathEcho(sprite, runtime, time, pursuitAngle, distance);
     }
     return { angle: pursuitAngle, speedMultiplier: 1 };
   }
@@ -502,5 +509,127 @@ export class EnemyAbilitySystem {
   private destroyProjectile(projectile: Phaser.Physics.Arcade.Image): void {
     this.projectileRuntime.delete(projectile);
     projectile.destroy();
+  }
+
+  private updateDeathEcho(
+    sprite: Phaser.Physics.Arcade.Image,
+    runtime: AbilityRuntime,
+    time: number,
+    pursuitAngle: number,
+    distance: number,
+  ): EnemyMovementDirective {
+    const profile = this.getDeathEchoProfile();
+    if (!profile) {
+      return { angle: pursuitAngle, speedMultiplier: 0.72 };
+    }
+    if (runtime.mode === 'windup' && time >= runtime.modeEndsAt) {
+      runtime.mode = 'charge';
+      runtime.modeEndsAt = time + 560;
+      this.juice.ring(sprite.x, sprite.y, 70, COLORS.void, 180);
+    } else if (runtime.mode === 'charge' && time >= runtime.modeEndsAt) {
+      runtime.mode = 'recovery';
+      runtime.modeEndsAt = time + 620;
+    } else if (runtime.mode === 'recovery' && time >= runtime.modeEndsAt) {
+      runtime.mode = 'pursuit';
+    }
+
+    if (runtime.mode === 'pursuit' && time >= runtime.nextAbilityAt && distance < 760) {
+      runtime.nextAbilityAt = time + Phaser.Math.Between(3100, 4300);
+      const ability = profile.abilities[runtime.specialIndex % profile.abilities.length] ?? 'bolt';
+      runtime.specialIndex += 1;
+      this.triggerEchoAbility(sprite, runtime, profile, ability, pursuitAngle);
+    }
+
+    if (runtime.mode === 'windup') {
+      return { angle: runtime.targetAngle, speedMultiplier: 0.05 };
+    }
+    if (runtime.mode === 'charge') {
+      return { angle: runtime.targetAngle, speedMultiplier: 4.1 };
+    }
+    if (runtime.mode === 'recovery') {
+      return { angle: pursuitAngle, speedMultiplier: 0.35 };
+    }
+    if (distance < 220) {
+      return { angle: pursuitAngle + Math.PI, speedMultiplier: 0.62 };
+    }
+    return { angle: pursuitAngle, speedMultiplier: 0.84 };
+  }
+
+  private triggerEchoAbility(
+    sprite: Phaser.Physics.Arcade.Image,
+    runtime: AbilityRuntime,
+    profile: DeathEchoProfile,
+    ability: DeathEchoAbility,
+    pursuitAngle: number,
+  ): void {
+    if (ability === 'rupture') {
+      this.telegraphEchoRupture(profile);
+    } else if (ability === 'charge') {
+      runtime.mode = 'windup';
+      runtime.modeEndsAt = this.scene.time.now + 620;
+      runtime.targetAngle = pursuitAngle;
+      this.createChargeTelegraph(sprite, pursuitAngle, 420);
+    } else if (ability === 'aura') {
+      this.telegraphEchoAura(sprite, profile);
+    } else {
+      this.telegraphEchoBolt(sprite, profile);
+    }
+  }
+
+  private telegraphEchoBolt(sprite: Phaser.Physics.Arcade.Image, profile: DeathEchoProfile): void {
+    this.juice.ring(sprite.x, sprite.y, 58, COLORS.void, 520);
+    this.scene.time.delayedCall(500, () => {
+      if (!sprite.active) {
+        return;
+      }
+      const baseAngle = Phaser.Math.Angle.Between(sprite.x, sprite.y, this.player.x, this.player.y);
+      const count = Math.max(1, Math.min(3, profile.projectileCount));
+      for (let index = 0; index < count; index += 1) {
+        const offset = (index - (count - 1) / 2) * 0.18;
+        const projectile = this.projectiles.create(sprite.x, sprite.y, 'projectile-void') as Phaser.Physics.Arcade.Image;
+        projectile.setDisplaySize(32, 32).setDepth(28).setTint(COLORS.void).setBlendMode(Phaser.BlendModes.ADD);
+        const angle = baseAngle + offset;
+        const body = projectile.body as Phaser.Physics.Arcade.Body;
+        body.setVelocity(Math.cos(angle) * 230, Math.sin(angle) * 230);
+        this.projectileRuntime.set(projectile, {
+          expiresAt: this.scene.time.now + 3300,
+          damage: profile.damage,
+          source: 'echo-bolt',
+        });
+      }
+    });
+  }
+
+  private telegraphEchoRupture(profile: DeathEchoProfile): void {
+    const x = this.player.x;
+    const y = this.player.y;
+    const radius = 82;
+    const telegraph = this.scene.add
+      .circle(x, y, radius, COLORS.void, 0.08)
+      .setStrokeStyle(2, COLORS.void, 0.82)
+      .setDepth(17);
+    this.scene.tweens.add({
+      targets: telegraph,
+      alpha: 0.28,
+      scaleX: 1.12,
+      scaleY: 1.12,
+      yoyo: true,
+      repeat: 3,
+      duration: 150,
+    });
+    this.scene.time.delayedCall(900, () => {
+      telegraph.destroy();
+      this.juice.ring(x, y, radius, COLORS.void, 260);
+      if (Phaser.Math.Distance.Between(x, y, this.player.x, this.player.y) < radius) {
+        this.onPlayerHit(profile.damage + 2, 'echo-rupture');
+      }
+    });
+  }
+
+  private telegraphEchoAura(sprite: Phaser.Physics.Arcade.Image, profile: DeathEchoProfile): void {
+    const x = sprite.x;
+    const y = sprite.y;
+    this.createGroundHazard(x, y, 96, 2600, Math.max(3, Math.round(profile.damage * 0.4)), 'echo-rupture');
+    this.juice.ring(x, y, 96, COLORS.void, 360);
   }
 }

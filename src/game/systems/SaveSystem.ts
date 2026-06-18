@@ -9,6 +9,7 @@ import type {
   RunSummary,
   SaveData,
 } from '../types/gameTypes';
+import { createDeathEchoSnapshot, parseDeathEchoSnapshot } from './deathEchoRules';
 
 export interface StorageLike {
   getItem(key: string): string | null;
@@ -100,6 +101,7 @@ export function loadSave(storage: StorageLike = localStorage): SaveData {
         ashwalker: { ...defaults.characterStats.ashwalker, ...parsed.characterStats?.ashwalker },
       },
       unlockedArtifactTiers: [...new Set(unlockedArtifactTiers)],
+      deathEcho: parseDeathEchoSnapshot(parsed.deathEcho),
       settings: { ...defaults.settings, ...parsed.settings },
     };
     const artifactUnlocks = checkArtifactUnlocks(migrated);
@@ -159,6 +161,8 @@ export function recordRunResult(save: SaveData, summary: RunSummary): RecordedRu
   if (summary.victory) {
     next.highestBossDefeated = Math.max(next.highestBossDefeated, 1);
     next.totalWardenKills += 1;
+  } else {
+    next.deathEcho = createDeathEchoSnapshot(summary);
   }
 
   const characterStats = next.characterStats[summary.characterId];

@@ -1,6 +1,8 @@
 import { FEATURE_FLAGS } from '../config/featureFlags';
+import { getCurseTier, enemyAllowedByCurse } from '../data/curse';
+import { ENEMIES } from '../data/enemies';
 import { getSessionSpawnCount, getWaveTier, selectEnemyFromPool, shouldSpawnBoss } from '../data/waves';
-import type { EnemyId } from '../types/gameTypes';
+import type { CurseSnapshot, EnemyId } from '../types/gameTypes';
 import type { EnemySystem } from './EnemySystem';
 
 const NEW_ENEMY_IDS = new Set<EnemyId>(['plague-crawler', 'ember-imp', 'grave-defiler']);
@@ -14,6 +16,7 @@ export class EnemySpawnSystem {
     private readonly enemies: EnemySystem,
     private readonly onEliteWarning: () => void,
     private readonly onBossWarning: () => void,
+    private readonly getCurse: () => CurseSnapshot,
   ) {}
 
   update(elapsedMs: number): void {
@@ -30,9 +33,13 @@ export class EnemySpawnSystem {
         this.enemies.count(),
         tier.globalPopulationCap,
       );
-      const enabledPool = FEATURE_FLAGS.newEnemies
+      const enabledPool = (FEATURE_FLAGS.newEnemies
         ? session.enemyPool
-        : session.enemyPool.filter((id) => !NEW_ENEMY_IDS.has(id));
+        : session.enemyPool.filter((id) => !NEW_ENEMY_IDS.has(id)))
+        .filter((id) => enemyAllowedByCurse(ENEMIES[id], this.getCurse()));
+      if (enabledPool.length === 0) {
+        continue;
+      }
       for (let index = 0; index < spawnCount; index += 1) {
         const id = selectEnemyFromPool(enabledPool);
         this.enemies.spawnAroundPlayer(id, elapsedMs, session.distance + (index % 4) * 30);
@@ -40,9 +47,13 @@ export class EnemySpawnSystem {
     }
 
     if (tier.eliteEveryMs && tier.elitePool && elapsedMs >= this.nextEliteAt) {
-      this.nextEliteAt = elapsedMs + tier.eliteEveryMs;
+      const curseTier = getCurseTier(this.getCurse().level);
+      this.nextEliteAt = elapsedMs + tier.eliteEveryMs / curseTier.eliteSpawnModifier;
       this.onEliteWarning();
-      this.enemies.spawnAroundPlayer(selectEnemyFromPool(tier.elitePool), elapsedMs, 700);
+      const elitePool = tier.elitePool.filter((id) => enemyAllowedByCurse(ENEMIES[id], this.getCurse()));
+      if (elitePool.length > 0) {
+        this.enemies.spawnAroundPlayer(selectEnemyFromPool(elitePool), elapsedMs, 700);
+      }
     }
 
     if (shouldSpawnBoss(elapsedMs, this.bossSpawned)) {

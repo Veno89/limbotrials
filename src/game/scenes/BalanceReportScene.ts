@@ -96,6 +96,8 @@ export class BalanceReportScene extends Phaser.Scene {
         `KILLS               ${this.reportData.summary.kills}`,
         `LEVEL               ${this.reportData.summary.level}`,
         `SOULS               ${this.reportData.summary.souls}`,
+        `CURSE               ${this.reportData.summary.curse.level} ${this.reportData.summary.curse.tierLabel.toUpperCase()}`,
+        `CURSED ARTIFACTS    ${this.reportData.summary.cursedArtifacts.length}`,
         '',
         `DASHES              ${report.dashes}`,
         `PERFECT DODGES      ${report.perfectDodges}`,

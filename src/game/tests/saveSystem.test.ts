@@ -8,6 +8,7 @@ import {
   writeSave,
   type StorageLike,
 } from '../systems/SaveSystem';
+import { curseSnapshot } from '../data/curse';
 
 class MemoryStorage implements StorageLike {
   value: string | null = null;
@@ -86,6 +87,9 @@ describe('save system', () => {
       level: 20,
       characterId: 'haunted' as const,
       artifacts: [],
+      cursedArtifacts: [],
+      upgradeIds: [],
+      curse: curseSnapshot(0, 0, new Set(['unmarked'])),
       newlyUnlockedCharacters: [],
       newlyUnlockedArtifactTiers: [],
       weaponResults: [],

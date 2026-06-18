@@ -39,6 +39,7 @@ export function buildStatsPanelModel(run: RunState): StatsPanelModel {
       { label: 'SOUL GAIN', value: multiplier(run.stats.soulGain) },
       { label: 'XP GAIN', value: multiplier(run.stats.xpGain) },
       { label: 'THREAT POWER', value: `+${Math.round(run.stats.threatPowerBonus)}` },
+      { label: 'CURSE', value: `${run.curse.snapshot().level} ${run.curse.snapshot().tierLabel.toUpperCase()}` },
       { label: 'SHIELD', value: run.shield > 0 ? `${Math.round(run.shield)}` : run.stats.shieldInterval > 0 ? 'RECHARGING' : 'NONE' },
       { label: 'REROLLS', value: `${run.rerolls}` },
     ],

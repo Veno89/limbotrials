@@ -1,5 +1,6 @@
 import type { RunSummary } from '../types/gameTypes';
 import type { StorageLike } from './SaveSystem';
+import { curseSnapshot } from '../data/curse';
 
 const BALANCE_REPORT_KEY = 'everlasting-oblivion-last-balance-report';
 
@@ -18,6 +19,9 @@ export function loadLastRunSummary(storage: StorageLike = localStorage): RunSumm
       return undefined;
     }
     parsed.balance.threatSamples ??= [];
+    parsed.cursedArtifacts ??= [];
+    parsed.upgradeIds ??= [];
+    parsed.curse ??= curseSnapshot(0, 0, new Set(['unmarked']));
     return parsed as RunSummary;
   } catch {
     return undefined;

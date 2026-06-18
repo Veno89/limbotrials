@@ -13,6 +13,7 @@ import { EnemyAbilitySystem } from './EnemyAbilitySystem';
 import { EnemySeparationSystem, type SeparationTarget } from './EnemySeparationSystem';
 import { enemyThreatScaling, scaleThreatDamage } from './threatRules';
 import { selectBossAttack } from './bossAttackRules';
+import type { DeathEchoProfile } from './deathEchoRules';
 
 interface EnemyRuntime {
   definition: EnemyDefinition;
@@ -59,13 +60,23 @@ export class EnemySystem {
     private readonly onBossSpecial: (attack: BossAttackId, x: number, y: number, phase: number) => void,
     private readonly onBossPhaseChange: (phase: number) => void,
     private readonly getThreat: () => ThreatSnapshot,
+    private readonly getDeathEchoProfile: () => DeathEchoProfile | undefined = () => undefined,
   ) {
     this.group = scene.physics.add.group();
-    this.abilities = new EnemyAbilitySystem(scene, player, juice, onPlayerHit);
+    this.abilities = new EnemyAbilitySystem(scene, player, juice, onPlayerHit, getDeathEchoProfile);
   }
 
   spawn(id: EnemyId, x: number, y: number, elapsedMs: number): Phaser.Physics.Arcade.Image {
-    const definition = ENEMIES[id];
+    const baseDefinition = ENEMIES[id];
+    const echoProfile = id === 'player-echo' ? this.getDeathEchoProfile() : undefined;
+    const definition = echoProfile
+      ? {
+          ...baseDefinition,
+          maxHealth: echoProfile.maxHealth,
+          speed: Math.round(baseDefinition.speed * echoProfile.speedMultiplier),
+          contactDamage: echoProfile.contactDamage,
+        }
+      : baseDefinition;
     const scaling = enemyThreatScaling(this.getThreat(), Boolean(definition.boss));
     const maxHealth = Math.round(definition.maxHealth * scaling.healthMultiplier);
     const sprite = this.group.create(x, y, definition.texture) as Phaser.Physics.Arcade.Image;

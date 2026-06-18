@@ -34,13 +34,13 @@ abstract class EndScene extends Phaser.Scene {
       .text(
         GAME_WIDTH / 2,
         285,
-        `${CHARACTERS[this.summary.characterId].name.toUpperCase()}\nTIME  ${formatTime(this.summary.elapsedMs)}   /   LEVEL  ${this.summary.level}\nSOULS REAPED  ${this.summary.souls}   /   ENEMIES ENDED  ${this.summary.kills}\nARTIFACTS CLAIMED  ${this.summary.artifacts.length}`,
+        `${CHARACTERS[this.summary.characterId].name.toUpperCase()}\nTIME  ${formatTime(this.summary.elapsedMs)}   /   LEVEL  ${this.summary.level}\nSOULS REAPED  ${this.summary.souls}   /   ENEMIES ENDED  ${this.summary.kills}\nARTIFACTS CLAIMED  ${this.summary.artifacts.length}   /   CURSE  ${this.summary.curse.level} ${this.summary.curse.tierLabel.toUpperCase()}`,
         {
           fontFamily: 'Cinzel, serif',
-          fontSize: '20px',
+          fontSize: '19px',
           color: '#d7e3e8',
           align: 'center',
-        lineSpacing: 10,
+          lineSpacing: 9,
           stroke: '#030506',
           strokeThickness: 4,
         },

@@ -13,13 +13,18 @@ import { ChestSystem } from '../systems/ChestSystem';
 import { getAvailableArtifacts, rollArtifact } from '../data/artifacts';
 import { WeaponSystem } from '../systems/WeaponSystem';
 import { HudSystem } from '../ui/HudSystem';
-import type { BalancePresetId, CharacterId, PlayerDamageSourceId } from '../types/gameTypes';
-import type { UpgradeId } from '../types/gameTypes';
+import type {
+  AppliedRewardResult,
+  BalancePresetId,
+  CharacterId,
+  CurseGainResult,
+  PlayerDamageSourceId,
+  UpgradeDefinition,
+} from '../types/gameTypes';
 import { audio } from '../systems/AudioSystem';
 import { BossAttackSystem } from '../systems/BossAttackSystem';
 import { PowerupSystem } from '../systems/PowerupSystem';
 import { ArenaShrineSystem } from '../systems/ArenaShrineSystem';
-import { UPGRADES } from '../data/upgrades';
 import { WEAPONS } from '../data/weapons';
 import { applyBalancePreset, BalancePresetSpawnSystem } from '../systems/BalancePresetSystem';
 import { BALANCE_PRESETS } from '../data/balancePresets';
@@ -30,6 +35,8 @@ import { FEATURE_FLAGS } from '../config/featureFlags';
 import { PlayerStatusVisualSystem } from '../ui/PlayerStatusVisualSystem';
 import { LootRevealSystem } from '../ui/LootRevealSystem';
 import { PlayerVisualSystem } from '../systems/PlayerVisualSystem';
+import { mutateArtifactReward } from '../systems/CursedRewardMutationSystem';
+import { DeathEchoSystem } from '../systems/DeathEchoSystem';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -62,6 +69,7 @@ export class GameScene extends Phaser.Scene {
   private playerStatusVisuals!: PlayerStatusVisualSystem;
   private lootReveal!: LootRevealSystem;
   private playerVisuals!: PlayerVisualSystem;
+  private deathEcho?: DeathEchoSystem;
   private characterId?: CharacterId;
 
   constructor() {
@@ -77,6 +85,7 @@ export class GameScene extends Phaser.Scene {
     this.ended = false;
     this.presetSpawner = undefined;
     this.chests = undefined;
+    this.deathEcho = undefined;
     this.invulnerableUntil = 0;
     this.nextShieldAt = Number.POSITIVE_INFINITY;
     this.nextBalanceSampleAt = 0;
@@ -119,6 +128,7 @@ export class GameScene extends Phaser.Scene {
         );
       },
       () => this.run.getThreatSnapshot(),
+      () => this.deathEcho?.profile(),
     );
     this.movement = new PlayerMovementSystem(this, this.player, this.run.stats, () => {
       this.run.balance.recordDash();
@@ -137,6 +147,7 @@ export class GameScene extends Phaser.Scene {
       this.juice,
       (damage, source) => this.hitPlayer(damage, source),
       () => this.run.elapsedMs,
+      () => this.run.curse.snapshot(),
     );
     this.spawner = new EnemySpawnSystem(
       this.enemies,
@@ -146,11 +157,12 @@ export class GameScene extends Phaser.Scene {
         this.run.balance.recordTimeline('boss:spawned', this.run.elapsedMs);
         this.juice.warning('THE LIMBO WARDEN HAS COME', '#d7bd82');
       },
+      () => this.run.curse.snapshot(),
     );
     this.offers = new UpgradeOfferSystem(
       this,
       this.run,
-      (id) => this.handleUpgradeApplied(id),
+      (choice, result) => this.handleUpgradeApplied(choice, result),
       (souls) => this.juice.warning(`POWER REFUSED: +${souls} SOULS`, '#69d9ff'),
     );
     this.runEvents = new RunEventSystem(
@@ -180,13 +192,16 @@ export class GameScene extends Phaser.Scene {
     if (this.balancePresetId === 'standard' && FEATURE_FLAGS.artifacts && FEATURE_FLAGS.chests) {
       this.chests = new ChestSystem(this, this.player, this.juice, (x, y) => {
         const artifact = rollArtifact(getAvailableArtifacts(save), [...this.run.artifacts]);
-        if (artifact && this.run.applyArtifact(artifact.id)) {
-          this.run.balance.recordTimeline(`artifact:${artifact.id}`, this.run.elapsedMs);
+        const reward = artifact ? mutateArtifactReward(artifact, this.run.curse.snapshot()) : null;
+        const result = reward ? this.run.applyArtifactReward(reward) : { applied: false };
+        if (reward && result.applied) {
+          this.run.balance.recordTimeline(`artifact:${reward.id}`, this.run.elapsedMs);
+          this.handleCurseGain(result.curse, reward.curse?.warning);
           audio.play('level-up');
           this.lootReveal.reveal(x, y, {
-            texture: artifact.iconTexture,
-            label: artifact.name,
-            color: COLORS.gold,
+            texture: reward.iconTexture,
+            label: reward.curse ? `${reward.name}  Curse +${reward.curse.curseGain}` : reward.name,
+            color: reward.curse ? COLORS.blood : COLORS.gold,
           });
           return;
         }
@@ -213,6 +228,15 @@ export class GameScene extends Phaser.Scene {
       this.weapons,
       this.chests,
     );
+    if (this.balancePresetId === 'standard') {
+      this.deathEcho = new DeathEchoSystem(
+        this.enemies,
+        this.run,
+        save.deathEcho,
+        (text, color) => this.juice.warning(text, color),
+        (id, elapsedMs) => this.run.balance.recordTimeline(id, elapsedMs),
+      );
+    }
     this.playerStatusVisuals = new PlayerStatusVisualSystem(this, this.player, this.run, this.powerups);
     if (this.balancePresetId === 'standard') {
       this.juice.warning('SURVIVE THE LIMBO TRIAL');
@@ -245,6 +269,7 @@ export class GameScene extends Phaser.Scene {
     if (this.balancePresetId === 'standard') {
       this.spawner.update(this.run.elapsedMs);
       this.runEvents.update(this.run.elapsedMs);
+      this.deathEcho?.update(this.run.elapsedMs);
     } else {
       this.presetSpawner?.update(this.run.elapsedMs);
     }
@@ -372,8 +397,8 @@ export class GameScene extends Phaser.Scene {
     this.scene.launch('PauseScene', { onAbandon: () => this.abandonRun() });
   }
 
-  private handleUpgradeApplied(id: UpgradeId): void {
-    const upgrade = UPGRADES[id];
+  private handleUpgradeApplied(upgrade: UpgradeDefinition, result: AppliedRewardResult): void {
+    this.handleCurseGain(result.curse, upgrade.curse?.warning);
     if (upgrade.category === 'weapon-evolution' && upgrade.targetWeapon) {
       this.juice.warning(`${WEAPONS[upgrade.targetWeapon].evolution.name.toUpperCase()} AWAKENS`, '#d7bd82');
       return;
@@ -385,7 +410,22 @@ export class GameScene extends Phaser.Scene {
         return;
       }
     }
-    this.juice.warning(upgrade.category === 'curse' ? 'THE CURSE TAKES ROOT' : 'POWER TAKES ROOT', '#a892db');
+    if (result.curse) {
+      return;
+    }
+    this.juice.warning('POWER TAKES ROOT', '#a892db');
+  }
+
+  private handleCurseGain(result: CurseGainResult | undefined, warning?: string): void {
+    if (!result) {
+      return;
+    }
+    const crossed = result.crossedTiers.at(-1);
+    if (crossed) {
+      this.juice.warning(`${crossed.label.toUpperCase()}: ${crossed.description}`, '#d26468');
+      return;
+    }
+    this.juice.warning(warning ?? `CURSE +${result.amount}`, '#d26468');
   }
 
   private updateShield(elapsedMs: number): void {
@@ -417,6 +457,9 @@ export class GameScene extends Phaser.Scene {
       const recorded = recordRunResult(loadSave(), summary);
       summary.newlyUnlockedCharacters = recorded.newlyUnlockedCharacters;
       summary.newlyUnlockedArtifactTiers = recorded.newlyUnlockedArtifactTiers;
+      if (!victory) {
+        summary.deathEcho = recorded.save.deathEcho;
+      }
       if (victory) {
         audio.play('victory');
       }

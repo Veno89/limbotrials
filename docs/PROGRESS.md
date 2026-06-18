@@ -65,10 +65,11 @@
 - Added a non-destructive leaderboard health endpoint and conservative Netlify Function packaging after live deployment diagnostics exposed a missing function route and an uncreated Supabase leaderboard table.
 - Added private Supabase run analytics, combined bounded run submissions, visible result-screen submission status, and persistent typed leaderboard names.
 - Added an end-screen leaderboard-name form and idempotent run submissions so anonymous analytics can become a named public score without duplication.
+- Added a run-level curse system with data-defined tiers, cursed upgrade/artifact mutation, curse-gated enemies, a high-curse Warden pressure hook, HUD/result/balance reporting, and saved Player Death Echo snapshots that can return as a simplified future-run enemy.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, nine authored encounter beats, and a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -80,10 +81,11 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 - Artifact frequency, character profiles, and hazard pressure need repeated full-run playtesting.
 - Standard-run survivability, the longer pre-evolution curve, and the completed cadence targets need repeated human playtesting before broad weapon power reductions.
 - Threat health and damage scaling, elite pressure, and the rebuilt Warden's target fight duration need repeated completed-build playtesting.
+- Curse reward frequency, tier thresholds, cursed enemy pressure, and Death Echo spawn timing need repeated human playtesting.
 - The Phaser engine bundle triggers Vite's large-chunk warning.
 - Visual effect object pooling is not implemented yet; effects are intentionally modest.
 - Profile each future directional sheet before expanding the animation approach to other characters.
 
 ## Next Recommended Task
 
-Expand the next conditional upgrade family around movement, dashes, shields, and elite hunting, then continue the planned five-weapon batch individually after the offer pool remains consistently meaningful.
+Playtest the new curse and Death Echo loop through several safe and cursed runs, then tune thresholds, reward mutation rates, and Echo readability before expanding the next movement, dash, shield, and elite-hunting upgrade families.

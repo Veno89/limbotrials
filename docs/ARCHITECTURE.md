@@ -19,6 +19,7 @@ src/game/
 ## Runtime Systems
 
 - `RunState`: mutable state for one trial, active elapsed run time, equipped weapons, per-weapon levels/stats, applied progression, and the current threat snapshot.
+- `CurseSystem`: run-local curse total, tier lookup, threshold crossings, and curse gain results.
 - `BalanceTelemetry`: pure event aggregation and one-minute balance reporting.
 - `BalancePresetSystem`: applies data-defined focused test scenarios.
 - `BalanceReportStore`: persists only the latest completed report outside permanent progression.
@@ -37,6 +38,8 @@ src/game/
 - `WeaponUpgradeEffectSystem`: three focused authored pre-evolution effects for projectile splintering, spreading area blasts, and delayed judgment echoes.
 - `CrimsonOrbitSystem`: focused persistent runtime controller for evolved Bloodletter Axe positioning and repeated collision checks.
 - `WeaponSynergySystem`: cached loadout-pair bonuses.
+- `CursedRewardMutationSystem`: central mutation layer that turns eligible upgrade or artifact offers into cursed variants without duplicating the base reward systems.
+- `DeathEchoSystem`: one-run controller that turns the latest saved death snapshot into a readable generated Echo encounter.
 - `PickupSystem`: soul drops, bounded pickup consolidation, magnet movement, and collection.
 - `PowerupSystem`: cooldown-bounded random healing, vacuum, and temporary frenzy drops plus guaranteed elite drops.
 - `UpgradeOfferSystem`: queued standard/curse choices, rerolls, and skip rewards.
@@ -59,6 +62,7 @@ Generated walk cycles are not integrated unless every adjacent pose has a meanin
 - `BalanceDebugOverlay`: development-only live sample metrics.
 - `SaveSystem`: versioned storage, defaults, purchases, run-history recording, and unlock migration.
 - `SpecialEffectHandlers`: typed registry for the small number of artifact effects that cannot be expressed as modifiers.
+- `deathEchoRules`: pure snapshot validation, snapshot creation, Echo stat scaling, ability translation, and spawn-plan rules.
 
 ## Runtime Clocks
 
@@ -150,6 +154,17 @@ XP-risk upgrades use the normal typed stat-modifier path. `xpGain` changes colle
 run XP, while `threatPowerBonus` contributes directly to the bounded power score in
 `threatRules.ts`; it does not bypass the threat cap or mutate existing enemies.
 
+Curse thresholds and unlock rules live in `data/curse.ts`. `RunState` owns the
+active `CurseSystem`, upgrade and artifact selection apply curse through typed
+reward metadata, and spawn/boss systems read curse snapshots instead of duplicating
+threshold checks. Cursed reward mutation is centralized in
+`CursedRewardMutationSystem`; normal reward definitions remain valid base content.
+
+Death Echo data is saved as a compact `DeathEchoSnapshot` by `SaveSystem` after
+failed standard runs. Future runs use `DeathEchoSystem` and `deathEchoRules.ts` to
+translate the old build into capped enemy-safe abilities rather than reusing player
+combat or controller code.
+
 ## Website And Leaderboard
 
 `src/main.ts` owns the website shell and lazy-loads Phaser only after the visitor
@@ -174,6 +189,7 @@ the anonymous run-analytics write boundary.
 3. Preload its texture in `PreloadScene`.
 4. Add the ID to the desired role session in `data/waves.ts`.
 5. Add it to an authored event or weighted elite pool when it should headline a specific run phase.
+6. Add `spawnRequirements` only when the enemy is gated by curse tier, curse level, or curse tags.
 
 Only genuinely new behavior should require an `EnemySystem` change.
 
@@ -183,6 +199,7 @@ Only genuinely new behavior should require an `EnemySystem` change.
 2. Add a definition in `data/upgrades.ts`.
 3. Choose `weapon`, `weapon-level`, `weapon-upgrade`, `weapon-evolution`, `stat`, or `curse`.
 4. Prefer typed `StatModifier` or `WeaponModifier` effects.
+5. Add `curse` metadata only for authored cursed rewards; generated cursed variants should stay in `CursedRewardMutationSystem`.
 
 ## Add An Artifact
 
@@ -190,6 +207,7 @@ Only genuinely new behavior should require an `EnemySystem` change.
 2. Prefer stat or weapon modifiers.
 3. Add a typed special-effect handler before declaring a `special`.
 4. Assign an existing pool tier and verify locked tiers remain filtered.
+5. Let the mutation layer create ordinary cursed variants unless the artifact needs a hand-authored cursed identity.
 
 ## Add A Character
 

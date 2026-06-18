@@ -10,6 +10,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Replace the evolved Bloodletter Axe behavior with Crimson Orbit
 - [x] Resolve elite-charge distance/color, Bloodletter outbound range, and reliquary presentation feedback
 - [x] Establish distinct cadence, power, strength, and weakness targets for all existing weapons
+- [x] Add the core curse, cursed reward mutation, curse-gated spawn pressure, and Death Echo foundation
 - [ ] Expand meaningful weapon and risk/reward upgrade families
 - [ ] Add five additional weapons individually, each with a unique evolution
 - [ ] Follow with build-defining artifacts, unique artifact assets, and NG+ Lite with optional Torments and later distinct bosses
@@ -70,6 +71,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Explicit level-seven evolution choices for all nine weapons
 - [x] Loadout synergies with visible HUD callouts
 - [x] Separate risk/reward curse event pool
+- [x] Run-level curse tiers, cursed reward mutation, curse-gated enemies, and a first Death Echo return
 - [x] Upgrade reroll and skip-for-souls controls
 - [x] Perfect-dodge cooldown reward
 - [x] Rare healing, soul-vacuum, and temporary frenzy drops

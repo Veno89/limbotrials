@@ -86,6 +86,8 @@ export function parseRunRecordSubmission(input: unknown): ParsedRunRecordSubmiss
 function hasBoundedArrays(summary: Record<string, unknown>, balance: Record<string, unknown>): boolean {
   return (
     boundedArray(summary.artifacts, 30) &&
+    boundedArray(summary.cursedArtifacts, 30) &&
+    boundedArray(summary.upgradeIds, 128) &&
     boundedArray(summary.newlyUnlockedCharacters, 10) &&
     boundedArray(summary.newlyUnlockedArtifactTiers, 10) &&
     boundedArray(summary.weaponResults, 10) &&

@@ -110,6 +110,9 @@ export type EnemyId =
   | 'plague-crawler'
   | 'ember-imp'
   | 'grave-defiler'
+  | 'condemned-husk'
+  | 'sinbound-stalker'
+  | 'player-echo'
   | 'limbo-warden';
 export type EnemyBehavior =
   | 'pursuit'
@@ -120,7 +123,8 @@ export type EnemyBehavior =
   | 'archer'
   | 'stalker'
   | 'trail-hazard'
-  | 'bomb-thrower';
+  | 'bomb-thrower'
+  | 'death-echo';
 export type MetaUpgradeId = 'vital-remnant' | 'cruel-memory' | 'hungry-echo' | 'fateful-thread';
 export type BossAttackId =
   | 'shockwave'
@@ -129,7 +133,15 @@ export type BossAttackId =
   | 'shattered-judgment'
   | 'cathedral-rupture'
   | 'condemned-star';
-export type EnemyAbilityId = 'void-orb' | 'scream' | 'grave-arrow' | 'plague-trail' | 'fire-flask';
+export type EnemyAbilityId =
+  | 'void-orb'
+  | 'scream'
+  | 'grave-arrow'
+  | 'plague-trail'
+  | 'fire-flask'
+  | 'echo-bolt'
+  | 'echo-rupture'
+  | 'echo-charge';
 export type PlayerDamageSourceId = EnemyId | EnemyAbilityId | BossAttackId | 'blood-shrine';
 export type PowerupId = 'mending-soul' | 'soul-vacuum' | 'grave-frenzy';
 export type BalancePresetId =
@@ -149,6 +161,17 @@ export type WeaponUpgradeEffectId =
   | 'soul-bolt-splintering-memory'
   | 'hellfire-spreading-sentence'
   | 'dirge-staff-echoed-rites';
+
+export type CurseTierId = 'unmarked' | 'touched' | 'marked' | 'condemned' | 'forsaken';
+export type EnemyTag = 'cursed' | 'hunted' | 'debt' | 'echo';
+export type BossCurseTag = 'curse-minions' | 'curse-aura';
+export type CurseRewardPattern =
+  | 'blood-price'
+  | 'hunted'
+  | 'greed-mark'
+  | 'fragile-power'
+  | 'overgrowth-of-sin'
+  | 'reliquary-oath';
 
 export interface UpgradeableStats {
   maxHealth: number;
@@ -225,6 +248,51 @@ export interface WeaponModifier {
   value: number;
 }
 
+export interface CurseTierDefinition {
+  id: CurseTierId;
+  minCurse: number;
+  label: string;
+  description: string;
+  upgradeMutationChance: number;
+  artifactMutationChance: number;
+  enemyTagsUnlocked: readonly EnemyTag[];
+  bossTagsUnlocked: readonly BossCurseTag[];
+  eliteSpawnModifier: number;
+}
+
+export interface CurseRewardDefinition {
+  curseGain: number;
+  pattern: CurseRewardPattern;
+  downside: string;
+  warning?: string;
+  requiredTier?: CurseTierId;
+}
+
+export interface CurseSnapshot {
+  level: number;
+  totalGained: number;
+  tier: CurseTierId;
+  tierLabel: string;
+  thresholdsCrossed: CurseTierId[];
+  enemyTagsUnlocked: EnemyTag[];
+  bossTagsUnlocked: BossCurseTag[];
+  canMutateUpgrades: boolean;
+  canMutateArtifacts: boolean;
+}
+
+export interface CurseGainResult {
+  amount: number;
+  reason: string;
+  previous: CurseSnapshot;
+  current: CurseSnapshot;
+  crossedTiers: CurseTierDefinition[];
+}
+
+export interface AppliedRewardResult {
+  applied: boolean;
+  curse?: CurseGainResult;
+}
+
 export interface UpgradeDefinition {
   id: UpgradeId;
   category: UpgradeCategory;
@@ -238,6 +306,7 @@ export interface UpgradeDefinition {
   targetWeapon?: WeaponId;
   unlockWeapon?: WeaponId;
   iconTexture: string;
+  curse?: CurseRewardDefinition;
 }
 
 export type ArtifactId =
@@ -277,6 +346,7 @@ export interface ArtifactDefinition {
   modifiers?: StatModifier[];
   weaponModifiers?: WeaponModifier[];
   special?: SpecialEffectId;
+  curse?: CurseRewardDefinition;
 }
 
 export interface WeaponDefinition {
@@ -308,6 +378,11 @@ export interface EnemyDefinition {
   radius: number;
   elite?: boolean;
   boss?: boolean;
+  spawnRequirements?: {
+    minCurse?: number;
+    requiredCurseTier?: CurseTierId;
+    tags?: readonly EnemyTag[];
+  };
 }
 
 export interface MetaUpgradeDefinition {
@@ -335,6 +410,7 @@ export interface SaveData {
   unlockedCharacters: CharacterId[];
   characterStats: Record<CharacterId, CharacterRunStats>;
   unlockedArtifactTiers: ArtifactPoolTier[];
+  deathEcho?: DeathEchoSnapshot;
   settings: {
     screenShake: boolean;
     particles: boolean;
@@ -342,6 +418,20 @@ export interface SaveData {
     musicVolume: number;
     effectsVolume: number;
   };
+}
+
+export interface DeathEchoSnapshot {
+  classId: CharacterId;
+  survivedSeconds: number;
+  level: number;
+  mainWeaponId: WeaponId;
+  upgradeIds: UpgradeId[];
+  artifactIds: ArtifactId[];
+  curseLevel: number;
+  curseTier: CurseTierId;
+  causeOfDeath?: PlayerDamageSourceId;
+  kills: number;
+  soulsEarned: number;
 }
 
 export interface RunSummary {
@@ -352,6 +442,10 @@ export interface RunSummary {
   level: number;
   characterId: CharacterId;
   artifacts: ArtifactId[];
+  cursedArtifacts: ArtifactId[];
+  upgradeIds: UpgradeId[];
+  curse: CurseSnapshot;
+  deathEcho?: DeathEchoSnapshot;
   newlyUnlockedCharacters: CharacterId[];
   newlyUnlockedArtifactTiers: ArtifactPoolTier[];
   weaponResults: WeaponRunResult[];

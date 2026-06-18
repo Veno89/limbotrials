@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../constants';
-import { ARTIFACTS } from '../data/artifacts';
 import type { RunState } from '../systems/RunState';
 import type { ArtifactId, ArtifactDefinition } from '../types/gameTypes';
 
@@ -103,7 +102,7 @@ export class ArtifactBar {
   }
 
   private createIcon(id: ArtifactId): ArtifactIcon {
-    const definition = ARTIFACTS[id]!;
+    const definition = this.run.getArtifactDefinition(id);
     const color = RARITY_COLORS[definition.rarity];
 
     const back = this.scene.add.rectangle(0, 0, 34, 34, COLORS.panel, 0.9);
@@ -156,7 +155,7 @@ export class ArtifactBar {
   }
 
   private showTooltip(art: ArtifactDefinition, pointer: Phaser.Input.Pointer): void {
-    const rarityLabel = art.rarity.toUpperCase();
+    const rarityLabel = art.curse ? `${art.rarity.toUpperCase()}  /  CURSE +${art.curse.curseGain}` : art.rarity.toUpperCase();
     const rarityColor = '#' + RARITY_COLORS[art.rarity].toString(16).padStart(6, '0');
 
     this.tooltipName.setText(art.name);

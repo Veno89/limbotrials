@@ -105,6 +105,34 @@ stat offers.
 
 Permanent progression intentionally stays small: starting health, starting damage, soul gain, and additional run rerolls.
 
+### Curse, Cursed Rewards, And Echoes
+
+Curse is a run-level pressure meter. Safe rewards keep the baseline run stable,
+while cursed rewards add stronger or more unusual power at the cost of curse gain
+and an explicit downside. Cursed choices must show their curse gain before
+selection, and they should tempt the player rather than replacing ordinary
+progression.
+
+Curse tiers are data-defined:
+
+- **Unmarked:** no curse pressure.
+- **Touched:** cursed upgrade variants can begin appearing.
+- **Marked:** curse-gated enemies can enter eligible spawn pools.
+- **Condemned:** artifacts may mutate and the Warden can answer with cursed minions.
+- **Forsaken:** cursed rewards and curse pressure become more frequent and severe.
+
+Cursed reward patterns should be build-shaping. Good examples are blood-price
+offense, hunted XP or damage, greed-mark soul gain, fragile power, and overgrowth
+of projectiles or area. Plain minor-stat trades should be avoided unless they
+support a clearer identity.
+
+When the player dies, Limbo saves a compact Death Echo snapshot of the failed
+build: character, survival time, level, main weapon, upgrades, artifacts, kills,
+souls, and curse. A later run can spawn a generated Echo that translates that build
+into capped enemy-safe abilities such as slow volleys, delayed ruptures, charges,
+or a small cursed aura. The Echo should read as a corrupted memory of the previous
+build, not as a full player clone.
+
 ### Characters
 
 - **Haunted:** balanced default using Bone Scythe.

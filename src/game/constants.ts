@@ -5,7 +5,7 @@ export const ARENA_HEIGHT = 1920;
 export const RUN_DURATION_MS = 15 * 60 * 1000;
 export const BOSS_SPAWN_MS = RUN_DURATION_MS - 60 * 1000;
 export const SAVE_KEY = 'everlasting-oblivion-limbo-trial';
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 
 export const COLORS = {
   background: 0x071014,

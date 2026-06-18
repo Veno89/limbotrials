@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import { COLORS } from '../constants';
-import type { BossAttackId } from '../types/gameTypes';
+import type { BossAttackId, CurseSnapshot } from '../types/gameTypes';
 import { audio } from './AudioSystem';
 import type { EnemySystem } from './EnemySystem';
 import type { JuiceSystem } from './JuiceSystem';
 import { distanceToSegment } from './Geometry';
+import { hasBossCurseTag } from '../data/curse';
 
 interface BossAttackLane {
   line: Phaser.GameObjects.Rectangle;
@@ -21,6 +22,7 @@ export class BossAttackSystem {
     private readonly juice: JuiceSystem,
     private readonly onPlayerHit: (damage: number, source: BossAttackId) => void,
     private readonly getElapsedMs: () => number,
+    private readonly getCurse: () => CurseSnapshot,
   ) {}
 
   trigger(attack: BossAttackId, x: number, y: number, phase: number): void {
@@ -43,6 +45,21 @@ export class BossAttackSystem {
         break;
       default:
         this.shockwave(x, y, phase);
+    }
+    this.applyCurseModifier(phase);
+  }
+
+  private applyCurseModifier(phase: number): void {
+    const curse = this.getCurse();
+    if (!hasBossCurseTag(curse, 'curse-minions')) {
+      return;
+    }
+    const count = hasBossCurseTag(curse, 'curse-aura') ? 2 : 1;
+    for (let index = 0; index < count; index += 1) {
+      this.enemies.spawnAroundPlayer('condemned-husk', this.getElapsedMs(), 520 + phase * 35 + index * 30);
+    }
+    if (phase >= 3 && hasBossCurseTag(curse, 'curse-aura')) {
+      this.juice.warning('THE WARDEN ANSWERS YOUR CURSE', '#d26468');
     }
   }
 

@@ -5,12 +5,15 @@ import { CHARACTERS } from '../data/characters';
 import { xpRequiredForNextLevel } from '../data/progression';
 import { EVOLUTION_READY_LEVEL, MAX_WEAPON_LEVEL, WEAPON_CAP } from '../types/gameTypes';
 import type {
+  AppliedRewardResult,
+  ArtifactDefinition,
   BalancePresetId,
   CharacterId,
   PlayerStats,
   PlayerDamageSourceId,
   RunSummary,
   SaveData,
+  UpgradeDefinition,
   UpgradeId,
   WeaponId,
   WeaponModifier,
@@ -28,6 +31,7 @@ import {
 import { BalanceTelemetry } from './BalanceTelemetry';
 import { SPECIAL_EFFECT_HANDLERS } from './SpecialEffectHandlers';
 import { calculateThreat } from './threatRules';
+import { CurseSystem } from './CurseSystem';
 
 export interface DamageResolution {
   fatal: boolean;
@@ -43,6 +47,7 @@ export class RunState {
   readonly artifacts = new Set<ArtifactId>();
   readonly balance: BalanceTelemetry;
   readonly characterId: CharacterId;
+  readonly curse = new CurseSystem();
   health: number;
   shield = 0;
   level = 1;
@@ -54,6 +59,7 @@ export class RunState {
   rerolls: number;
   private weaponCap = WEAPON_CAP;
   private readonly globalWeaponModifiers: WeaponModifier[] = [];
+  private readonly artifactDefinitions = new Map<ArtifactId, ArtifactDefinition>();
 
   constructor(
     save: SaveData,
@@ -134,13 +140,24 @@ export class RunState {
       weaponCount: weaponStates.length,
       totalWeaponLevels: weaponStates.reduce((total, state) => total + state.level, 0),
       evolvedWeaponCount: weaponStates.filter((state) => state.level === MAX_WEAPON_LEVEL).length,
-      threatPowerBonus: this.stats.threatPowerBonus,
+      threatPowerBonus: this.stats.threatPowerBonus + this.curse.snapshot().level / 8,
     });
   }
 
   applyUpgrade(id: UpgradeId): boolean {
-    const definition = UPGRADES[id];
-    if ((this.upgradeStacks.get(id) ?? 0) >= definition.maxStacks) {
+    return this.applyUpgradeChoice(UPGRADES[id]).applied;
+  }
+
+  applyUpgradeChoice(definition: UpgradeDefinition): AppliedRewardResult {
+    const applied = this.applyUpgradeDefinition(definition);
+    return {
+      applied,
+      ...(applied ? { curse: this.applyCurseReward(definition.curse, definition.id) } : {}),
+    };
+  }
+
+  private applyUpgradeDefinition(definition: UpgradeDefinition): boolean {
+    if ((this.upgradeStacks.get(definition.id) ?? 0) >= definition.maxStacks) {
       return false;
     }
     const previousMaxHealth = this.stats.maxHealth;
@@ -148,10 +165,17 @@ export class RunState {
 
     if (definition.category === 'weapon' && definition.unlockWeapon) {
       applied = this.addWeapon(definition.unlockWeapon);
+      if (applied && definition.weaponModifiers) {
+        const state = this.weaponStates.get(definition.unlockWeapon);
+        if (state) {
+          this.applyWeaponModifiers(definition.unlockWeapon, state, definition.weaponModifiers);
+        }
+      }
     } else if (definition.category === 'weapon-level' && definition.targetWeapon) {
       const state = this.weaponStates.get(definition.targetWeapon);
       if (state && state.level < EVOLUTION_READY_LEVEL) {
         this.advanceWeapon(definition.targetWeapon, state);
+        this.applyWeaponModifiers(definition.targetWeapon, state, definition.weaponModifiers ?? []);
         applied = true;
       }
     } else if (definition.category === 'weapon-upgrade' && definition.targetWeapon) {
@@ -167,6 +191,7 @@ export class RunState {
       const state = this.weaponStates.get(definition.targetWeapon);
       if (state?.level === EVOLUTION_READY_LEVEL) {
         this.advanceWeapon(definition.targetWeapon, state);
+        this.applyWeaponModifiers(definition.targetWeapon, state, definition.weaponModifiers ?? []);
         applied = true;
       }
     } else if (definition.category === 'stat' || definition.category === 'curse') {
@@ -177,7 +202,7 @@ export class RunState {
     if (!applied) {
       return false;
     }
-    this.upgradeStacks.set(id, (this.upgradeStacks.get(id) ?? 0) + 1);
+    this.upgradeStacks.set(definition.id, (this.upgradeStacks.get(definition.id) ?? 0) + 1);
     if (this.stats.maxHealth > previousMaxHealth) {
       this.health = Math.min(this.stats.maxHealth, this.health + (this.stats.maxHealth - previousMaxHealth));
     }
@@ -186,16 +211,18 @@ export class RunState {
   }
 
   applyArtifact(id: ArtifactId): boolean {
-    if (this.artifacts.has(id)) {
-      return false;
-    }
     const definition = ARTIFACTS[id];
-    if (!definition) {
-      return false;
+    return definition ? this.applyArtifactReward(definition).applied : false;
+  }
+
+  applyArtifactReward(definition: ArtifactDefinition): AppliedRewardResult {
+    if (this.artifacts.has(definition.id)) {
+      return { applied: false };
     }
 
     const previousMaxHealth = this.stats.maxHealth;
-    this.artifacts.add(id);
+    this.artifacts.add(definition.id);
+    this.artifactDefinitions.set(definition.id, definition);
 
     if (definition.modifiers) {
       applyStatModifiers(this.stats, definition.modifiers);
@@ -214,11 +241,18 @@ export class RunState {
       this.health = Math.min(this.stats.maxHealth, this.health + (this.stats.maxHealth - previousMaxHealth));
     }
     this.health = Math.min(this.health, this.stats.maxHealth);
-    return true;
+    return {
+      applied: true,
+      curse: this.applyCurseReward(definition.curse, definition.id),
+    };
   }
 
   hasArtifact(id: ArtifactId): boolean {
     return this.artifacts.has(id);
+  }
+
+  getArtifactDefinition(id: ArtifactId): ArtifactDefinition {
+    return this.artifactDefinitions.get(id) ?? ARTIFACTS[id];
   }
 
   hasUpgrade(id: UpgradeId): boolean {
@@ -295,6 +329,9 @@ export class RunState {
       level: this.level,
       characterId: this.characterId,
       artifacts: [...this.artifacts],
+      cursedArtifacts: [...this.artifacts].filter((id) => Boolean(this.getArtifactDefinition(id).curse)),
+      upgradeIds: [...this.upgradeStacks.keys()],
+      curse: this.curse.snapshot(),
       newlyUnlockedCharacters: [],
       newlyUnlockedArtifactTiers: [],
       weaponResults: balance.weaponResults,
@@ -313,5 +350,19 @@ export class RunState {
   private advanceWeapon(id: WeaponId, state: WeaponRuntimeState): void {
     state.level = Math.min(MAX_WEAPON_LEVEL, state.level + 1);
     this.applyWeaponModifiers(id, state, WEAPONS[id].levelGrowth);
+  }
+
+  private applyCurseReward(reward: UpgradeDefinition['curse'], sourceId: string): AppliedRewardResult['curse'] {
+    if (!reward) {
+      return undefined;
+    }
+    const result = this.curse.gain(reward.curseGain, sourceId);
+    if (result) {
+      this.balance.recordTimeline(`curse:${sourceId}:+${result.amount}`, this.elapsedMs);
+      for (const tier of result.crossedTiers) {
+        this.balance.recordTimeline(`curse:tier:${tier.id}`, this.elapsedMs);
+      }
+    }
+    return result;
   }
 }
