@@ -262,11 +262,13 @@ Every weapon should have:
 **Implementation status:** Cadence tradeoffs are runtime-verified. The next focused
 family is implemented with typed authored effects: Soul Bolt gains Splintering
 Memory, Hellfire gains Spreading Sentence, and Dirge Staff gains Echoed Rites.
-Forbidden Tutelage adds the first explicit XP/threat tradeoff. These effects use a
-small focused runtime system and pure bounded rules rather than a generic scripting
+Forbidden Tutelage adds the first explicit XP/threat tradeoff. The first
+conditional upgrade batch now covers moving damage, dash-window damage, shielded
+offense, elite hunting, and cursed Echo/curse-gated prey. These effects use small
+focused runtime systems and pure bounded rules rather than a generic scripting
 language. The F10 lab is runtime-verified. Remaining focused weapon upgrades now
 return after evolution as level-seven specializations, closing the first late-run
-offer-quality gap. Conditional upgrades and broader offer weighting remain open.
+offer-quality gap. Broader offer weighting and value tuning remain open.
 
 ### Offer Quality
 
@@ -364,7 +366,7 @@ NG+ should increase challenge and rewards, but standard mode must first have a s
 3. [Implemented; tuning ongoing] Rebuild and retune the Warden around a roughly `120,000` HP starting target.
 4. [Complete] Replace Bloodletter Axe evolution with Crimson Orbit.
 5. [Complete] Establish distinct cadence and power targets for all existing weapons.
-6. [In progress] Expand meaningful upgrade families and reduce generic-stat offer dominance.
+6. [Implemented; tuning ongoing] Expand meaningful upgrade families and reduce generic-stat offer dominance.
 7. Add the five new weapons one at a time with complete evolutions and tests.
 8. Continue into build-defining artifacts and NG+ Lite with optional Torments.
 

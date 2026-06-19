@@ -11,7 +11,8 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Resolve elite-charge distance/color, Bloodletter outbound range, and reliquary presentation feedback
 - [x] Establish distinct cadence, power, strength, and weakness targets for all existing weapons
 - [x] Add the core curse, cursed reward mutation, curse-gated spawn pressure, and Death Echo foundation
-- [ ] Expand meaningful weapon and risk/reward upgrade families
+- [x] Add first meaningful weapon and risk/reward upgrade families: cadence tradeoffs, authored weapon effects, post-evolution specializations, axe-count scaling, and XP/threat risk
+- [x] Add the first conditional upgrade families around movement, dashes, shields, elite hunting, and curse/Echo interaction
 - [ ] Add five additional weapons individually, each with a unique evolution
 - [ ] Follow with build-defining artifacts, unique artifact assets, and NG+ Lite with optional Torments and later distinct bosses
 
@@ -98,7 +99,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Phase 2 artifacts and chests: run-only rewards, tier unlocks, artifact HUD
 - [x] Phase 3 characters V1: three characters, selection scene, stat profiles, unlock tracking
 - [x] Reliquary discoverability, labeled artifact tooltips, shake-safe HUD bounds, and longer pre-evolution weapon progression
-- [ ] Phase 4 dual-evolution prototype, beginning with Bloodletter Axe's Crimson Orbit behavior
+- [ ] Phase 4 dual-evolution prototype; Crimson Orbit exists as Bloodletter Axe's current capstone, but alternate evolution paths and selection are still pending
 - [ ] Phase 5 arena buildings V1
 - [ ] Phase 6 talent tree V1
 - [ ] Phase 7 New Game+ Lite

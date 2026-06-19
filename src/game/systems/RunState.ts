@@ -9,6 +9,7 @@ import type {
   ArtifactDefinition,
   BalancePresetId,
   CharacterId,
+  ConditionalUpgradeEffectId,
   PlayerStats,
   PlayerDamageSourceId,
   RunSummary,
@@ -266,6 +267,26 @@ export class RunState {
       }
     }
     return false;
+  }
+
+  hasConditionalEffect(effect: ConditionalUpgradeEffectId): boolean {
+    for (const [id, stacks] of this.upgradeStacks) {
+      if (stacks > 0 && UPGRADES[id].conditionalEffect === effect) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  getConditionalEffects(): ConditionalUpgradeEffectId[] {
+    const effects: ConditionalUpgradeEffectId[] = [];
+    for (const [id, stacks] of this.upgradeStacks) {
+      const effect = UPGRADES[id].conditionalEffect;
+      if (stacks > 0 && effect) {
+        effects.push(effect);
+      }
+    }
+    return effects;
   }
 
   increaseWeaponCap(amount: number): void {

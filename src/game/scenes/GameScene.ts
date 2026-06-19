@@ -37,6 +37,7 @@ import { LootRevealSystem } from '../ui/LootRevealSystem';
 import { PlayerVisualSystem } from '../systems/PlayerVisualSystem';
 import { mutateArtifactReward } from '../systems/CursedRewardMutationSystem';
 import { DeathEchoSystem } from '../systems/DeathEchoSystem';
+import { ConditionalUpgradeSystem } from '../systems/ConditionalUpgradeSystem';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -70,6 +71,7 @@ export class GameScene extends Phaser.Scene {
   private lootReveal!: LootRevealSystem;
   private playerVisuals!: PlayerVisualSystem;
   private deathEcho?: DeathEchoSystem;
+  private conditionalUpgrades!: ConditionalUpgradeSystem;
   private characterId?: CharacterId;
 
   constructor() {
@@ -130,16 +132,26 @@ export class GameScene extends Phaser.Scene {
       () => this.run.getThreatSnapshot(),
       () => this.deathEcho?.profile(),
     );
+    this.conditionalUpgrades = new ConditionalUpgradeSystem(this.player, this.run, this.juice);
     this.movement = new PlayerMovementSystem(this, this.player, this.run.stats, () => {
       this.run.balance.recordDash();
       audio.play('dash');
       this.juice.ring(this.player.x, this.player.y, 58, COLORS.soul, 180);
+      this.conditionalUpgrades.onDash(this.time.now);
     });
     this.pickups = new PickupSystem(this, this.player, this.run.stats, (xp, souls) =>
       this.collectPickup(xp, souls),
     );
     this.powerups = new PowerupSystem(this, this.player, this.run, this.pickups, this.juice);
-    this.weapons = new WeaponSystem(this, this.player, this.enemies, this.run, this.juice, this.powerups);
+    this.weapons = new WeaponSystem(
+      this,
+      this.player,
+      this.enemies,
+      this.run,
+      this.juice,
+      this.powerups,
+      this.conditionalUpgrades,
+    );
     this.bossAttacks = new BossAttackSystem(
       this,
       this.player,
@@ -364,6 +376,7 @@ export class GameScene extends Phaser.Scene {
   private handleEnemyDeath(death: EnemyDeath): void {
     this.run.kills += 1;
     this.run.balance.recordEnemyDeath(death.definition.id, death.lifetimeMs);
+    this.conditionalUpgrades.onEnemyDeath(death);
     if (death.definition.elite || death.definition.boss) {
       this.run.balance.recordTimeline(`kill:${death.definition.id}`, this.run.elapsedMs);
     }

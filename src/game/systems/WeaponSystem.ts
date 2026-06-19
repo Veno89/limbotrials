@@ -14,6 +14,7 @@ import { WeaponSynergySystem } from './WeaponSynergySystem';
 import { CrimsonOrbitSystem } from './CrimsonOrbitSystem';
 import { calculateBloodletterThrow, getBloodletterThrowAngles } from './weaponRules';
 import { WeaponUpgradeEffectSystem } from './WeaponUpgradeEffectSystem';
+import type { ConditionalUpgradeSystem } from './ConditionalUpgradeSystem';
 
 interface ProjectileRuntime {
   weaponId: WeaponId;
@@ -49,6 +50,7 @@ export class WeaponSystem {
     private readonly run: RunState,
     private readonly juice: JuiceSystem,
     private readonly powerups: PowerupSystem,
+    private readonly conditionalUpgrades: ConditionalUpgradeSystem,
   ) {
     this.projectiles = scene.physics.add.group();
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
@@ -392,7 +394,10 @@ export class WeaponSystem {
     const state = this.run.getWeaponState(weaponId);
     const result = calculateDamage({
       baseDamage: state.stats.damage,
-      damageMultiplier: this.run.stats.damage * this.synergies.damageMultiplier(weaponId),
+      damageMultiplier:
+        this.run.stats.damage *
+        this.synergies.damageMultiplier(weaponId) *
+        this.conditionalUpgrades.damageMultiplier(definition, this.scene.time.now),
       critChance: Math.min(
         BALANCE.maxCritChance,
         this.run.stats.critChance +

@@ -89,10 +89,15 @@ export type UpgradeId =
   | 'stat-crit-damage'
   | 'stat-dash'
   | 'stat-forbidden-tutelage'
+  | 'stat-restless-footwork'
+  | 'stat-fugitive-wake'
+  | 'stat-bulwark-pyre'
+  | 'stat-oathhunter-tithe'
   | 'curse-blood-price'
   | 'curse-fevered-soul'
   | 'curse-hollow-fortune'
-  | 'curse-final-covenant';
+  | 'curse-final-covenant'
+  | 'curse-echo-mark';
 
 export type EnemyId =
   | 'lost-soul'
@@ -161,6 +166,12 @@ export type WeaponUpgradeEffectId =
   | 'soul-bolt-splintering-memory'
   | 'hellfire-spreading-sentence'
   | 'dirge-staff-echoed-rites';
+export type ConditionalUpgradeEffectId =
+  | 'restless-footwork'
+  | 'fugitive-wake'
+  | 'bulwark-pyre'
+  | 'oathhunter-tithe'
+  | 'echo-mark';
 
 export type CurseTierId = 'unmarked' | 'touched' | 'marked' | 'condemned' | 'forsaken';
 export type EnemyTag = 'cursed' | 'hunted' | 'debt' | 'echo';
@@ -303,6 +314,11 @@ export interface UpgradeDefinition {
   modifiers?: StatModifier[];
   weaponModifiers?: WeaponModifier[];
   weaponEffect?: WeaponUpgradeEffectId;
+  conditionalEffect?: ConditionalUpgradeEffectId;
+  requirements?: {
+    shieldSource?: boolean;
+    minCurse?: number;
+  };
   targetWeapon?: WeaponId;
   unlockWeapon?: WeaponId;
   iconTexture: string;

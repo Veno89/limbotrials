@@ -90,6 +90,13 @@ Normal offers may be rerolled or skipped for souls. Elite kills grant bonus powe
 
 Frequent choices should increasingly change weapon behavior or create explicit tradeoffs rather than repeatedly offering generic stats. Valid examples include projectile count, meaningful area growth, splitting, echoes, orbiting, stronger attacks with longer cooldowns, and increased XP gain that also accelerates bounded threat escalation.
 
+The first conditional upgrade batch adds run-state choices around active play:
+moving can improve damage, dashing can open a short damage window, shields can be
+converted into offense, elite hunting can trade fodder damage for elite/boss
+pressure and soul rewards, and cursed Echo-marking can turn Death Echoes and
+curse-gated enemies into prey. These bonuses are intentionally explicit and
+bounded; they should reward playstyle without becoming mandatory.
+
 The first completed tradeoff family gives Bone Scythe, Wailing Shards, Cinder
 Reliquary, and Ashen Longbow one rare one-stack identity choice. These choices
 increase impact or projectile density while visibly extending downtime; they use

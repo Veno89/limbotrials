@@ -18,6 +18,8 @@ export interface UpgradeSelectionContext {
   equippedWeapons: ReadonlySet<WeaponId>;
   weaponLevels: ReadonlyMap<WeaponId, number>;
   playerLevel: number;
+  shieldSource?: boolean;
+  curseLevel?: number;
   weaponCap?: number;
 }
 
@@ -93,6 +95,12 @@ function isEligible(
   weaponCap: number,
 ): boolean {
   if ((context.stacks.get(upgrade.id) ?? 0) >= upgrade.maxStacks) {
+    return false;
+  }
+  if (upgrade.requirements?.shieldSource && !context.shieldSource) {
+    return false;
+  }
+  if (upgrade.requirements?.minCurse !== undefined && (context.curseLevel ?? 0) < upgrade.requirements.minCurse) {
     return false;
   }
   if (upgrade.category === 'weapon') {

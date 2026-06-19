@@ -12,6 +12,8 @@ function selectionContext(run: RunState, playerLevel: number) {
     equippedWeapons: run.weapons,
     weaponLevels: run.getWeaponLevels(),
     playerLevel,
+    shieldSource: run.stats.shieldInterval > 0 || run.shield > 0,
+    curseLevel: run.curse.snapshot().level,
   };
 }
 
@@ -306,5 +308,22 @@ describe('categorized upgrade system', () => {
     expect(run.useReroll()).toBe(true);
     expect(run.useReroll()).toBe(true);
     expect(run.useReroll()).toBe(false);
+  });
+
+  it('keeps shield conversion out of offers until a shield source exists', () => {
+    const run = new RunState(createDefaultSave());
+
+    expect(
+      selectUpgradeChoices(selectionContext(run, 8), seededRandom(11), 100).some(
+        (choice) => choice.id === 'stat-bulwark-pyre',
+      ),
+    ).toBe(false);
+
+    expect(run.applyArtifact('reinforced-buckler')).toBe(true);
+    expect(
+      selectUpgradeChoices(selectionContext(run, 8), seededRandom(11), 100).some(
+        (choice) => choice.id === 'stat-bulwark-pyre',
+      ),
+    ).toBe(true);
   });
 });

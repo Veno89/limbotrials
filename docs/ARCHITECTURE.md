@@ -39,6 +39,7 @@ src/game/
 - `CrimsonOrbitSystem`: focused persistent runtime controller for evolved Bloodletter Axe positioning and repeated collision checks.
 - `WeaponSynergySystem`: cached loadout-pair bonuses.
 - `CursedRewardMutationSystem`: central mutation layer that turns eligible upgrade or artifact offers into cursed variants without duplicating the base reward systems.
+- `ConditionalUpgradeSystem`: runtime bridge for typed conditional upgrades that depend on movement, dash windows, shields, target kind, and enemy deaths.
 - `DeathEchoSystem`: one-run controller that turns the latest saved death snapshot into a readable generated Echo encounter.
 - `PickupSystem`: soul drops, bounded pickup consolidation, magnet movement, and collection.
 - `PowerupSystem`: cooldown-bounded random healing, vacuum, and temporary frenzy drops plus guaranteed elite drops.
@@ -63,6 +64,7 @@ Generated walk cycles are not integrated unless every adjacent pose has a meanin
 - `SaveSystem`: versioned storage, defaults, purchases, run-history recording, and unlock migration.
 - `SpecialEffectHandlers`: typed registry for the small number of artifact effects that cannot be expressed as modifiers.
 - `deathEchoRules`: pure snapshot validation, snapshot creation, Echo stat scaling, ability translation, and spawn-plan rules.
+- `conditionalUpgradeRules`: pure damage multipliers, cursed/Echo target detection, and conditional soul-reward values.
 
 ## Runtime Clocks
 
@@ -153,6 +155,13 @@ through `RunState.hasWeaponEffect`, making the typed definition the actual contr
 XP-risk upgrades use the normal typed stat-modifier path. `xpGain` changes collected
 run XP, while `threatPowerBonus` contributes directly to the bounded power score in
 `threatRules.ts`; it does not bypass the threat cap or mutate existing enemies.
+
+Conditional upgrades declare a typed `conditionalEffect` ID. `RunState` exposes
+owned conditional effects, `UpgradeSystem` evaluates simple data requirements such
+as shield availability, and `ConditionalUpgradeSystem` owns runtime checks for
+movement, dash windows, shield state, elite targets, cursed enemies, Echoes, and
+enemy-death rewards. Keep new conditional families in that path unless they need a
+more focused system of their own.
 
 Curse thresholds and unlock rules live in `data/curse.ts`. `RunState` owns the
 active `CurseSystem`, upgrade and artifact selection apply curse through typed

@@ -98,6 +98,8 @@ export class UpgradeOfferSystem {
       equippedWeapons: this.run.weapons,
       weaponLevels: this.run.getWeaponLevels(),
       playerLevel: this.run.level,
+      shieldSource: this.run.stats.shieldInterval > 0 || this.run.shield > 0,
+      curseLevel: this.run.curse.snapshot().level,
       weaponCap: this.run.getWeaponCap(),
     };
     const choices = kind === 'curse' ? selectCurseChoices(context) : selectUpgradeChoices(context);
