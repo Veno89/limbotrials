@@ -12,6 +12,8 @@ export class ResultLeaderboardForm {
     scene: Phaser.Scene,
     session: RunSubmissionSession,
     onResult: (result: RunSubmissionResult) => void,
+    x = 640,
+    y = 510,
   ) {
     this.root = document.createElement('form');
     this.root.className = 'result-name-form';
@@ -57,7 +59,7 @@ export class ResultLeaderboardForm {
       });
     });
 
-    scene.add.dom(640, 545, this.root);
+    scene.add.dom(x, y, this.root);
   }
 
   destroy(): void {

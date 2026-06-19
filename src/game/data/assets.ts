@@ -39,6 +39,18 @@ import propAltar from '../../../assets/environment/props/prop_dark_altar.png?url
 import propRubble from '../../../assets/environment/props/prop_rubble_pile.png?url';
 import propBrazier from '../../../assets/environment/light_sources/obsidian_magic_brazier.png?url';
 import propLantern from '../../../assets/environment/light_sources/spectral_soul_lantern.png?url';
+import testDownIdle from '../../../assets/test/down_idle.png?url';
+import testDown1 from '../../../assets/test/down_1.png?url';
+import testDown2 from '../../../assets/test/down_2.png?url';
+import testUpIdle from '../../../assets/test/up_idle.png?url';
+import testUp1 from '../../../assets/test/up_1.png?url';
+import testUp2 from '../../../assets/test/up_2.png?url';
+import testRightIdle from '../../../assets/test/right_idle.png?url';
+import testRight1 from '../../../assets/test/right_1.png?url';
+import testRight2 from '../../../assets/test/right_2.png?url';
+import testLeftIdle from '../../../assets/test/left_idle.png?url';
+import testLeft1 from '../../../assets/test/left_1.png?url';
+import testLeft2 from '../../../assets/test/left_2.png?url';
 
 export const ASSETS: Array<[string, string]> = [
   ['menu-background', menuBackground],
@@ -81,6 +93,18 @@ export const ASSETS: Array<[string, string]> = [
   ['prop-rubble', propRubble],
   ['prop-brazier', propBrazier],
   ['prop-lantern', propLantern],
+  ['test-down-idle', testDownIdle],
+  ['test-down-1', testDown1],
+  ['test-down-2', testDown2],
+  ['test-up-idle', testUpIdle],
+  ['test-up-1', testUp1],
+  ['test-up-2', testUp2],
+  ['test-right-idle', testRightIdle],
+  ['test-right-1', testRight1],
+  ['test-right-2', testRight2],
+  ['test-left-idle', testLeftIdle],
+  ['test-left-1', testLeft1],
+  ['test-left-2', testLeft2],
 ];
 
 export const HAUNTED_WALK_SHEET = playerHauntedWalk;

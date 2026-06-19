@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type { CharacterId } from '../types/gameTypes';
-import { directionFromVelocity, HAUNTED_IDLE_FRAMES, type PlayerVisualDirection } from './playerVisualRules';
+import { directionFromVelocity, type PlayerVisualDirection } from './playerVisualRules';
 
 export class PlayerVisualSystem {
   private readonly animated?: Phaser.GameObjects.Sprite;
@@ -16,7 +16,7 @@ export class PlayerVisualSystem {
     }
     this.player.setAlpha(0);
     this.animated = scene.add
-      .sprite(player.x, player.y, 'player-haunted-walk', HAUNTED_IDLE_FRAMES.front)
+      .sprite(player.x, player.y, 'test-down-idle')
       .setDisplaySize(108, 81)
       .setDepth(player.depth);
   }
@@ -31,9 +31,22 @@ export class PlayerVisualSystem {
       this.direction = nextDirection;
     }
     const hoverOffset = Math.sin(time / 260) * 1.5;
-    this.animated
-      .setPosition(this.player.x, this.player.y + hoverOffset)
-      .setFrame(HAUNTED_IDLE_FRAMES[this.direction]);
+
+    const isMoving = body.velocity.x !== 0 || body.velocity.y !== 0;
+
+    let base = 'test-down';
+    if (this.direction === 'back') base = 'test-up';
+    else if (this.direction === 'right') base = 'test-right';
+    else if (this.direction === 'left') base = 'test-left';
+
+    if (isMoving) {
+      const frameNum = Math.floor(time / 200) % 2 === 0 ? '1' : '2';
+      this.animated.setTexture(`${base}-${frameNum}`);
+    } else {
+      this.animated.setTexture(`${base}-idle`);
+    }
+
+    this.animated.setPosition(this.player.x, this.player.y + hoverOffset);
   }
 
   setTint(color: number): void {

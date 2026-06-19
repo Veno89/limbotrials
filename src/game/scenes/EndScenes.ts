@@ -26,14 +26,14 @@ abstract class EndScene extends Phaser.Scene {
     addTitle(
       this,
       GAME_WIDTH / 2,
-      150,
+      112,
       this.victory ? 'THE WARDEN FALLS' : 'OBLIVION CLAIMS YOU',
       43,
     ).setColor(this.victory ? '#d8c49b' : '#c96d72');
     this.add
       .text(
         GAME_WIDTH / 2,
-        285,
+        232,
         `${CHARACTERS[this.summary.characterId].name.toUpperCase()}\nTIME  ${formatTime(this.summary.elapsedMs)}   /   LEVEL  ${this.summary.level}\nSOULS REAPED  ${this.summary.souls}   /   ENEMIES ENDED  ${this.summary.kills}\nARTIFACTS CLAIMED  ${this.summary.artifacts.length}   /   CURSE  ${this.summary.curse.level} ${this.summary.curse.tierLabel.toUpperCase()}`,
         {
           fontFamily: 'Cinzel, serif',
@@ -51,7 +51,7 @@ abstract class EndScene extends Phaser.Scene {
       .map((result) => `${WEAPONS[result.id].name.toUpperCase()}  ${result.damage} DMG  ${result.kills} KILLS`)
       .join('\n');
     this.add
-      .text(GAME_WIDTH / 2, 365, weaponResults, {
+      .text(GAME_WIDTH / 2, 330, weaponResults, {
         fontFamily: 'Cinzel, serif',
         fontSize: '13px',
         color: '#9fb8c2',
@@ -65,7 +65,7 @@ abstract class EndScene extends Phaser.Scene {
     ];
     if (unlocks.length > 0) {
       this.add
-        .text(GAME_WIDTH / 2, 410, unlocks.join('\n'), {
+        .text(GAME_WIDTH / 2, 386, unlocks.join('\n'), {
           fontFamily: 'Cinzel, serif',
           fontSize: '14px',
           color: '#d8c49b',
@@ -76,11 +76,12 @@ abstract class EndScene extends Phaser.Scene {
     if (this.summary.balance.presetId === 'standard') {
       const session = createRunSubmissionSession(this.summary);
       const submissionStatus = this.add
-        .text(GAME_WIDTH / 2, 685, 'RECORDING RUN...', {
+        .text(GAME_WIDTH / 2, 592, 'RECORDING RUN...', {
           fontFamily: 'Cinzel, serif',
-          fontSize: '11px',
+          fontSize: '10px',
           color: '#9fb8c2',
           align: 'center',
+          wordWrap: { width: 780 },
         })
         .setOrigin(0.5);
       const showResult = (result: RunSubmissionResult): void => {
@@ -90,21 +91,21 @@ abstract class EndScene extends Phaser.Scene {
             .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
         }
       };
-      this.nameForm = new ResultLeaderboardForm(this, session, showResult);
+      this.nameForm = new ResultLeaderboardForm(this, session, showResult, GAME_WIDTH / 2, 510);
       void session.submit().then(showResult);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         this.nameForm?.destroy();
         this.nameForm = undefined;
       });
     }
-    addButton(this, GAME_WIDTH / 2, 470, 'BALANCE REPORT', () => {
+    addButton(this, 320, 652, 'BALANCE REPORT', () => {
       this.scene.pause();
       this.scene.launch('BalanceReportScene', { summary: this.summary, returnScene: this.scene.key });
-    }, 320);
-    addButton(this, 455, 625, 'RETURN TO LIMBO', () => this.scene.start('MainMenuScene'), 320);
-    addButton(this, 825, 625, 'TRY AGAIN', () => {
+    }, 280);
+    addButton(this, GAME_WIDTH / 2, 652, 'RETURN TO LIMBO', () => this.scene.start('MainMenuScene'), 300);
+    addButton(this, 960, 652, 'TRY AGAIN', () => {
       this.scene.start(FEATURE_FLAGS.characters ? 'CharacterSelectScene' : 'GameScene');
-    }, 320);
+    }, 280);
   }
 }
 
