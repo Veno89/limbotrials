@@ -68,6 +68,7 @@
 - Added a run-level curse system with data-defined tiers, cursed upgrade/artifact mutation, curse-gated enemies, a high-curse Warden pressure hook, HUD/result/balance reporting, and saved Player Death Echo snapshots that can return as a simplified future-run enemy.
 - Added the first conditional upgrade family batch: moving damage, dash-window damage, shield-to-offense conversion, elite-hunter damage and soul rewards, and cursed Echo/curse-gated prey rewards.
 - Added a focused curse-pressure pass: curse-specific enemy and Warden spawn scaling, cursed enemy tinting, threshold and recurring curse surge events, a HUD curse meter, a player curse aura, and Cinder Reliquary containment after full-run data showed runaway pulse area and damage.
+- Reworked the end screen around player actions: main menu, same-character retry, explicit run-data upload, optional score publishing, and a quit path back to the landing page.
 
 ## Current State
 

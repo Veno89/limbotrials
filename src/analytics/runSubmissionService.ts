@@ -35,7 +35,7 @@ async function submitRunRecord(
         status: result.analyticsRecorded ? 'partial' : 'failed',
         analyticsRecorded: result.analyticsRecorded,
         leaderboardRecorded: result.leaderboardRecorded,
-        message: result.error ?? 'The run could not be recorded.',
+        message: result.error ?? 'The run data could not be uploaded.',
       };
     }
     if (!result.leaderboardEligible) {
@@ -43,21 +43,21 @@ async function submitRunRecord(
         status: 'recorded',
         analyticsRecorded: true,
         leaderboardRecorded: false,
-        message: 'Run analytics recorded. Submit a name above to publish this score.',
+        message: 'Run data uploaded. Add a name to publish this score.',
       };
     }
     return {
       status: 'recorded',
       analyticsRecorded: true,
       leaderboardRecorded: true,
-      message: 'Run analytics and leaderboard score recorded.',
+      message: 'Run data uploaded and score published.',
     };
   } catch {
     return {
       status: 'failed',
       analyticsRecorded: false,
       leaderboardRecorded: false,
-      message: 'Global run recording could not be reached.',
+      message: 'The run data could not reach the records.',
     };
   }
 }

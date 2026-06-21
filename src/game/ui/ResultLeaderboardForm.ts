@@ -18,7 +18,7 @@ export class ResultLeaderboardForm {
     this.root = document.createElement('form');
     this.root.className = 'result-name-form';
     this.root.innerHTML = `
-      <label for="result-leaderboard-name">PUBLISH THIS RUN TO THE LEDGER</label>
+      <label for="result-leaderboard-name">OPTIONAL: PUBLISH SCORE</label>
       <div>
         <input
           id="result-leaderboard-name"
@@ -28,7 +28,7 @@ export class ResultLeaderboardForm {
         />
         <button type="submit">PUBLISH SCORE</button>
       </div>
-      <p>Private balance analytics are saved automatically. Publishing the score is optional.</p>
+      <p>Upload run data below, or add a name here to place this run on the public leaderboard.</p>
     `;
     this.input = this.root.querySelector('input')!;
     this.button = this.root.querySelector('button')!;

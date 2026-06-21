@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { gameConfig } from '../game/config';
+import { RETURN_TO_SITE_EVENT } from '../game/gameExitEvents';
 
 export async function launchGame(root: HTMLElement, onExit: () => void): Promise<void> {
   root.innerHTML = `
@@ -16,8 +17,16 @@ export async function launchGame(root: HTMLElement, onExit: () => void): Promise
   `;
 
   const game = new Phaser.Game(gameConfig);
-  root.querySelector<HTMLButtonElement>('[data-exit-game]')?.addEventListener('click', () => {
+  let exited = false;
+  const exit = (): void => {
+    if (exited) {
+      return;
+    }
+    exited = true;
+    window.removeEventListener(RETURN_TO_SITE_EVENT, exit);
     game.destroy(true);
     onExit();
-  });
+  };
+  window.addEventListener(RETURN_TO_SITE_EVENT, exit);
+  root.querySelector<HTMLButtonElement>('[data-exit-game]')?.addEventListener('click', exit);
 }

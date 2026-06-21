@@ -4,9 +4,9 @@ import type { RunSummary } from '../types/gameTypes';
 import { addButton, addTitle, formatTime } from '../ui/uiHelpers';
 import { WEAPONS } from '../data/weapons';
 import { CHARACTERS } from '../data/characters';
-import { FEATURE_FLAGS } from '../config/featureFlags';
 import { createRunSubmissionSession, type RunSubmissionResult } from '../../analytics/runSubmissionService';
 import { ResultLeaderboardForm } from '../ui/ResultLeaderboardForm';
+import { requestReturnToSite } from '../gameExitEvents';
 
 abstract class EndScene extends Phaser.Scene {
   private summary!: RunSummary;
@@ -26,21 +26,21 @@ abstract class EndScene extends Phaser.Scene {
     addTitle(
       this,
       GAME_WIDTH / 2,
-      112,
+      92,
       this.victory ? 'THE WARDEN FALLS' : 'OBLIVION CLAIMS YOU',
       43,
     ).setColor(this.victory ? '#d8c49b' : '#c96d72');
     this.add
       .text(
         GAME_WIDTH / 2,
-        232,
+        205,
         `${CHARACTERS[this.summary.characterId].name.toUpperCase()}\nTIME  ${formatTime(this.summary.elapsedMs)}   /   LEVEL  ${this.summary.level}\nSOULS REAPED  ${this.summary.souls}   /   ENEMIES ENDED  ${this.summary.kills}\nARTIFACTS CLAIMED  ${this.summary.artifacts.length}   /   CURSE  ${this.summary.curse.level} ${this.summary.curse.tierLabel.toUpperCase()}`,
         {
           fontFamily: 'Cinzel, serif',
-          fontSize: '19px',
+          fontSize: '18px',
           color: '#d7e3e8',
           align: 'center',
-          lineSpacing: 9,
+          lineSpacing: 8,
           stroke: '#030506',
           strokeThickness: 4,
         },
@@ -49,9 +49,9 @@ abstract class EndScene extends Phaser.Scene {
     const weaponResults = this.summary.weaponResults
       .slice(0, 3)
       .map((result) => `${WEAPONS[result.id].name.toUpperCase()}  ${result.damage} DMG  ${result.kills} KILLS`)
-      .join('\n');
+      .join('\n') || 'NO WEAPON RECORDS';
     this.add
-      .text(GAME_WIDTH / 2, 330, weaponResults, {
+      .text(GAME_WIDTH / 2, 318, weaponResults, {
         fontFamily: 'Cinzel, serif',
         fontSize: '13px',
         color: '#9fb8c2',
@@ -65,7 +65,7 @@ abstract class EndScene extends Phaser.Scene {
     ];
     if (unlocks.length > 0) {
       this.add
-        .text(GAME_WIDTH / 2, 386, unlocks.join('\n'), {
+        .text(GAME_WIDTH / 2, 374, unlocks.join('\n'), {
           fontFamily: 'Cinzel, serif',
           fontSize: '14px',
           color: '#d8c49b',
@@ -73,39 +73,80 @@ abstract class EndScene extends Phaser.Scene {
         })
         .setOrigin(0.5);
     }
-    if (this.summary.balance.presetId === 'standard') {
-      const session = createRunSubmissionSession(this.summary);
-      const submissionStatus = this.add
-        .text(GAME_WIDTH / 2, 592, 'RECORDING RUN...', {
+    const canUpload = this.summary.balance.presetId === 'standard';
+    const session = canUpload ? createRunSubmissionSession(this.summary) : undefined;
+    const uploadStatus = this.add
+      .text(
+        GAME_WIDTH / 2,
+        552,
+        canUpload ? 'RUNDATA READY TO UPLOAD' : 'LAB RUNS STAY LOCAL',
+        {
           fontFamily: 'Cinzel, serif',
           fontSize: '10px',
-          color: '#9fb8c2',
+          color: canUpload ? '#9fb8c2' : '#d8c49b',
           align: 'center',
           wordWrap: { width: 780 },
-        })
-        .setOrigin(0.5);
-      const showResult = (result: RunSubmissionResult): void => {
-        if (submissionStatus.active) {
-          submissionStatus
-            .setText(result.message.toUpperCase())
-            .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
+        },
+      )
+      .setOrigin(0.5);
+    let uploadInFlight = false;
+    let uploadRecorded = false;
+    const uploadButton = addButton(this, 790, 650, 'UPLOAD RUNDATA', () => {
+      if (!session) {
+        uploadStatus.setText('ONLY STANDARD RUNS CAN BE UPLOADED').setColor('#d8c49b');
+        return;
+      }
+      if (uploadRecorded) {
+        uploadStatus.setText('RUNDATA ALREADY UPLOADED').setColor('#69d9ff');
+        return;
+      }
+      if (uploadInFlight) {
+        return;
+      }
+      uploadInFlight = true;
+      setButtonLabel(uploadButton, 'UPLOADING...');
+      uploadStatus.setText('UPLOADING RUNDATA...').setColor('#9fb8c2');
+      void session.submit().then(showUploadResult).finally(() => {
+        uploadInFlight = false;
+        if (!uploadRecorded) {
+          setButtonLabel(uploadButton, 'UPLOAD RUNDATA');
         }
-      };
-      this.nameForm = new ResultLeaderboardForm(this, session, showResult, GAME_WIDTH / 2, 510);
-      void session.submit().then(showResult);
+      });
+    }, 250);
+    const showResult = (result: RunSubmissionResult): void => {
+      showUploadResult(result);
+    };
+    if (this.summary.balance.presetId === 'standard') {
+      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, 470);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         this.nameForm?.destroy();
         this.nameForm = undefined;
       });
     }
-    addButton(this, 320, 652, 'BALANCE REPORT', () => {
-      this.scene.pause();
-      this.scene.launch('BalanceReportScene', { summary: this.summary, returnScene: this.scene.key });
-    }, 280);
-    addButton(this, GAME_WIDTH / 2, 652, 'RETURN TO LIMBO', () => this.scene.start('MainMenuScene'), 300);
-    addButton(this, 960, 652, 'TRY AGAIN', () => {
-      this.scene.start(FEATURE_FLAGS.characters ? 'CharacterSelectScene' : 'GameScene');
-    }, 280);
+    addButton(this, 170, 650, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
+    addButton(this, 480, 650, 'TRY AGAIN', () => {
+      this.scene.start('GameScene', { characterId: this.summary.characterId });
+    }, 250);
+    addButton(this, 1110, 650, 'QUIT', () => requestReturnToSite(), 250);
+
+    function showUploadResult(result: RunSubmissionResult): void {
+      uploadRecorded = uploadRecorded || result.analyticsRecorded;
+      if (uploadStatus.active) {
+        uploadStatus
+          .setText(result.message.toUpperCase())
+          .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
+      }
+      if (uploadRecorded) {
+        setButtonLabel(uploadButton, 'UPLOADED');
+      }
+    }
+  }
+}
+
+function setButtonLabel(button: Phaser.GameObjects.Container, label: string): void {
+  const text = button.getAt(1);
+  if (text instanceof Phaser.GameObjects.Text) {
+    text.setText(label);
   }
 }
 
