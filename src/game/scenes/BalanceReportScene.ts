@@ -193,9 +193,8 @@ export class BalanceReportScene extends Phaser.Scene {
     this.text(
       55,
       205,
-      `OFFERS ${report.upgradeOffers.length}   REROLLS ${report.rerolls}   SKIPS ${report.skips}\n\n${
-        choices || 'NO UPGRADE DECISIONS RECORDED'
-      }`,
+      `OFFERS ${report.upgradeOffers.length}   REROLLS ${report.rerolls}   SKIPS ${report.skips}   ` +
+        `CURSED ${report.cursedRewards.length}\n\n${choices || 'NO UPGRADE DECISIONS RECORDED'}`,
       12,
     );
 

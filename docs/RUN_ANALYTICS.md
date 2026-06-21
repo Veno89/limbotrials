@@ -119,23 +119,37 @@ group by death_source
 order by deaths desc;
 ```
 
-Curse progression for recent runs:
+Curse rewards and progression for recent runs:
 
 ```sql
 select
-  created_at,
-  run_id,
-  run_summary #>> '{curse,tierLabel}' as final_curse_tier,
-  (run_summary #>> '{curse,level}')::integer as final_curse,
-  event ->> 'id' as event_id,
-  round(((event ->> 'atMs')::numeric / 1000.0), 1) as at_seconds
+  analytics.created_at,
+  analytics.run_id,
+  coalesce(analytics.player_name, leaderboard.player_name) as player_name,
+  analytics.run_summary #>> '{curse,tierLabel}' as final_curse_tier,
+  (analytics.run_summary #>> '{curse,level}')::integer as final_curse,
+  reward ->> 'sourceKind' as source_kind,
+  reward ->> 'sourceId' as source_id,
+  reward ->> 'baseId' as base_id,
+  (reward ->> 'generated')::boolean as generated_variant,
+  reward ->> 'pattern' as curse_pattern,
+  (reward ->> 'curseGain')::integer as curse_gain,
+  reward ->> 'tierBefore' as tier_before,
+  reward ->> 'tierAfter' as tier_after,
+  round(((reward ->> 'atMs')::numeric / 1000.0), 1) as at_seconds
 from public.run_analytics
-cross join lateral jsonb_array_elements(run_summary -> 'balance' -> 'timeline') as event
-where event ->> 'id' like 'curse:%'
-   or event ->> 'id' like 'curse-event:%'
-order by created_at desc, at_seconds asc
+  as analytics
+left join public.leaderboard_entries as leaderboard
+  on leaderboard.run_id = analytics.run_id
+cross join lateral jsonb_array_elements(
+  analytics.run_summary -> 'balance' -> 'cursedRewards'
+) as reward
+order by analytics.created_at desc, at_seconds asc
 limit 100;
 ```
+
+Runs recorded before `balance.cursedRewards` existed can still be inspected
+through `balance.timeline` entries beginning with `curse:` or `curse-event:`.
 
 ## Player Progression
 

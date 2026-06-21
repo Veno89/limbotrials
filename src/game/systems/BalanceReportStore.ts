@@ -19,6 +19,7 @@ export function loadLastRunSummary(storage: StorageLike = localStorage): RunSumm
       return undefined;
     }
     parsed.balance.threatSamples ??= [];
+    parsed.balance.cursedRewards ??= [];
     parsed.cursedArtifacts ??= [];
     parsed.upgradeIds ??= [];
     parsed.curse ??= curseSnapshot(0, 0, new Set(['unmarked']));

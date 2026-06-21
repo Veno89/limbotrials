@@ -71,10 +71,11 @@
 - Replaced the first AI-generated weapon presentation assets with handmade test sprites for eight weapons, plus a handmade crawler test sprite and a cleaned `assets/test` layout.
 - Softened action-bar cooldown labels so the gradient remains the primary cooldown read without covering the new weapon sprites.
 - Reworked the end screen around player actions: main menu, same-character retry, a styled name-gated **Upload Run** panel that records analytics and leaderboard score together, and a quit path back to the landing page.
+- Added structured cursed-reward analytics so uploaded runs record authored/generated curse choices, curse gain, before/after tiers, timing, pattern, and downside separately from timeline strings.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -94,4 +95,4 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 
 ## Next Recommended Task
 
-Use the uploaded Supabase run data for a short balance/telemetry pass: make cursed reward analytics easier to read, then playtest safe, high-curse, Cinder-heavy, and conditional-upgrade-heavy runs. Tune curse surge pressure, reward mutation rates, Echo readability, Warden fight duration, and conditional upgrade values before adding the first new weapon.
+Use the next uploaded Supabase runs for a short balance pass across safe, high-curse, Cinder-heavy, and conditional-upgrade-heavy builds. Tune curse surge pressure, reward mutation rates, Echo readability, Warden fight duration, and conditional upgrade values before adding the first new weapon batch.

@@ -17,6 +17,23 @@ describe('balance telemetry', () => {
     telemetry.recordOffer('standard', ['stat-vigor', 'stat-movement'], 72000);
     telemetry.recordChoice('standard', 'selected', 72000, 'stat-vigor');
     telemetry.recordChoice('standard', 'rerolled', 73000);
+    telemetry.recordCursedReward({
+      atMs: 73500,
+      sourceKind: 'upgrade',
+      sourceId: 'curse-blood-price',
+      baseId: 'curse-blood-price',
+      generated: false,
+      name: 'Blood Price',
+      pattern: 'blood-price',
+      curseGain: 8,
+      downside: 'Maximum health is cut away as payment.',
+      warning: 'BLOOD PRICE ACCEPTED',
+      curseBefore: 0,
+      curseAfter: 8,
+      tierBefore: 'unmarked',
+      tierAfter: 'touched',
+      crossedTiers: ['touched'],
+    });
     telemetry.recordPowerupSpawn('grave-frenzy');
     telemetry.recordPowerupCollected('grave-frenzy', 74000);
     telemetry.recordThreat(
@@ -75,6 +92,23 @@ describe('balance telemetry', () => {
         damageMultiplier: 1.12,
       },
     ]);
+    expect(report.cursedRewards).toContainEqual({
+      atMs: 73500,
+      sourceKind: 'upgrade',
+      sourceId: 'curse-blood-price',
+      baseId: 'curse-blood-price',
+      generated: false,
+      name: 'Blood Price',
+      pattern: 'blood-price',
+      curseGain: 8,
+      downside: 'Maximum health is cut away as payment.',
+      warning: 'BLOOD PRICE ACCEPTED',
+      curseBefore: 0,
+      curseAfter: 8,
+      tierBefore: 'unmarked',
+      tierAfter: 'touched',
+      crossedTiers: ['touched'],
+    });
     expect(report.timeline).toContainEqual({ atMs: 74000, id: 'threat:tier-2' });
   });
 

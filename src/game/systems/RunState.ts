@@ -40,6 +40,14 @@ export interface DamageResolution {
   absorbed: number;
 }
 
+interface CurseRewardSource {
+  kind: 'upgrade' | 'artifact';
+  id: UpgradeId | ArtifactId;
+  baseId: UpgradeId | ArtifactId;
+  name: string;
+  generated: boolean;
+}
+
 export class RunState {
   readonly stats: PlayerStats;
   readonly weapons = new Set<WeaponId>();
@@ -153,7 +161,17 @@ export class RunState {
     const applied = this.applyUpgradeDefinition(definition);
     return {
       applied,
-      ...(applied ? { curse: this.applyCurseReward(definition.curse, definition.id) } : {}),
+      ...(applied
+        ? {
+            curse: this.applyCurseReward(definition.curse, {
+              kind: 'upgrade',
+              id: definition.id,
+              baseId: definition.id,
+              name: definition.name,
+              generated: Boolean(definition.curse && UPGRADES[definition.id]?.curse !== definition.curse),
+            }),
+          }
+        : {}),
     };
   }
 
@@ -244,7 +262,13 @@ export class RunState {
     this.health = Math.min(this.health, this.stats.maxHealth);
     return {
       applied: true,
-      curse: this.applyCurseReward(definition.curse, definition.id),
+      curse: this.applyCurseReward(definition.curse, {
+        kind: 'artifact',
+        id: definition.id,
+        baseId: definition.id,
+        name: definition.name,
+        generated: Boolean(definition.curse && ARTIFACTS[definition.id]?.curse !== definition.curse),
+      }),
     };
   }
 
@@ -373,13 +397,33 @@ export class RunState {
     this.applyWeaponModifiers(id, state, WEAPONS[id].levelGrowth);
   }
 
-  private applyCurseReward(reward: UpgradeDefinition['curse'], sourceId: string): AppliedRewardResult['curse'] {
+  private applyCurseReward(
+    reward: UpgradeDefinition['curse'],
+    source: CurseRewardSource,
+  ): AppliedRewardResult['curse'] {
     if (!reward) {
       return undefined;
     }
-    const result = this.curse.gain(reward.curseGain, sourceId);
+    const result = this.curse.gain(reward.curseGain, source.id);
     if (result) {
-      this.balance.recordTimeline(`curse:${sourceId}:+${result.amount}`, this.elapsedMs);
+      this.balance.recordTimeline(`curse:${source.id}:+${result.amount}`, this.elapsedMs);
+      this.balance.recordCursedReward({
+        atMs: this.elapsedMs,
+        sourceKind: source.kind,
+        sourceId: source.id,
+        baseId: source.baseId,
+        generated: source.generated,
+        name: source.name,
+        pattern: reward.pattern,
+        curseGain: result.amount,
+        downside: reward.downside,
+        ...(reward.warning ? { warning: reward.warning } : {}),
+        curseBefore: result.previous.level,
+        curseAfter: result.current.level,
+        tierBefore: result.previous.tier,
+        tierAfter: result.current.tier,
+        crossedTiers: result.crossedTiers.map((tier) => tier.id),
+      });
       for (const tier of result.crossedTiers) {
         this.balance.recordTimeline(`curse:tier:${tier.id}`, this.elapsedMs);
       }

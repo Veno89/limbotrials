@@ -109,6 +109,7 @@ describe('save system', () => {
         enemyResults: [],
         upgradeOffers: [],
         upgradeChoices: [],
+        cursedRewards: [],
         powerupsSpawned: { 'mending-soul': 0, 'soul-vacuum': 0, 'grave-frenzy': 0 },
         powerupsCollected: { 'mending-soul': 0, 'soul-vacuum': 0, 'grave-frenzy': 0 },
         threatSamples: [],

@@ -507,6 +507,26 @@ export interface UpgradeChoiceRecord {
   outcome: 'selected' | 'rerolled' | 'skipped';
 }
 
+export type CursedRewardSourceKind = 'upgrade' | 'artifact';
+
+export interface CursedRewardRecord {
+  atMs: number;
+  sourceKind: CursedRewardSourceKind;
+  sourceId: UpgradeId | ArtifactId;
+  baseId: UpgradeId | ArtifactId;
+  generated: boolean;
+  name: string;
+  pattern: CurseRewardPattern;
+  curseGain: number;
+  downside: string;
+  warning?: string;
+  curseBefore: number;
+  curseAfter: number;
+  tierBefore: CurseTierId;
+  tierAfter: CurseTierId;
+  crossedTiers: CurseTierId[];
+}
+
 export interface BalanceTimelineEvent {
   atMs: number;
   id: string;
@@ -557,6 +577,7 @@ export interface BalanceReport {
   enemyResults: EnemyBalanceResult[];
   upgradeOffers: UpgradeOfferRecord[];
   upgradeChoices: UpgradeChoiceRecord[];
+  cursedRewards: CursedRewardRecord[];
   powerupsSpawned: Record<PowerupId, number>;
   powerupsCollected: Record<PowerupId, number>;
   threatSamples: ThreatSample[];

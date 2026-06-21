@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createDefaultSave } from '../systems/SaveSystem';
 import { RunState } from '../systems/RunState';
+import { mutateUpgradeChoices } from '../systems/CursedRewardMutationSystem';
 import { selectCurseChoices, selectUpgradeChoices } from '../systems/UpgradeSystem';
 import { EVOLUTION_READY_LEVEL, MAX_WEAPON_LEVEL, type UpgradeId, type WeaponId } from '../types/gameTypes';
 import { WEAPONS } from '../data/weapons';
@@ -308,6 +309,50 @@ describe('categorized upgrade system', () => {
     expect(run.useReroll()).toBe(true);
     expect(run.useReroll()).toBe(true);
     expect(run.useReroll()).toBe(false);
+  });
+
+  it('records authored cursed upgrades as structured analytics', () => {
+    const run = new RunState(createDefaultSave());
+
+    expect(run.applyUpgrade('curse-blood-price')).toBe(true);
+
+    expect(run.summary(false).balance.cursedRewards[0]).toMatchObject({
+      sourceKind: 'upgrade',
+      sourceId: 'curse-blood-price',
+      baseId: 'curse-blood-price',
+      generated: false,
+      name: 'Blood Price',
+      pattern: 'blood-price',
+      curseGain: 8,
+      curseBefore: 0,
+      curseAfter: 8,
+      tierBefore: 'unmarked',
+      tierAfter: 'touched',
+      crossedTiers: ['touched'],
+    });
+  });
+
+  it('records generated cursed upgrade variants as structured analytics', () => {
+    const run = new RunState(createDefaultSave());
+    run.applyUpgrade('curse-blood-price');
+    const [choice] = mutateUpgradeChoices([UPGRADES['stat-pickup']], run.curse.snapshot(), 'standard', () => 0);
+
+    expect(choice?.curse?.pattern).toBe('greed-mark');
+    expect(choice ? run.applyUpgradeChoice(choice).applied : false).toBe(true);
+
+    expect(run.summary(false).balance.cursedRewards.at(-1)).toMatchObject({
+      sourceKind: 'upgrade',
+      sourceId: 'stat-pickup',
+      baseId: 'stat-pickup',
+      generated: true,
+      pattern: 'greed-mark',
+      curseGain: 7,
+      curseBefore: 8,
+      curseAfter: 15,
+      tierBefore: 'touched',
+      tierAfter: 'touched',
+      crossedTiers: [],
+    });
   });
 
   it('keeps shield conversion out of offers until a shield source exists', () => {

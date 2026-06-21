@@ -21,6 +21,7 @@ describe('run submission rules', () => {
     expect(parsed?.playerName).toBeUndefined();
     expect(parsed?.score.playerName).toBe('Anonymous');
     expect(parsed?.summary.balance.presetId).toBe('standard');
+    expect(parsed?.summary.balance.cursedRewards).toEqual([]);
   });
 
   it('normalizes a named run for analytics and leaderboard storage', () => {

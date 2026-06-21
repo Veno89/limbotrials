@@ -96,6 +96,7 @@ function hasBoundedArrays(summary: Record<string, unknown>, balance: Record<stri
     boundedArray(balance.enemyResults, 64) &&
     boundedArray(balance.upgradeOffers, 512) &&
     boundedArray(balance.upgradeChoices, 512) &&
+    boundedArray(balance.cursedRewards, 128) &&
     boundedArray(balance.threatSamples, 128) &&
     boundedArray(balance.timeline, 2_048) &&
     boundedArray(balance.minutes, 31)

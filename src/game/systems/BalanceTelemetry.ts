@@ -2,6 +2,7 @@ import type {
   BalanceMinuteResult,
   BalancePresetId,
   BalanceReport,
+  CursedRewardRecord,
   EnemyBalanceResult,
   EnemyId,
   IncomingDamageResult,
@@ -50,6 +51,7 @@ export class BalanceTelemetry {
   private readonly minuteBuckets = new Map<number, BalanceMinuteResult>();
   private readonly offers: BalanceReport['upgradeOffers'] = [];
   private readonly choices: BalanceReport['upgradeChoices'] = [];
+  private readonly cursedRewards: BalanceReport['cursedRewards'] = [];
   private readonly timeline: BalanceReport['timeline'] = [];
   private readonly threatSamples: BalanceReport['threatSamples'] = [];
   private readonly spawnedPowerups = powerupCounts();
@@ -160,6 +162,10 @@ export class BalanceTelemetry {
     }
   }
 
+  recordCursedReward(record: CursedRewardRecord): void {
+    this.cursedRewards.push(record);
+  }
+
   recordPowerupSpawn(id: PowerupId): void {
     this.spawnedPowerups[id] += 1;
   }
@@ -251,6 +257,7 @@ export class BalanceTelemetry {
       enemyResults,
       upgradeOffers: [...this.offers],
       upgradeChoices: [...this.choices],
+      cursedRewards: [...this.cursedRewards],
       powerupsSpawned: { ...this.spawnedPowerups },
       powerupsCollected: { ...this.collectedPowerups },
       threatSamples: [...this.threatSamples],

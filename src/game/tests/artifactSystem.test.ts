@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ARTIFACTS, getAvailableArtifacts, rollArtifact } from '../data/artifacts';
+import { mutateArtifactReward } from '../systems/CursedRewardMutationSystem';
 import { createDefaultSave } from '../systems/SaveSystem';
 import { RunState } from '../systems/RunState';
 
@@ -56,5 +57,28 @@ describe('artifact system', () => {
     expect(run.getWeaponState('bone-scythe').stats.pierce).toBe(1);
     expect(run.addWeapon('soul-bolt')).toBe(true);
     expect(run.getWeaponState('soul-bolt').stats.pierce).toBe(1);
+  });
+
+  it('records generated cursed artifact rewards as structured analytics', () => {
+    const run = new RunState(createDefaultSave());
+    run.curse.gain(50, 'test');
+    const reward = mutateArtifactReward(ARTIFACTS['winged-sandals'], run.curse.snapshot(), () => 0);
+
+    expect(run.applyArtifactReward(reward).applied).toBe(true);
+
+    expect(run.summary(false).balance.cursedRewards[0]).toMatchObject({
+      sourceKind: 'artifact',
+      sourceId: 'winged-sandals',
+      baseId: 'winged-sandals',
+      generated: true,
+      name: 'Cursed Winged Sandals',
+      pattern: 'reliquary-oath',
+      curseGain: 12,
+      curseBefore: 50,
+      curseAfter: 62,
+      tierBefore: 'condemned',
+      tierAfter: 'condemned',
+      crossedTiers: [],
+    });
   });
 });
