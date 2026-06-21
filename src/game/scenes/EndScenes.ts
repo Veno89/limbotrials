@@ -78,8 +78,8 @@ abstract class EndScene extends Phaser.Scene {
     const uploadStatus = this.add
       .text(
         GAME_WIDTH / 2,
-        552,
-        canUpload ? 'RUNDATA READY TO UPLOAD' : 'LAB RUNS STAY LOCAL',
+        586,
+        canUpload ? 'ENTER A NAME TO UPLOAD THIS RUN' : 'LAB RUNS STAY LOCAL',
         {
           fontFamily: 'Cinzel, serif',
           fontSize: '10px',
@@ -89,64 +89,29 @@ abstract class EndScene extends Phaser.Scene {
         },
       )
       .setOrigin(0.5);
-    let uploadInFlight = false;
-    let uploadRecorded = false;
-    const uploadButton = addButton(this, 790, 650, 'UPLOAD RUNDATA', () => {
-      if (!session) {
-        uploadStatus.setText('ONLY STANDARD RUNS CAN BE UPLOADED').setColor('#d8c49b');
-        return;
-      }
-      if (uploadRecorded) {
-        uploadStatus.setText('RUNDATA ALREADY UPLOADED').setColor('#69d9ff');
-        return;
-      }
-      if (uploadInFlight) {
-        return;
-      }
-      uploadInFlight = true;
-      setButtonLabel(uploadButton, 'UPLOADING...');
-      uploadStatus.setText('UPLOADING RUNDATA...').setColor('#9fb8c2');
-      void session.submit().then(showUploadResult).finally(() => {
-        uploadInFlight = false;
-        if (!uploadRecorded) {
-          setButtonLabel(uploadButton, 'UPLOAD RUNDATA');
-        }
-      });
-    }, 250);
     const showResult = (result: RunSubmissionResult): void => {
       showUploadResult(result);
     };
     if (this.summary.balance.presetId === 'standard') {
-      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, 470);
+      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, 478);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         this.nameForm?.destroy();
         this.nameForm = undefined;
       });
     }
-    addButton(this, 170, 650, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
-    addButton(this, 480, 650, 'TRY AGAIN', () => {
+    addButton(this, 240, 650, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
+    addButton(this, 640, 650, 'TRY AGAIN', () => {
       this.scene.start('GameScene', { characterId: this.summary.characterId });
     }, 250);
-    addButton(this, 1110, 650, 'QUIT', () => requestReturnToSite(), 250);
+    addButton(this, 1040, 650, 'QUIT', () => requestReturnToSite(), 250);
 
     function showUploadResult(result: RunSubmissionResult): void {
-      uploadRecorded = uploadRecorded || result.analyticsRecorded;
       if (uploadStatus.active) {
         uploadStatus
           .setText(result.message.toUpperCase())
           .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
       }
-      if (uploadRecorded) {
-        setButtonLabel(uploadButton, 'UPLOADED');
-      }
     }
-  }
-}
-
-function setButtonLabel(button: Phaser.GameObjects.Container, label: string): void {
-  const text = button.getAt(1);
-  if (text instanceof Phaser.GameObjects.Text) {
-    text.setText(label);
   }
 }
 

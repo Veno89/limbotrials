@@ -18,17 +18,17 @@ export class ResultLeaderboardForm {
     this.root = document.createElement('form');
     this.root.className = 'result-name-form';
     this.root.innerHTML = `
-      <label for="result-leaderboard-name">OPTIONAL: PUBLISH SCORE</label>
-      <div>
+      <label for="result-leaderboard-name">UPLOAD RUN TO THE RECORDS</label>
+      <div class="result-name-form__row">
         <input
           id="result-leaderboard-name"
           maxlength="24"
           autocomplete="nickname"
-          placeholder="Enter leaderboard name"
+          placeholder="Enter name"
         />
-        <button type="submit">PUBLISH SCORE</button>
+        <button type="submit">UPLOAD RUN</button>
       </div>
-      <p>Upload run data below, or add a name here to place this run on the public leaderboard.</p>
+      <p>Name required. This uploads balance data and publishes the score to the leaderboard.</p>
     `;
     this.input = this.root.querySelector('input')!;
     this.button = this.root.querySelector('button')!;
@@ -69,14 +69,14 @@ export class ResultLeaderboardForm {
   private setPending(pending: boolean): void {
     this.input.disabled = pending;
     this.button.disabled = pending;
-    this.button.textContent = pending ? 'PUBLISHING...' : 'PUBLISH SCORE';
+    this.button.textContent = pending ? 'UPLOADING...' : 'UPLOAD RUN';
   }
 
   private setRecorded(): void {
     this.root.classList.add('result-name-form--recorded');
     this.input.disabled = true;
     this.button.disabled = true;
-    this.button.textContent = 'SCORE PUBLISHED';
+    this.button.textContent = 'RUN UPLOADED';
   }
 
   private updateButton(): void {
