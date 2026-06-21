@@ -137,7 +137,7 @@ export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
     description: 'Reduces dash cooldown by 15% and increases attack speed by 12%.',
     rarity: 'rare',
     poolTier: 'tier-2',
-    iconTexture: 'icon-boots',
+    iconTexture: 'artifact-cursed-hourglass',
     modifiers: [
       { stat: 'dashCooldown', mode: 'multiply', value: 0.85 },
       { stat: 'attackSpeed', mode: 'multiply', value: 1.12 },

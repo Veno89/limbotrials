@@ -5,7 +5,7 @@ import playerHauntedWalk from '../../../assets/sprites/playersprites/Haunted_wal
 import playerPenitent from '../../../assets/sprites/playersprites/bulwark.png?url';
 import playerAshwalker from '../../../assets/sprites/playersprites/Arcanist.png?url';
 import enemyRunt from '../../../assets/sprites/enemies/enemy_wretched_runt.png?url';
-import enemyCrawler from '../../../assets/sprites/enemies/enemy_grave_crawler.png?url';
+import enemyCrawler from '../../../assets/test/crawler/crawler_idle.png?url';
 import enemyKnight from '../../../assets/sprites/enemies/enemy_knight.png?url';
 import enemyWraith from '../../../assets/sprites/enemies/enemy_tormented_shade.png?url';
 import enemyBrute from '../../../assets/sprites/enemies/enemy_limbo_abomination.png?url';
@@ -31,7 +31,15 @@ import reliquaryChest from '../../../assets/sprites/items/reliquary_chest.png?ur
 import iconBow from '../../../assets/sprites/items/icon_bow_long.png?url';
 import iconStaff from '../../../assets/sprites/items/icon_staff_archmage.png?url';
 import bossKey from '../../../assets/sprites/items/key_boss.png?url';
-import bloodletterAxe from '../../../assets/sprites/weapons/Berserker – “Bloodletter Axe”.png?url';
+import artifactCursedHourglass from '../../../assets/test/artifacts/cursed_hourglass.png?url';
+import weaponBoneScythe from '../../../assets/test/weapons/bone_scythe.png?url';
+import weaponSoulBolt from '../../../assets/test/weapons/soul_bolt.png?url';
+import weaponHellfireSigil from '../../../assets/test/weapons/hellfire_sigil.png?url';
+import weaponGraveLance from '../../../assets/test/weapons/grave_lance.png?url';
+import weaponCinderReliquary from '../../../assets/test/weapons/cinder_reliquary.png?url';
+import weaponAshenLongbow from '../../../assets/test/weapons/ashen_longbow.png?url';
+import weaponBloodletterAxe from '../../../assets/test/weapons/bloodletter_axe.png?url';
+import weaponDirgeStaff from '../../../assets/test/weapons/dirge_staff.png?url';
 import arenaFloor from '../../../assets/environment/tilesets/limbo_floor_v2.png?url';
 import propSkeleton from '../../../assets/environment/props/prop_chained_skeleton.png?url';
 import propCage from '../../../assets/environment/props/prop_rusty_cage.png?url';
@@ -39,18 +47,18 @@ import propAltar from '../../../assets/environment/props/prop_dark_altar.png?url
 import propRubble from '../../../assets/environment/props/prop_rubble_pile.png?url';
 import propBrazier from '../../../assets/environment/light_sources/obsidian_magic_brazier.png?url';
 import propLantern from '../../../assets/environment/light_sources/spectral_soul_lantern.png?url';
-import testDownIdle from '../../../assets/test/down_idle.png?url';
-import testDown1 from '../../../assets/test/down_1.png?url';
-import testDown2 from '../../../assets/test/down_2.png?url';
-import testUpIdle from '../../../assets/test/up_idle.png?url';
-import testUp1 from '../../../assets/test/up_1.png?url';
-import testUp2 from '../../../assets/test/up_2.png?url';
-import testRightIdle from '../../../assets/test/right_idle.png?url';
-import testRight1 from '../../../assets/test/right_1.png?url';
-import testRight2 from '../../../assets/test/right_2.png?url';
-import testLeftIdle from '../../../assets/test/left_idle.png?url';
-import testLeft1 from '../../../assets/test/left_1.png?url';
-import testLeft2 from '../../../assets/test/left_2.png?url';
+import testDownIdle from '../../../assets/test/haunted/down_idle.png?url';
+import testDown1 from '../../../assets/test/haunted/down_1.png?url';
+import testDown2 from '../../../assets/test/haunted/down_2.png?url';
+import testUpIdle from '../../../assets/test/haunted/up_idle.png?url';
+import testUp1 from '../../../assets/test/haunted/up_1.png?url';
+import testUp2 from '../../../assets/test/haunted/up_2.png?url';
+import testRightIdle from '../../../assets/test/haunted/right_idle.png?url';
+import testRight1 from '../../../assets/test/haunted/right_1.png?url';
+import testRight2 from '../../../assets/test/haunted/right_2.png?url';
+import testLeftIdle from '../../../assets/test/haunted/left_idle.png?url';
+import testLeft1 from '../../../assets/test/haunted/left_1.png?url';
+import testLeft2 from '../../../assets/test/haunted/left_2.png?url';
 
 export const ASSETS: Array<[string, string]> = [
   ['menu-background', menuBackground],
@@ -85,7 +93,15 @@ export const ASSETS: Array<[string, string]> = [
   ['icon-bow', iconBow],
   ['icon-staff', iconStaff],
   ['boss-key', bossKey],
-  ['weapon-bloodletter-axe', bloodletterAxe],
+  ['artifact-cursed-hourglass', artifactCursedHourglass],
+  ['weapon-bone-scythe', weaponBoneScythe],
+  ['weapon-soul-bolt', weaponSoulBolt],
+  ['weapon-hellfire-sigil', weaponHellfireSigil],
+  ['weapon-grave-lance', weaponGraveLance],
+  ['weapon-cinder-reliquary', weaponCinderReliquary],
+  ['weapon-ashen-longbow', weaponAshenLongbow],
+  ['weapon-bloodletter-axe', weaponBloodletterAxe],
+  ['weapon-dirge-staff', weaponDirgeStaff],
   ['arena-floor', arenaFloor],
   ['prop-skeleton', propSkeleton],
   ['prop-cage', propCage],

@@ -263,7 +263,7 @@ export class WeaponSystem {
     sweep.add(crescent);
     for (let index = 0; index < 3; index += 1) {
       const blade = this.scene.add
-        .image(radius * (0.55 + index * 0.16), 0, 'icon-sword')
+        .image(radius * (0.55 + index * 0.16), 0, WEAPONS[id].texture)
         .setDisplaySize(72 - index * 8, 72 - index * 8)
         .setRotation(Math.PI / 2)
         .setTint(index === 0 ? COLORS.pale : COLORS.soul)

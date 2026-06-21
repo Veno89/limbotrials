@@ -58,21 +58,21 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'soul-bolt',
     'Claim Soul Bolt',
     'Add Soul Bolt: rapid seeking projectiles.',
-    'projectile-void',
+    'weapon-soul-bolt',
   ),
   'unlock-hellfire-sigil': weaponUnlock(
     'unlock-hellfire-sigil',
     'hellfire-sigil',
     'Accept Hellfire Sigil',
     'Add Hellfire Sigil: delayed area devastation.',
-    'projectile-magic',
+    'weapon-hellfire-sigil',
   ),
   'unlock-grave-lance': weaponUnlock(
     'unlock-grave-lance',
     'grave-lance',
     'Raise Grave Lance',
     'Add Grave Lance: a powerful penetrating shot.',
-    'icon-void-sword',
+    'weapon-grave-lance',
   ),
   'unlock-wailing-shards': weaponUnlock(
     'unlock-wailing-shards',
@@ -86,14 +86,14 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'cinder-reliquary',
     'Open Cinder Reliquary',
     'Add Cinder Reliquary: a periodic damaging pulse.',
-    'prop-lantern',
+    'weapon-cinder-reliquary',
   ),
   'unlock-ashen-longbow': weaponUnlock(
     'unlock-ashen-longbow',
     'ashen-longbow',
     'String Ashen Longbow',
     'Add Ashen Longbow: a focused fan of grave-ash arrows.',
-    'icon-bow',
+    'weapon-ashen-longbow',
   ),
   'unlock-bloodletter-axe': weaponUnlock(
     'unlock-bloodletter-axe',
@@ -107,7 +107,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'dirge-staff',
     'Raise Dirge Staff',
     'Add Dirge Staff: instant judgments against several nearby souls.',
-    'icon-staff',
+    'weapon-dirge-staff',
   ),
 
   'level-bone-scythe': weaponLevel(
@@ -115,28 +115,28 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'bone-scythe',
     'Bone Scythe Level',
     '+18% damage and +9% sweep area.',
-    'icon-sword',
+    'weapon-bone-scythe',
   ),
   'level-soul-bolt': weaponLevel(
     'level-soul-bolt',
     'soul-bolt',
     'Soul Bolt Level',
     '+16% damage and 5% shorter cooldown.',
-    'projectile-void',
+    'weapon-soul-bolt',
   ),
   'level-hellfire-sigil': weaponLevel(
     'level-hellfire-sigil',
     'hellfire-sigil',
     'Hellfire Sigil Level',
     '+20% damage and +8% blast area.',
-    'projectile-magic',
+    'weapon-hellfire-sigil',
   ),
   'level-grave-lance': weaponLevel(
     'level-grave-lance',
     'grave-lance',
     'Grave Lance Level',
     '+22% damage and +1 penetration.',
-    'icon-void-sword',
+    'weapon-grave-lance',
   ),
   'level-wailing-shards': weaponLevel(
     'level-wailing-shards',
@@ -150,14 +150,14 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'cinder-reliquary',
     'Cinder Reliquary Level',
     '+16% damage and +5% pulse area.',
-    'prop-lantern',
+    'weapon-cinder-reliquary',
   ),
   'level-ashen-longbow': weaponLevel(
     'level-ashen-longbow',
     'ashen-longbow',
     'Ashen Longbow Level',
     '+20% damage and +8% arrow speed.',
-    'icon-bow',
+    'weapon-ashen-longbow',
   ),
   'level-bloodletter-axe': weaponLevel(
     'level-bloodletter-axe',
@@ -171,7 +171,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'dirge-staff',
     'Dirge Staff Level',
     '+18% damage and +1 condemned target.',
-    'icon-staff',
+    'weapon-dirge-staff',
   ),
 
   'evolve-bone-scythe': weaponEvolution(
@@ -179,28 +179,28 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'bone-scythe',
     'Awaken Ossuary Reaper',
     'Evolve Bone Scythe. Every sweep is followed by a second spectral reaping.',
-    'icon-sword',
+    'weapon-bone-scythe',
   ),
   'evolve-soul-bolt': weaponEvolution(
     'evolve-soul-bolt',
     'soul-bolt',
     'Awaken Choir of the Damned',
     'Evolve Soul Bolt. Soul Bolts chain into a nearby condemned soul.',
-    'projectile-void',
+    'weapon-soul-bolt',
   ),
   'evolve-hellfire-sigil': weaponEvolution(
     'evolve-hellfire-sigil',
     'hellfire-sigil',
     'Awaken Infernal Sentence',
     'Evolve Hellfire Sigil. Detonations leave a burning execution ground.',
-    'projectile-magic',
+    'weapon-hellfire-sigil',
   ),
   'evolve-grave-lance': weaponEvolution(
     'evolve-grave-lance',
     'grave-lance',
     'Awaken Procession of Graves',
     'Evolve Grave Lance. Kills send the lance onward into another target.',
-    'icon-void-sword',
+    'weapon-grave-lance',
   ),
   'evolve-wailing-shards': weaponEvolution(
     'evolve-wailing-shards',
@@ -214,14 +214,14 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'cinder-reliquary',
     'Awaken Funeral Pyre',
     'Evolve Cinder Reliquary. Every pulse is followed by a larger aftershock.',
-    'prop-lantern',
+    'weapon-cinder-reliquary',
   ),
   'evolve-ashen-longbow': weaponEvolution(
     'evolve-ashen-longbow',
     'ashen-longbow',
     'Awaken Black Rain',
     'Evolve Ashen Longbow. Arrows burst into grave-dust when they strike.',
-    'icon-bow',
+    'weapon-ashen-longbow',
   ),
   'evolve-bloodletter-axe': weaponEvolution(
     'evolve-bloodletter-axe',
@@ -235,7 +235,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'dirge-staff',
     'Awaken Last Rites',
     'Evolve Dirge Staff. Each judgment erupts around its condemned target.',
-    'icon-staff',
+    'weapon-dirge-staff',
   ),
 
   'bone-scythe-area': {
@@ -247,7 +247,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'bone-scythe',
     weaponModifiers: [{ stat: 'area', mode: 'multiply', value: 1.18 }],
-    iconTexture: 'icon-sword',
+    iconTexture: 'weapon-bone-scythe',
   },
   'bone-scythe-crit': {
     id: 'bone-scythe-crit',
@@ -258,7 +258,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 2,
     targetWeapon: 'bone-scythe',
     weaponModifiers: [{ stat: 'critChance', mode: 'add', value: 0.12 }],
-    iconTexture: 'icon-sword',
+    iconTexture: 'weapon-bone-scythe',
   },
   'soul-bolt-projectiles': {
     id: 'soul-bolt-projectiles',
@@ -269,7 +269,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'soul-bolt',
     weaponModifiers: [{ stat: 'projectileCount', mode: 'add', value: 1 }],
-    iconTexture: 'projectile-void',
+    iconTexture: 'weapon-soul-bolt',
   },
   'soul-bolt-pierce': {
     id: 'soul-bolt-pierce',
@@ -280,7 +280,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'soul-bolt',
     weaponModifiers: [{ stat: 'pierce', mode: 'add', value: 1 }],
-    iconTexture: 'icon-void-sword',
+    iconTexture: 'weapon-soul-bolt',
   },
   'soul-bolt-speed': {
     id: 'soul-bolt-speed',
@@ -291,7 +291,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'soul-bolt',
     weaponModifiers: [{ stat: 'projectileSpeed', mode: 'multiply', value: 1.22 }],
-    iconTexture: 'projectile-void',
+    iconTexture: 'weapon-soul-bolt',
   },
   'hellfire-area': {
     id: 'hellfire-area',
@@ -302,7 +302,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'hellfire-sigil',
     weaponModifiers: [{ stat: 'area', mode: 'multiply', value: 1.2 }],
-    iconTexture: 'projectile-magic',
+    iconTexture: 'weapon-hellfire-sigil',
   },
   'hellfire-haste': {
     id: 'hellfire-haste',
@@ -313,7 +313,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'hellfire-sigil',
     weaponModifiers: [{ stat: 'cooldownMs', mode: 'multiply', value: 0.88 }],
-    iconTexture: 'projectile-magic',
+    iconTexture: 'weapon-hellfire-sigil',
   },
   'grave-lance-pierce': {
     id: 'grave-lance-pierce',
@@ -324,7 +324,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'grave-lance',
     weaponModifiers: [{ stat: 'pierce', mode: 'add', value: 2 }],
-    iconTexture: 'icon-void-sword',
+    iconTexture: 'weapon-grave-lance',
   },
   'grave-lance-size': {
     id: 'grave-lance-size',
@@ -335,7 +335,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'grave-lance',
     weaponModifiers: [{ stat: 'projectileSize', mode: 'multiply', value: 1.25 }],
-    iconTexture: 'icon-void-sword',
+    iconTexture: 'weapon-grave-lance',
   },
   'wailing-shards-count': {
     id: 'wailing-shards-count',
@@ -368,7 +368,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'cinder-reliquary',
     weaponModifiers: [{ stat: 'area', mode: 'multiply', value: 1.14 }],
-    iconTexture: 'prop-lantern',
+    iconTexture: 'weapon-cinder-reliquary',
   },
   'cinder-reliquary-haste': {
     id: 'cinder-reliquary-haste',
@@ -379,7 +379,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'cinder-reliquary',
     weaponModifiers: [{ stat: 'cooldownMs', mode: 'multiply', value: 0.88 }],
-    iconTexture: 'prop-lantern',
+    iconTexture: 'weapon-cinder-reliquary',
   },
   'ashen-longbow-volley': {
     id: 'ashen-longbow-volley',
@@ -390,7 +390,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'ashen-longbow',
     weaponModifiers: [{ stat: 'projectileCount', mode: 'add', value: 2 }],
-    iconTexture: 'icon-bow',
+    iconTexture: 'weapon-ashen-longbow',
   },
   'ashen-longbow-pierce': {
     id: 'ashen-longbow-pierce',
@@ -401,7 +401,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'ashen-longbow',
     weaponModifiers: [{ stat: 'pierce', mode: 'add', value: 1 }],
-    iconTexture: 'projectile-laser',
+    iconTexture: 'weapon-ashen-longbow',
   },
   'bloodletter-axe-size': {
     id: 'bloodletter-axe-size',
@@ -445,7 +445,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'dirge-staff',
     weaponModifiers: [{ stat: 'targetCount', mode: 'add', value: 2 }],
-    iconTexture: 'icon-staff',
+    iconTexture: 'weapon-dirge-staff',
   },
   'dirge-staff-haste': {
     id: 'dirge-staff-haste',
@@ -456,7 +456,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'dirge-staff',
     weaponModifiers: [{ stat: 'cooldownMs', mode: 'multiply', value: 0.87 }],
-    iconTexture: 'icon-staff',
+    iconTexture: 'weapon-dirge-staff',
   },
   'bone-scythe-committed-reap': {
     id: 'bone-scythe-committed-reap',
@@ -471,7 +471,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
       { stat: 'area', mode: 'multiply', value: 1.15 },
       { stat: 'cooldownMs', mode: 'multiply', value: 1.35 },
     ],
-    iconTexture: 'icon-sword',
+    iconTexture: 'weapon-bone-scythe',
   },
   'wailing-shards-fractured-choir': {
     id: 'wailing-shards-fractured-choir',
@@ -502,7 +502,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
       { stat: 'area', mode: 'multiply', value: 1.08 },
       { stat: 'cooldownMs', mode: 'multiply', value: 1.65 },
     ],
-    iconTexture: 'prop-lantern',
+    iconTexture: 'weapon-cinder-reliquary',
   },
   'ashen-longbow-full-draw': {
     id: 'ashen-longbow-full-draw',
@@ -517,7 +517,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
       { stat: 'projectileSize', mode: 'multiply', value: 1.25 },
       { stat: 'cooldownMs', mode: 'multiply', value: 1.45 },
     ],
-    iconTexture: 'icon-bow',
+    iconTexture: 'weapon-ashen-longbow',
   },
   'soul-bolt-splintering-memory': {
     id: 'soul-bolt-splintering-memory',
@@ -528,7 +528,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 1,
     targetWeapon: 'soul-bolt',
     weaponEffect: 'soul-bolt-splintering-memory',
-    iconTexture: 'projectile-void',
+    iconTexture: 'weapon-soul-bolt',
   },
   'hellfire-spreading-sentence': {
     id: 'hellfire-spreading-sentence',
@@ -539,7 +539,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 1,
     targetWeapon: 'hellfire-sigil',
     weaponEffect: 'hellfire-spreading-sentence',
-    iconTexture: 'projectile-magic',
+    iconTexture: 'weapon-hellfire-sigil',
   },
   'dirge-staff-echoed-rites': {
     id: 'dirge-staff-echoed-rites',
@@ -550,7 +550,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 1,
     targetWeapon: 'dirge-staff',
     weaponEffect: 'dirge-staff-echoed-rites',
-    iconTexture: 'icon-staff',
+    iconTexture: 'weapon-dirge-staff',
   },
 
   'stat-vigor': {
