@@ -185,7 +185,10 @@ publishable key. Completed standard runs submit through the bounded
 `netlify/functions/submit-run.ts` endpoint, which owns the server-only secret key.
 `analytics/runSubmissionRules.ts` validates and size-bounds the complete run record.
 The function privately stores full run analytics and conditionally writes a public
-leaderboard row when a valid player name is present.
+leaderboard row when a valid player name is present. The current result-screen UI
+requires a valid name before enabling **Upload Run**, while the underlying
+submission session still reuses one `run_id` so older or diagnostic anonymous
+analytics submissions can be named later without duplicating analytics.
 
 Permanent progression remains in the versioned local `SaveSystem`. Moving it to
 Supabase requires authenticated ownership and user-specific RLS; it must not share

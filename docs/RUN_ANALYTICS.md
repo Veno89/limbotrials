@@ -5,17 +5,21 @@ server-only Netlify Function. The table stores useful indexed summary columns pl
 the complete local `RunSummary` as JSONB, including the balance report that was
 previously copied into `docs/data.md`.
 
-Every standard run is first recorded anonymously for balance analysis. The result
-screen then offers an optional leaderboard-name form. Explicitly publishing the
-score creates a public `leaderboard_entries` row using the same `run_id`, without
-creating a second analytics record. The landing page only displays the leaderboard
-and does not submit or change scores.
+The current result screen presents a name-gated **Upload Run** panel. Its button
+stays disabled until the player enters a valid leaderboard name; one successful
+submission stores private analytics and creates the public `leaderboard_entries`
+row with the same `run_id`. The submission session still reuses one `run_id`, so
+older or diagnostic anonymous submissions can later become named public scores
+without duplicating the analytics row. In that fallback case, the existing
+analytics row may keep `player_name` as `null`; join on `run_id` to
+`leaderboard_entries` when the published name matters. The landing page only
+displays the leaderboard and does not submit or change scores.
 
 ## Privacy And Access
 
 - Browser clients cannot read or write `run_analytics`.
 - Only the Netlify Function's `service_role` may select or insert analytics rows.
-- The optional leaderboard name is the only player-provided identity stored.
+- The leaderboard name is the only player-provided identity stored.
 - The public leaderboard remains read-only for browser clients.
 
 Use the Supabase SQL Editor or authenticated administrative tooling to analyze
@@ -55,16 +59,18 @@ Recent runs:
 
 ```sql
 select
-  created_at,
-  player_name,
-  character_id,
-  victory,
-  survival_ms,
-  enemies_killed,
-  damage_dealt,
-  level_reached
-from public.run_analytics
-order by created_at desc
+  analytics.created_at,
+  coalesce(analytics.player_name, leaderboard.player_name) as player_name,
+  analytics.character_id,
+  analytics.victory,
+  analytics.survival_ms,
+  analytics.enemies_killed,
+  analytics.damage_dealt,
+  analytics.level_reached
+from public.run_analytics as analytics
+left join public.leaderboard_entries as leaderboard
+  on leaderboard.run_id = analytics.run_id
+order by analytics.created_at desc
 limit 50;
 ```
 
@@ -101,12 +107,34 @@ Most common death sources:
 
 ```sql
 select
-  run_summary #>> '{balance,deathSource}' as death_source,
+  coalesce(
+    run_summary #>> '{balance,deathSource}',
+    run_summary #>> '{deathEcho,causeOfDeath}',
+    'unknown'
+  ) as death_source,
   count(*) as deaths
 from public.run_analytics
 where victory = false
 group by death_source
 order by deaths desc;
+```
+
+Curse progression for recent runs:
+
+```sql
+select
+  created_at,
+  run_id,
+  run_summary #>> '{curse,tierLabel}' as final_curse_tier,
+  (run_summary #>> '{curse,level}')::integer as final_curse,
+  event ->> 'id' as event_id,
+  round(((event ->> 'atMs')::numeric / 1000.0), 1) as at_seconds
+from public.run_analytics
+cross join lateral jsonb_array_elements(run_summary -> 'balance' -> 'timeline') as event
+where event ->> 'id' like 'curse:%'
+   or event ->> 'id' like 'curse-event:%'
+order by created_at desc, at_seconds asc
+limit 100;
 ```
 
 ## Player Progression

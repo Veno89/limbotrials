@@ -68,7 +68,7 @@ not emulate the Netlify Function.
 1. Open `https://limbotrials.netlify.app`.
 2. Confirm the leaderboard reports `LIVE RECORDS` or `NO SOULS RECORDED`, not
    `AWAITING SUPABASE`.
-3. Complete or end a standard run, enter a name on the result screen, and publish the score.
+3. Complete or end a standard run, enter a valid name on the result screen, and click **Upload Run**.
 4. Return to the landing page and confirm the score appears under damage and kills.
 5. Open `https://limbotrials.netlify.app/api/runs` and confirm it returns:
 
@@ -85,8 +85,9 @@ not emulate the Netlify Function.
    anonymous inserts into both Supabase tables fail.
 7. Confirm the result screen reports that analytics and the named leaderboard
    score were recorded.
-8. Finish a run without a saved name, enter one on the result screen, and confirm
-   the same run appears on the public leaderboard without a duplicate analytics row.
+8. Finish a run without a saved name and confirm **Upload Run** is disabled until
+   the entered name is valid. After submission, confirm the same `run_id` exists
+   in both `run_analytics` and `leaderboard_entries`.
 
 ## Troubleshooting
 

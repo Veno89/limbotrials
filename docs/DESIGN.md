@@ -9,7 +9,7 @@ Everlasting Oblivion: Limbo Trial is a compact grimdark arena roguelite. The com
 1. Choose an unlocked condemned soul and begin a trial.
 2. Move and dash while weapons attack automatically.
 3. Kill Limbo's condemned and collect their soul remnants.
-4. Level up and choose one of three cursed relics.
+4. Level up and choose one of three upgrades, sometimes accepting a cursed variant for stronger power and higher risk.
 5. Survive authored encounter beats, mixed enemy behaviors, and elite arrivals.
 6. Defeat the Limbo Warden or die.
 7. Keep earned souls and spend them on permanent legacy ranks.
@@ -20,13 +20,13 @@ Everlasting Oblivion: Limbo Trial is a compact grimdark arena roguelite. The com
 - **3:00-7:00:** add bruisers, specialist enemies, the first elite, and the first curse.
 - **7:00-11:00:** specialize the build against denser mixed pressure and authored formations.
 - **11:00-14:00:** complete evolutions while surviving the grave march and final procession.
-- **14:00+:** the Limbo Warden enters; the trial ends only when Haunted or the Warden falls.
+- **14:00+:** the Limbo Warden enters; the trial ends only when the chosen soul or the Warden falls.
 
 Fast progression is intentional. Limbo responds to unusually rapid player power growth through bounded threat escalation rather than broadly reducing XP or upgrade frequency. Time establishes the minimum threat; player level and weapon progression can accelerate enemy health, damage, elite pressure, and encounter intensity above that minimum.
 
 ## Combat
 
-Movement and positioning are the player's primary actions. The player begins each run with Bone Scythe and can equip up to five weapons:
+Movement and positioning are the player's primary actions. Haunted begins with Bone Scythe, other characters may define their own starter weapon, and each run can equip up to five weapons:
 
 - **Soul Bolt:** frequent ranged projectiles toward nearby targets.
 - **Bone Scythe:** dependable moderate-cadence circular close-range coverage.

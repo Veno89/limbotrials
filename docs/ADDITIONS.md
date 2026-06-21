@@ -30,8 +30,11 @@ Completed in the first expansion milestone:
 - [x] Bloodletter capstone correction: Headsman's Procession multi-throws and a stronger three-to-five-axe Crimson Orbit with wider bounded coverage
 - [x] Late-run specialization pass: remaining focused weapon upgrades return after evolution, stay bounded by max stacks, and no longer imply invalid level-eight progression
 - [x] Public web shell: thematic Tailwind landing page, lazy browser-game launch, Supabase damage/kill leaderboard, and bounded Netlify Function submissions
+- [x] Curse and Echo foundation: run-level curse tiers, cursed reward mutation, curse-gated spawn pressure, Warden curse hooks, and the first saved Death Echo return
+- [x] Curse pressure polish: visible curse escalation, recurring curse surges, curse-specific enemy stat pressure, cursed enemy tinting, and first Cinder Reliquary containment tuning
+- [x] Live playtest data: private Supabase run analytics, named end-screen upload, and public leaderboard rows for real standard runs
 
-The first completed standard run proved that the baseline is survivable. Active-run timing, bounded adaptive threat, the Warden rebuild, Crimson Orbit, and the existing-weapon identity pass are now implemented. The next immediate milestone is the broader upgrade-choice expansion recorded in `docs/NEXT_COMBAT_EXPANSION.md`; Phases 5-8 remain intentionally delayed until that combat foundation is stable.
+The first completed standard run proved that the baseline is survivable. Active-run timing, bounded adaptive threat, the Warden rebuild, Crimson Orbit, the existing-weapon identity pass, the first conditional upgrades, and visible curse pressure are now implemented. The immediate focus is a short balance/telemetry pass using uploaded Supabase run data before adding the first new weapon from `docs/NEXT_COMBAT_EXPANSION.md`. Dual evolutions, buildings, talents, and NG+ remain intentionally delayed until that combat foundation is stable.
 
 Following the first completed standard run, the active combat-expansion direction is recorded in `docs/NEXT_COMBAT_EXPANSION.md`. It supersedes the earlier assumption that progression should be slowed: fast progression remains intentional, while stronger upgrade choices, repeated Warden and cadence playtests, and five additional weapons become the active priorities.
 

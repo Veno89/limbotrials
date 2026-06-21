@@ -5,11 +5,12 @@
 - [x] Fresh install, strict typecheck, lint, unit tests, and production build pass.
 - [x] Menu, settings, character select, run start, reliquary loot ritual/artifact tooltip flow, and immediate boss encounter pass the browser smoke test.
 - [x] Old saves receive current settings defaults through versioned loading.
-- [x] Production output includes only referenced supplied art.
+- [x] Production output includes only referenced art assets.
 - [x] Controls are shown on the menu and briefly introduced in the arena.
 - [x] The game can reach both game-over and victory scenes.
 - [x] The landing page, lazy game launch, and return-to-site flow are covered by the browser smoke test.
 - [x] Leaderboard score parsing and bounds have deterministic tests.
+- [x] Supabase run tables, Netlify variables, private analytics upload, and a real named leaderboard submission are verified on the live site.
 
 ## Required Before Public Demo
 
@@ -26,7 +27,6 @@
 - [ ] Add a short epilepsy/photosensitivity notice if effects warrant it.
 - [ ] Add title art, store capsule images, screenshots, and a short trailer.
 - [ ] Verify save behavior after a deployed build update.
-- [ ] Apply `supabase/leaderboard.sql`, configure Netlify environment variables, and verify a real score submission.
 - [ ] Confirm direct anonymous Supabase inserts fail while public leaderboard reads succeed.
 - [ ] Host a private itch.io build and collect external playtest feedback.
 

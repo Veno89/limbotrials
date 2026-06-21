@@ -7,7 +7,7 @@
 - Implemented a complete start-run-to-death-or-victory loop.
 - Added nine weapons, categorized progression definitions, ten regular enemies, two elites, and one boss.
 - Added run rewards, versioned local save data, and three permanent upgrades.
-- Added strict type checking, linting, 118 automated tests, production build, and a Chrome smoke test.
+- Added strict type checking, linting, 128 automated tests, production build, and a Chrome smoke test.
 - Added save-backed feedback and volume settings plus procedural placeholder audio.
 - Added spatial-hash enemy separation and a phased Warden soul-prison attack.
 - Reduced the production build from roughly 106 MB to roughly 22 MB by shipping only referenced art.
@@ -64,15 +64,17 @@
 - Added a thematic Tailwind landing page, lazy game launch/return flow, public Supabase damage and kill leaderboards, and bounded server-only score submission through a Netlify Function.
 - Added a non-destructive leaderboard health endpoint and conservative Netlify Function packaging after live deployment diagnostics exposed a missing function route and an uncreated Supabase leaderboard table.
 - Added private Supabase run analytics, combined bounded run submissions, visible result-screen submission status, and persistent typed leaderboard names.
-- Added an end-screen leaderboard-name form and idempotent run submissions so anonymous analytics can become a named public score without duplication.
+- Added idempotent run submissions so anonymous analytics can become a named public score without duplication when older or diagnostic flows submit without a name.
 - Added a run-level curse system with data-defined tiers, cursed upgrade/artifact mutation, curse-gated enemies, a high-curse Warden pressure hook, HUD/result/balance reporting, and saved Player Death Echo snapshots that can return as a simplified future-run enemy.
 - Added the first conditional upgrade family batch: moving damage, dash-window damage, shield-to-offense conversion, elite-hunter damage and soul rewards, and cursed Echo/curse-gated prey rewards.
 - Added a focused curse-pressure pass: curse-specific enemy and Warden spawn scaling, cursed enemy tinting, threshold and recurring curse surge events, a HUD curse meter, a player curse aura, and Cinder Reliquary containment after full-run data showed runaway pulse area and damage.
-- Reworked the end screen around player actions: main menu, same-character retry, explicit run-data upload, optional score publishing, and a quit path back to the landing page.
+- Replaced the first AI-generated weapon presentation assets with handmade test sprites for eight weapons, plus a handmade crawler test sprite and a cleaned `assets/test` layout.
+- Softened action-bar cooldown labels so the gradient remains the primary cooldown read without covering the new weapon sprites.
+- Reworked the end screen around player actions: main menu, same-character retry, a styled name-gated **Upload Run** panel that records analytics and leaderboard score together, and a quit path back to the landing page.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -92,4 +94,4 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 
 ## Next Recommended Task
 
-Playtest safe, high-curse, Cinder-heavy, and conditional-upgrade-heavy runs, then tune curse surge pressure, reward mutation rates, Echo readability, and conditional upgrade values before adding the first new weapon.
+Use the uploaded Supabase run data for a short balance/telemetry pass: make cursed reward analytics easier to read, then playtest safe, high-curse, Cinder-heavy, and conditional-upgrade-heavy runs. Tune curse surge pressure, reward mutation rates, Echo readability, Warden fight duration, and conditional upgrade values before adding the first new weapon.
