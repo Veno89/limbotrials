@@ -19,6 +19,8 @@ export class WeaponActionBar {
   private readonly slots = new Map<WeaponId, WeaponSlot>();
   private readonly y = 624;
   private readonly spacing = 82;
+  private readonly shortCooldownLabelThresholdMs = 1000;
+  private readonly decimalCooldownLabelThresholdMs = 1800;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -43,11 +45,12 @@ export class WeaponActionBar {
     this.syncSlots();
     for (const [id, slot] of this.slots) {
       const cooldown = this.weapons.getCooldownState(id, time);
+      const cooldownLabel = this.formatCooldownLabel(cooldown.remainingMs, cooldown.durationMs);
       slot.cooldownShade.setVisible(!cooldown.ready);
       slot.cooldownShade.displayHeight = 50 * cooldown.ratio;
       slot.cooldownText
-        .setVisible(!cooldown.ready)
-        .setText(cooldown.remainingMs >= 950 ? `${Math.ceil(cooldown.remainingMs / 1000)}` : cooldown.remainingMs > 0 ? `${(cooldown.remainingMs / 1000).toFixed(1)}` : '');
+        .setVisible(cooldownLabel.length > 0)
+        .setText(cooldownLabel);
       slot.readyGlow.setAlpha(cooldown.ready ? 0.18 + Math.sin(time * 0.006) * 0.06 : 0);
       const level = this.run.getWeaponState(id).level;
       const evolved = level >= MAX_WEAPON_LEVEL;
@@ -86,18 +89,21 @@ export class WeaponActionBar {
     const frame = this.scene.add.rectangle(0, 0, 66, 66, COLORS.panel, 0.96).setStrokeStyle(2, COLORS.border);
     const icon = this.scene.add.image(0, -2, definition.iconTexture).setDisplaySize(48, 48);
     const cooldownShade = this.scene.add
-      .rectangle(0, 25, 50, 50, 0x020405, 0.72)
+      .rectangle(0, 25, 50, 50, 0x020405, 0.46)
       .setOrigin(0.5, 1)
       .setVisible(false);
     const cooldownText = this.scene.add
-      .text(0, 0, '', {
+      .text(0, 21, '', {
         fontFamily: 'Cinzel, serif',
-        fontSize: '16px',
-        color: '#eef7fa',
+        fontSize: '10px',
+        color: '#d4e5ea',
+        backgroundColor: '#04080a',
+        padding: { x: 4, y: 1 },
         stroke: '#020405',
-        strokeThickness: 4,
+        strokeThickness: 2,
       })
       .setOrigin(0.5)
+      .setAlpha(0.82)
       .setVisible(false);
     const name = this.scene.add
       .text(0, 37, definition.name.toUpperCase(), {
@@ -148,5 +154,18 @@ export class WeaponActionBar {
         ease: 'Cubic.Out',
       });
     });
+  }
+
+  private formatCooldownLabel(remainingMs: number, durationMs: number): string {
+    if (remainingMs <= 0) {
+      return '';
+    }
+    if (remainingMs >= this.shortCooldownLabelThresholdMs) {
+      return `${Math.ceil(remainingMs / 1000)}`;
+    }
+    if (durationMs >= this.decimalCooldownLabelThresholdMs && remainingMs >= 250) {
+      return `${(remainingMs / 1000).toFixed(1)}`;
+    }
+    return '';
   }
 }
