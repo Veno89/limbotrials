@@ -38,6 +38,7 @@ import { PlayerVisualSystem } from '../systems/PlayerVisualSystem';
 import { mutateArtifactReward } from '../systems/CursedRewardMutationSystem';
 import { DeathEchoSystem } from '../systems/DeathEchoSystem';
 import { ConditionalUpgradeSystem } from '../systems/ConditionalUpgradeSystem';
+import { CurseEventSystem } from '../systems/CurseEventSystem';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -72,6 +73,7 @@ export class GameScene extends Phaser.Scene {
   private playerVisuals!: PlayerVisualSystem;
   private deathEcho?: DeathEchoSystem;
   private conditionalUpgrades!: ConditionalUpgradeSystem;
+  private curseEvents?: CurseEventSystem;
   private characterId?: CharacterId;
 
   constructor() {
@@ -88,6 +90,7 @@ export class GameScene extends Phaser.Scene {
     this.presetSpawner = undefined;
     this.chests = undefined;
     this.deathEcho = undefined;
+    this.curseEvents = undefined;
     this.invulnerableUntil = 0;
     this.nextShieldAt = Number.POSITIVE_INFINITY;
     this.nextBalanceSampleAt = 0;
@@ -130,6 +133,7 @@ export class GameScene extends Phaser.Scene {
         );
       },
       () => this.run.getThreatSnapshot(),
+      () => this.run.curse.snapshot(),
       () => this.deathEcho?.profile(),
     );
     this.conditionalUpgrades = new ConditionalUpgradeSystem(this.player, this.run, this.juice);
@@ -183,6 +187,14 @@ export class GameScene extends Phaser.Scene {
       (reward) => this.offers.request(reward),
       (id, elapsedMs) => this.run.balance.recordTimeline(`event:${id}`, elapsedMs),
     );
+    if (this.balancePresetId === 'standard') {
+      this.curseEvents = new CurseEventSystem(
+        this.enemies,
+        () => this.run.curse.snapshot(),
+        (text, color) => this.juice.warning(text, color),
+        (id, elapsedMs) => this.run.balance.recordTimeline(`curse-event:${id}`, elapsedMs),
+      );
+    }
     this.shrine = new ArenaShrineSystem(
       this,
       this.player,
@@ -281,6 +293,7 @@ export class GameScene extends Phaser.Scene {
     if (this.balancePresetId === 'standard') {
       this.spawner.update(this.run.elapsedMs);
       this.runEvents.update(this.run.elapsedMs);
+      this.curseEvents?.update(this.run.elapsedMs);
       this.deathEcho?.update(this.run.elapsedMs);
     } else {
       this.presetSpawner?.update(this.run.elapsedMs);

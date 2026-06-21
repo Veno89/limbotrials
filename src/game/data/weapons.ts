@@ -125,10 +125,10 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     description: 'Releases a slow, punishing ring of grave-cinder.',
     texture: 'projectile-magic',
     iconTexture: 'prop-lantern',
-    baseStats: stats({ damage: 64, cooldownMs: 4000, range: 240, area: 240 }),
+    baseStats: stats({ damage: 58, cooldownMs: 4200, range: 230, area: 230 }),
     levelGrowth: [
-      { stat: 'damage', mode: 'multiply', value: 1.2 },
-      { stat: 'area', mode: 'multiply', value: 1.08 },
+      { stat: 'damage', mode: 'multiply', value: 1.16 },
+      { stat: 'area', mode: 'multiply', value: 1.05 },
     ],
     evolution: {
       name: 'Funeral Pyre',

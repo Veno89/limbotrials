@@ -47,7 +47,7 @@ describe('weapon cadence identities', () => {
 
   it('makes Cinder Reliquary a very slow large positional pulse', () => {
     const cinder = WEAPONS['cinder-reliquary'];
-    expect(cinder.baseStats).toMatchObject({ damage: 64, cooldownMs: 4000, range: 240, area: 240 });
+    expect(cinder.baseStats).toMatchObject({ damage: 58, cooldownMs: 4200, range: 230, area: 230 });
     expect(cinder.levelGrowth.some((modifier) => modifier.stat === 'cooldownMs')).toBe(false);
   });
 

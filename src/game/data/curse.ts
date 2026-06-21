@@ -99,6 +99,16 @@ export function curseSnapshot(curseLevel: number, totalGained: number, crossed: 
   };
 }
 
+export function curseTierProgress(curseLevel: number): number {
+  const current = getCurseTier(curseLevel);
+  const currentIndex = CURSE_TIERS.findIndex((tier) => tier.id === current.id);
+  const next = CURSE_TIERS[currentIndex + 1];
+  if (!next) {
+    return 1;
+  }
+  return Math.max(0, Math.min(1, (curseLevel - current.minCurse) / (next.minCurse - current.minCurse)));
+}
+
 export function curseRewardAllowed(reward: CurseRewardDefinition | undefined, snapshot: CurseSnapshot): boolean {
   if (!reward?.requiredTier) {
     return true;

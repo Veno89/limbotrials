@@ -49,7 +49,7 @@ export class WeaponEvolutionSystem {
       this.delayedArea(id, x, y, radius * 0.9, 360, COLORS.hellfire, 0.34, damageArea);
       this.delayedArea(id, x, y, radius * 0.9, 720, COLORS.hellfire, 0.34, damageArea);
     } else if (id === 'cinder-reliquary') {
-      this.delayedArea(id, x, y, radius * 1.18, 440, COLORS.hellfire, 0.62, damageArea);
+      this.delayedArea(id, x, y, radius * 1.08, 440, COLORS.hellfire, 0.42, damageArea);
     } else if (id === 'dirge-staff') {
       this.delayedArea(id, x, y, radius, 90, COLORS.soul, 0.38, damageArea);
     }

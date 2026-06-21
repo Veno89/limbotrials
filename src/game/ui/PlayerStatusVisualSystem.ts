@@ -3,6 +3,7 @@ import { COLORS } from '../constants';
 import type { PowerupSystem } from '../systems/PowerupSystem';
 import type { RunState } from '../systems/RunState';
 import type { PowerupId } from '../types/gameTypes';
+import { curseVisualFor } from './curseVisualRules';
 
 interface BuffRow {
   root: Phaser.GameObjects.Container;
@@ -11,6 +12,8 @@ interface BuffRow {
 }
 
 export class PlayerStatusVisualSystem {
+  private readonly curseAura: Phaser.GameObjects.Arc;
+  private readonly curseLabel: Phaser.GameObjects.Text;
   private readonly shieldAura: Phaser.GameObjects.Arc;
   private readonly shieldLabel: Phaser.GameObjects.Text;
   private readonly buffRows = new Map<PowerupId, BuffRow>();
@@ -22,6 +25,22 @@ export class PlayerStatusVisualSystem {
     private readonly run: RunState,
     private readonly powerups: PowerupSystem,
   ) {
+    this.curseAura = scene.add
+      .circle(player.x, player.y, 52, COLORS.blood, 0.08)
+      .setStrokeStyle(2, COLORS.blood, 0.7)
+      .setDepth(34)
+      .setVisible(false);
+    this.curseLabel = scene.add
+      .text(player.x, player.y - 69, '', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '8px',
+        color: '#ff8aa3',
+        stroke: '#020405',
+        strokeThickness: 3,
+      })
+      .setOrigin(0.5)
+      .setDepth(38)
+      .setVisible(false);
     this.shieldAura = scene.add
       .circle(player.x, player.y, 45, COLORS.soul, 0.07)
       .setStrokeStyle(3, 0xdaf7ff, 0.9)
@@ -41,8 +60,27 @@ export class PlayerStatusVisualSystem {
   }
 
   update(time: number): void {
+    this.updateCurse(time);
     this.updateShield(time);
     this.updateBuffs();
+  }
+
+  private updateCurse(time: number): void {
+    const curse = this.run.curse.snapshot();
+    const visible = curse.level > 0;
+    const visual = curseVisualFor(curse);
+    const pulse = 0.9 + Math.sin(time * 0.006) * 0.08;
+    this.curseAura
+      .setPosition(this.player.x, this.player.y)
+      .setFillStyle(visual.color, visual.auraAlpha * 0.38)
+      .setStrokeStyle(2, visual.color, visual.auraAlpha)
+      .setScale((visual.auraRadius / 52) * pulse)
+      .setVisible(visible);
+    this.curseLabel
+      .setPosition(this.player.x, this.player.y - 69)
+      .setColor(visual.textColor)
+      .setText(curse.tierLabel.toUpperCase())
+      .setVisible(visible);
   }
 
   private updateShield(time: number): void {

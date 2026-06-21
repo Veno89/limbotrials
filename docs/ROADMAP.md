@@ -13,6 +13,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Add the core curse, cursed reward mutation, curse-gated spawn pressure, and Death Echo foundation
 - [x] Add first meaningful weapon and risk/reward upgrade families: cadence tradeoffs, authored weapon effects, post-evolution specializations, axe-count scaling, and XP/threat risk
 - [x] Add the first conditional upgrade families around movement, dashes, shields, elite hunting, and curse/Echo interaction
+- [x] Add visible curse escalation, curse surge events, curse-specific enemy stat pressure, and first Cinder Reliquary containment tuning
 - [ ] Add five additional weapons individually, each with a unique evolution
 - [ ] Follow with build-defining artifacts, unique artifact assets, and NG+ Lite with optional Torments and later distinct bosses
 
@@ -87,7 +88,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Add persistent multi-tab balance reports with JSON export
 - [x] Add focused data-defined balance presets and live telemetry overlay
 - [ ] Complete repeated full-run balance sessions with varied loadouts
-- [ ] Tune curse risk, evolution power, elite rewards, and powerup frequency
+- [ ] Tune curse risk, evolution power, elite rewards, and powerup frequency through repeated full-run sessions
 - [ ] Add reduced-effects and high-contrast telegraph options
 - [ ] Add controller support and controller glyphs
 - [ ] Add optional challenge modifiers after the baseline run is proven fun

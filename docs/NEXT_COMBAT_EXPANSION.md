@@ -199,6 +199,13 @@ Scythe provides dependable close coverage; Wailing Shards provides dense radial
 safety; and Crimson Orbit owns repeated close-range positional damage. Repeated
 standard-run comparison remains required for final numerical tuning.
 
+Latest full-run data showed Cinder Reliquary reaching roughly `80%` of total damage
+through stacked pulse area, Funeral Furnace, evolution aftershock, and cursed global
+damage. The first containment pass reduced Cinder's base footprint, level area
+growth, focused area upgrade, Funeral Furnace multiplier, and aftershock radius and
+damage. Generated cursed variants now grant Cinder less direct damage and no extra
+generic area while pushing more threat debt instead.
+
 ### Bloodletter Axe
 
 **Implementation status:** Crimson Orbit strengthened after the latest standard-run
@@ -246,7 +253,7 @@ Direction:
 - **Hellfire Sigil:** slower high-impact area denial; first target applied at `72` damage, `3,000ms` cooldown, and `148` area.
 - **Grave Lance:** very slow, very powerful line attack; first target applied at `105` damage, `2,800ms` cooldown, and four penetration.
 - **Wailing Shards:** medium-cadence radial safety tool at `20` base damage, `1,500ms` cooldown, and six base shards.
-- **Cinder Reliquary:** very slow positional pulse at `64` base damage, `4,000ms` cooldown, and `240` area.
+- **Cinder Reliquary:** very slow positional pulse at `58` base damage, `4,200ms` cooldown, and `230` area after containment tuning.
 - **Ashen Longbow:** deliberate fixed three-arrow lane volley at `36` base damage and `1,900ms` cooldown; ordinary levels improve power and speed without granting free arrows.
 
 Every weapon should have:
@@ -367,8 +374,9 @@ NG+ should increase challenge and rewards, but standard mode must first have a s
 4. [Complete] Replace Bloodletter Axe evolution with Crimson Orbit.
 5. [Complete] Establish distinct cadence and power targets for all existing weapons.
 6. [Implemented; tuning ongoing] Expand meaningful upgrade families and reduce generic-stat offer dominance.
-7. Add the five new weapons one at a time with complete evolutions and tests.
-8. Continue into build-defining artifacts and NG+ Lite with optional Torments.
+7. [Implemented; tuning ongoing] Make high curse visibly and mechanically escalate through curse-specific enemy pressure, curse surge events, and player/HUD feedback.
+8. Add the five new weapons one at a time with complete evolutions and tests.
+9. Continue into build-defining artifacts and NG+ Lite with optional Torments.
 
 ## Success Criteria
 

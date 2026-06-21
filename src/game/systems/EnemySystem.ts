@@ -3,6 +3,7 @@ import { ARENA_HEIGHT, ARENA_WIDTH, COLORS } from '../constants';
 import { ENEMIES } from '../data/enemies';
 import type {
   BossAttackId,
+  CurseSnapshot,
   EnemyAbilityId,
   EnemyDefinition,
   EnemyId,
@@ -14,6 +15,7 @@ import { EnemySeparationSystem, type SeparationTarget } from './EnemySeparationS
 import { enemyThreatScaling, scaleThreatDamage } from './threatRules';
 import { selectBossAttack } from './bossAttackRules';
 import type { DeathEchoProfile } from './deathEchoRules';
+import { cursePressureForEnemy } from './cursePressureRules';
 
 interface EnemyRuntime {
   definition: EnemyDefinition;
@@ -60,6 +62,7 @@ export class EnemySystem {
     private readonly onBossSpecial: (attack: BossAttackId, x: number, y: number, phase: number) => void,
     private readonly onBossPhaseChange: (phase: number) => void,
     private readonly getThreat: () => ThreatSnapshot,
+    private readonly getCurse: () => CurseSnapshot,
     private readonly getDeathEchoProfile: () => DeathEchoProfile | undefined = () => undefined,
   ) {
     this.group = scene.physics.add.group();
@@ -78,17 +81,27 @@ export class EnemySystem {
         }
       : baseDefinition;
     const scaling = enemyThreatScaling(this.getThreat(), Boolean(definition.boss));
-    const maxHealth = Math.round(definition.maxHealth * scaling.healthMultiplier);
+    const cursePressure = cursePressureForEnemy(definition, this.getCurse());
+    const pressuredDefinition: EnemyDefinition = {
+      ...definition,
+      speed: Math.round(definition.speed * cursePressure.speedMultiplier),
+    };
+    const maxHealth = Math.round(
+      pressuredDefinition.maxHealth * scaling.healthMultiplier * cursePressure.healthMultiplier,
+    );
     const sprite = this.group.create(x, y, definition.texture) as Phaser.Physics.Arcade.Image;
     sprite
-      .setDisplaySize(definition.displaySize, definition.displaySize)
+      .setDisplaySize(pressuredDefinition.displaySize, pressuredDefinition.displaySize)
       .setDepth(20)
       .setCollideWorldBounds(true);
-    sprite.setAlpha(definition.id === 'wraith' || definition.id === 'lantern-ghost' ? 0.82 : 1);
+    sprite.setAlpha((definition.id === 'wraith' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
+    if (cursePressure.tint) {
+      sprite.setTint(cursePressure.tint);
+    }
     const body = sprite.body as Phaser.Physics.Arcade.Body;
-    body.setMaxVelocity(Math.max(definition.speed * 1.8, 520));
+    body.setMaxVelocity(Math.max(pressuredDefinition.speed * 1.8, 520));
     this.enemies.set(sprite, {
-      definition,
+      definition: pressuredDefinition,
       health: maxHealth,
       maxHealth,
       contactReadyAt: 0,
@@ -96,12 +109,12 @@ export class EnemySystem {
       nextSpecialAt: this.scene.time.now + 4200,
       specialIndex: 0,
       spawnedAtElapsedMs: elapsedMs,
-      damageMultiplier: scaling.damageMultiplier,
+      damageMultiplier: scaling.damageMultiplier * cursePressure.damageMultiplier,
       lastBossPhase: 1,
     });
     this.onEnemySpawn(id, elapsedMs);
-    this.abilities.register(sprite, definition, scaling.damageMultiplier);
-    if (definition.boss) {
+    this.abilities.register(sprite, pressuredDefinition, scaling.damageMultiplier * cursePressure.damageMultiplier);
+    if (pressuredDefinition.boss) {
       this.bossSprite = sprite;
     }
     return sprite;

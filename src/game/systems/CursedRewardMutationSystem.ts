@@ -44,13 +44,13 @@ export function mutateArtifactReward(
     ...artifact,
     name: `Cursed ${artifact.name}`,
     description:
-      `${artifact.description}\n\nCursed Reliquary: +12% global damage, ` +
+      `${artifact.description}\n\nCursed Reliquary: +8% global damage, ` +
       `but elites and cursed enemies answer sooner. Curse +${curseGain}.`,
     rarity: artifact.rarity === 'common' ? 'uncommon' : artifact.rarity,
     modifiers: [
       ...(artifact.modifiers ?? []),
-      { stat: 'damage', mode: 'multiply', value: 1.12 },
-      { stat: 'threatPowerBonus', mode: 'add', value: 8 },
+      { stat: 'damage', mode: 'multiply', value: 1.08 },
+      { stat: 'threatPowerBonus', mode: 'add', value: 10 },
     ],
     curse: {
       curseGain,
@@ -114,26 +114,29 @@ function cursedStatModifiers(choice: UpgradeDefinition): StatModifier[] {
   if (choice.id === 'stat-forbidden-tutelage') {
     return [
       { stat: 'xpGain', mode: 'multiply', value: 1.18 },
-      { stat: 'threatPowerBonus', mode: 'add', value: 7 },
+      { stat: 'threatPowerBonus', mode: 'add', value: 9 },
     ];
   }
   if (choice.id === 'stat-pickup') {
     return [
       { stat: 'pickupRadius', mode: 'multiply', value: 1.18 },
       { stat: 'soulGain', mode: 'multiply', value: 1.1 },
-      { stat: 'threatPowerBonus', mode: 'add', value: 5 },
+      { stat: 'threatPowerBonus', mode: 'add', value: 7 },
     ];
   }
   return [
-    { stat: 'damage', mode: 'multiply', value: 1.08 },
-    { stat: 'threatPowerBonus', mode: 'add', value: 4 },
+    { stat: 'damage', mode: 'multiply', value: 1.05 },
+    { stat: 'threatPowerBonus', mode: 'add', value: 6 },
   ];
 }
 
 function cursedWeaponModifiers(choice: UpgradeDefinition): WeaponModifier[] {
-  const modifiers: WeaponModifier[] = [{ stat: 'damage', mode: 'multiply', value: 1.18 }];
-  if (choice.category === 'weapon-upgrade') {
-    modifiers.push({ stat: 'area', mode: 'multiply', value: 1.08 });
+  const targetWeapon = choice.targetWeapon ?? choice.unlockWeapon;
+  const modifiers: WeaponModifier[] = [
+    { stat: 'damage', mode: 'multiply', value: targetWeapon === 'cinder-reliquary' ? 1.1 : 1.12 },
+  ];
+  if (choice.category === 'weapon-upgrade' && targetWeapon !== 'cinder-reliquary') {
+    modifiers.push({ stat: 'area', mode: 'multiply', value: 1.05 });
   }
   return modifiers;
 }

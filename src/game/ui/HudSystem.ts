@@ -10,6 +10,8 @@ import { StatsPanel } from './StatsPanel';
 import { ArtifactBar } from './ArtifactBar';
 import type { ChestSystem } from '../systems/ChestSystem';
 import { ChestObjectiveHud } from './ChestObjectiveHud';
+import { curseTierProgress } from '../data/curse';
+import { curseVisualFor } from './curseVisualRules';
 
 export class HudSystem {
   private readonly healthBar: Phaser.GameObjects.Rectangle;
@@ -18,6 +20,8 @@ export class HudSystem {
   private readonly bossGroup: Phaser.GameObjects.Container;
   private readonly statsText: Phaser.GameObjects.Text;
   private readonly timerText: Phaser.GameObjects.Text;
+  private readonly curseText: Phaser.GameObjects.Text;
+  private readonly curseBar: Phaser.GameObjects.Rectangle;
   private readonly relicsText: Phaser.GameObjects.Text;
   private readonly lowHealthVignette: Phaser.GameObjects.Rectangle;
   private readonly dashBar: Phaser.GameObjects.Rectangle;
@@ -70,9 +74,23 @@ export class HudSystem {
         })
         .setOrigin(0.5),
     );
-    this.relicsText = fixed(
+    this.curseText = fixed(
       scene.add
         .text(GAME_WIDTH - 42, 22, '', {
+          fontFamily: 'Cinzel, serif',
+          fontSize: '15px',
+          color: '#dce8ed',
+          align: 'right',
+          stroke: '#050708',
+          strokeThickness: 3,
+        })
+        .setOrigin(1, 0),
+    );
+    fixed(scene.add.rectangle(GAME_WIDTH - 190, 58, 300, 8, 0x050809, 0.9).setStrokeStyle(1, COLORS.border));
+    this.curseBar = fixed(scene.add.rectangle(GAME_WIDTH - 338, 58, 296, 5, COLORS.blood).setOrigin(0, 0.5));
+    this.relicsText = fixed(
+      scene.add
+        .text(GAME_WIDTH - 42, 72, '', {
           fontFamily: 'Cinzel, serif',
           fontSize: '15px',
           color: '#dce8ed',
@@ -121,8 +139,13 @@ export class HudSystem {
     this.timerText.setText(formatTime(this.run.elapsedMs));
     const status = this.weapons.getActiveSynergies();
     const curse = this.run.curse.snapshot();
+    const curseVisual = curseVisualFor(curse);
+    this.curseText.setColor(curseVisual.textColor);
+    this.curseText.setText(`CURSE ${curse.level}  ${curse.tierLabel.toUpperCase()}`);
+    this.curseBar.setFillStyle(curseVisual.color, curse.level > 0 ? 0.95 : 0.45);
+    this.curseBar.displayWidth = 296 * curseTierProgress(curse.level);
     this.relicsText.setText(
-      `CURSE ${curse.level}  ${curse.tierLabel.toUpperCase()}\nUPGRADES ${this.totalRelics()}${
+      `UPGRADES ${this.totalRelics()}${
         status.length > 0 ? `\n${status.join('\n')}` : ''
       }`,
     );
