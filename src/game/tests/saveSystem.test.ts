@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
-  availableSouls,
   createDefaultSave,
   loadSave,
-  purchaseMetaUpgrade,
   recordRunResult,
   writeSave,
   type StorageLike,
 } from '../systems/SaveSystem';
 import { curseSnapshot } from '../data/curse';
+import { TALENT_POINT_THRESHOLDS } from '../data/talentTree';
+import { availableTalentPoints, earnedTalentPoints } from '../systems/TalentTreeSystem';
 
 class MemoryStorage implements StorageLike {
   value: string | null = null;
@@ -27,17 +27,29 @@ describe('save system', () => {
     const storage = new MemoryStorage();
     const save = createDefaultSave();
     save.totalSouls = 50;
+    save.talentProgress.haunted.legacySouls = 120;
     writeSave(save, storage);
     expect(loadSave(storage).totalSouls).toBe(50);
+    expect(loadSave(storage).talentProgress.haunted.legacySouls).toBe(120);
   });
 
-  it('merges missing fields with current defaults', () => {
+  it('merges missing fields and wipes legacy souls during version 7 migration', () => {
     const storage = new MemoryStorage();
-    storage.value = JSON.stringify({ version: 0, totalSouls: 12 });
+    storage.value = JSON.stringify({
+      version: 6,
+      totalSouls: 12,
+      spentSouls: 5,
+      totalSoulsEarned: 999,
+      metaLevels: { 'vital-remnant': 5 },
+    });
     const save = loadSave(storage);
-    expect(save.totalSouls).toBe(12);
+    expect(save.totalSouls).toBe(0);
+    expect(save.spentSouls).toBe(0);
+    expect(save.totalSoulsEarned).toBe(0);
     expect(save.metaLevels['vital-remnant']).toBe(0);
     expect(save.metaLevels['fateful-thread']).toBe(0);
+    expect(save.talentProgress.haunted.legacySouls).toBe(0);
+    expect(save.talentProgress.haunted.allocations).toEqual({});
     expect(save.settings.masterVolume).toBe(0.75);
     expect(save.settings.musicVolume).toBe(0.35);
     expect(save.selectedCharacter).toBe('haunted');
@@ -68,12 +80,16 @@ describe('save system', () => {
     expect(save.unlockedArtifactTiers).toEqual(['base']);
   });
 
-  it('spends available souls once', () => {
+  it('preserves current-version talent progress', () => {
+    const storage = new MemoryStorage();
     const save = createDefaultSave();
-    save.totalSouls = 30;
-    expect(purchaseMetaUpgrade(save, 'vital-remnant', 25, 5)).toBe(true);
-    expect(availableSouls(save)).toBe(5);
-    expect(purchaseMetaUpgrade(save, 'vital-remnant', 25, 5)).toBe(false);
+    save.talentProgress.haunted.legacySouls = TALENT_POINT_THRESHOLDS[3]!;
+    save.talentProgress.haunted.allocations['haunted-reaper-root'] = 2;
+    writeSave(save, storage);
+
+    const loaded = loadSave(storage);
+    expect(earnedTalentPoints(loaded, 'haunted')).toBe(4);
+    expect(availableTalentPoints(loaded, 'haunted')).toBe(2);
   });
 
   it('records run progression and returns newly unlocked content', () => {
@@ -122,6 +138,8 @@ describe('save system', () => {
     expect(result.save.totalRuns).toBe(1);
     expect(result.save.totalWardenKills).toBe(1);
     expect(result.save.characterStats.haunted.victories).toBe(1);
+    expect(result.save.talentProgress.haunted.legacySouls).toBe(120);
+    expect(result.save.talentProgress['the-penitent'].legacySouls).toBe(0);
     expect(result.newlyUnlockedCharacters).toEqual(['the-penitent', 'ashwalker']);
     expect(result.newlyUnlockedArtifactTiers).toEqual(['tier-2', 'tier-3']);
   });

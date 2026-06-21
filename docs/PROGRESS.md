@@ -72,10 +72,11 @@
 - Softened action-bar cooldown labels so the gradient remains the primary cooldown read without covering the new weapon sprites.
 - Reworked the end screen around player actions: main menu, same-character retry, a styled name-gated **Upload Run** panel that records analytics and leaderboard score together, and a quit path back to the landing page.
 - Added structured cursed-reward analytics so uploaded runs record authored/generated curse choices, curse gain, before/after tiers, timing, pattern, and downside separately from timeline strings.
+- Replaced the flat legacy meta upgrades with a first large character talent-tree foundation: save version 7 wipes old soul progression, each character earns legacy-soul talent points from played runs, and the new tree UI supports path-gated allocation, choice locks, refunds, and typed run-start effects.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -89,10 +90,11 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 - Threat health and damage scaling, elite pressure, and the rebuilt Warden's target fight duration need repeated completed-build playtesting.
 - Curse reward frequency, tier thresholds, the new curse surge pressure, cursed enemy stat scaling, and Death Echo spawn timing need repeated human playtesting.
 - Conditional upgrade values and offer frequency need full-run tuning against safe and high-curse builds.
+- Talent node values, point thresholds, and the first tree UI need playtesting before deeper visual polish.
 - The Phaser engine bundle triggers Vite's large-chunk warning.
 - Visual effect object pooling is not implemented yet; effects are intentionally modest.
 - Profile each future directional sheet before expanding the animation approach to other characters.
 
 ## Next Recommended Task
 
-Use the next uploaded Supabase runs for a short balance pass across safe, high-curse, Cinder-heavy, and conditional-upgrade-heavy builds. Tune curse surge pressure, reward mutation rates, Echo readability, Warden fight duration, and conditional upgrade values before adding the first new weapon batch.
+Begin the artifact identity pass: reduce reliquary frequency, then redesign flat-stat artifacts into fewer, stronger, mostly-upside run-shaping relics while reserving double-edged risk for cursed artifact variants.

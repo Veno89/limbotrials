@@ -102,7 +102,11 @@ export class UpgradeOfferSystem {
       curseLevel: this.run.curse.snapshot().level,
       weaponCap: this.run.getWeaponCap(),
     };
-    const choices = kind === 'curse' ? selectCurseChoices(context) : selectUpgradeChoices(context);
+    const count = kind === 'standard' ? this.run.getUpgradeChoiceCount() : 3;
+    const choices =
+      kind === 'curse'
+        ? selectCurseChoices(context, Math.random, count)
+        : selectUpgradeChoices(context, Math.random, count);
     return mutateUpgradeChoices(choices, this.run.curse.snapshot(), kind);
   }
 

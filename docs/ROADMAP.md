@@ -103,7 +103,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Reliquary discoverability, labeled artifact tooltips, shake-safe HUD bounds, and longer pre-evolution weapon progression
 - [ ] Phase 4 dual-evolution prototype; Crimson Orbit exists as Bloodletter Axe's current capstone, but alternate evolution paths and selection are still pending
 - [ ] Phase 5 arena buildings V1
-- [ ] Phase 6 talent tree V1
+- [x] Phase 6 talent tree V1 foundation: large character trees, legacy-soul point track, save wipe, allocation rules, and first playable UI
 - [ ] Phase 7 New Game+ Lite
 
 ## Explicitly Later

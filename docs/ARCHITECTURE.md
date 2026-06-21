@@ -112,7 +112,7 @@ Run stats are applied in this order:
 
 1. Base player stats
 2. Character stat overrides
-3. Permanent legacy modifiers
+3. Character talent modifiers and typed talent effects
 4. Run artifacts
 5. Temporary upgrades, buffs, and curses
 6. Future building effects
@@ -126,9 +126,11 @@ Run stats are applied in this order:
 - `data/artifacts.ts`: artifact definitions plus availability and weighted roll rules
 - `data/characters.ts`: character definitions and unlock evaluation
 - `data/enemies.ts`: enemy definitions, including hazard and bomb specialists
+- `data/talentTree.ts`: character talent paths, node definitions, point thresholds, and tree layout metadata
 - `data/powerups.ts`: powerup presentation, pickup explanations, and optional timed-effect duration
 
 Artifacts may declare `special` only when its ID exists in `SpecialEffectHandlers`. Tooltip-only special effects are not allowed.
+Talent major nodes may declare `effect` only when its ID exists in `TalentEffectHandlers`. Smaller talent nodes should prefer normal `StatModifier` or `WeaponModifier` entries.
 
 ## Data-Driven Content
 
@@ -173,6 +175,14 @@ Death Echo data is saved as a compact `DeathEchoSnapshot` by `SaveSystem` after
 failed standard runs. Future runs use `DeathEchoSystem` and `deathEchoRules.ts` to
 translate the old build into capped enemy-safe abilities rather than reusing player
 combat or controller code.
+
+Character talent trees replace the old flat legacy upgrade cards. `SaveSystem`
+owns save migration and records legacy souls on the character used for each run.
+`TalentTreeSystem` owns point math, prerequisites, path gates, mutually exclusive
+choice pairs, and refunds. `MetaProgressionScene` renders the current first-pass
+tree UI but does not own allocation rules. `RunState` applies allocated talent
+modifiers at run start and delegates typed non-stat effects to
+`TalentEffectHandlers`.
 
 ## Website And Leaderboard
 
@@ -220,6 +230,15 @@ Only genuinely new behavior should require an `EnemySystem` change.
 3. Add a typed special-effect handler before declaring a `special`.
 4. Assign an existing pool tier and verify locked tiers remain filtered.
 5. Let the mutation layer create ordinary cursed variants unless the artifact needs a hand-authored cursed identity.
+
+## Add A Talent Node
+
+1. Add its path/slug-backed definition in `data/talentTree.ts`.
+2. Prefer `StatModifier` or `WeaponModifier` for small and medium nodes.
+3. Add a `TalentEffectId` and handler in `TalentEffectHandlers` before declaring a major non-stat effect.
+4. Give deep nodes a `pathPointsRequired` value and concrete prerequisites.
+5. Use `choiceGroup` only for mutually exclusive alternatives.
+6. Add or update focused `TalentTreeSystem` tests when changing point rules, prerequisites, or effects.
 
 ## Add A Character
 

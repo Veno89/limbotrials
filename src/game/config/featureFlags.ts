@@ -6,6 +6,6 @@ export const FEATURE_FLAGS = {
   characters: true,
   dualEvolutions: false,
   buildings: false,
-  talentTree: false,
+  talentTree: true,
   newGamePlus: false,
 } as const;

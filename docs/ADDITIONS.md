@@ -33,8 +33,9 @@ Completed in the first expansion milestone:
 - [x] Curse and Echo foundation: run-level curse tiers, cursed reward mutation, curse-gated spawn pressure, Warden curse hooks, and the first saved Death Echo return
 - [x] Curse pressure polish: visible curse escalation, recurring curse surges, curse-specific enemy stat pressure, cursed enemy tinting, and first Cinder Reliquary containment tuning
 - [x] Live playtest data: private Supabase run analytics, named end-screen upload, and public leaderboard rows for real standard runs
+- [x] Talent tree foundation: save version 7 wipes old soul/meta progression, each character has three large exclusive-ish paths, played-character legacy souls grant talent points, and the first tree UI supports allocation and refunds
 
-The first completed standard run proved that the baseline is survivable. Active-run timing, bounded adaptive threat, the Warden rebuild, Crimson Orbit, the existing-weapon identity pass, the first conditional upgrades, and visible curse pressure are now implemented. The immediate focus is a short balance/telemetry pass using uploaded Supabase run data before adding the first new weapon from `docs/NEXT_COMBAT_EXPANSION.md`. Dual evolutions, buildings, talents, and NG+ remain intentionally delayed until that combat foundation is stable.
+The first completed standard run proved that the baseline is survivable. Active-run timing, bounded adaptive threat, the Warden rebuild, Crimson Orbit, the existing-weapon identity pass, the first conditional upgrades, visible curse pressure, and the first character talent-tree foundation are now implemented. The immediate focus has shifted to fewer, stronger, more identity-defining artifacts before adding the first new weapon from `docs/NEXT_COMBAT_EXPANSION.md`. Dual evolutions, buildings, and NG+ remain intentionally delayed until that combat foundation is stable.
 
 Following the first completed standard run, the active combat-expansion direction is recorded in `docs/NEXT_COMBAT_EXPANSION.md`. It supersedes the earlier assumption that progression should be slowed: fast progression remains intentional, while stronger upgrade choices, repeated Warden and cadence playtests, and five additional weapons become the active priorities.
 
@@ -59,7 +60,7 @@ This expansion should improve the game in five major ways:
 
 4. **Improve long-term progression**
 
-   * Replace or evolve the flat meta-upgrade system into a smaller first version of a branching talent tree.
+   * Replace or evolve the flat meta-upgrade system into a character-specific branching talent tree.
 
 5. **Prepare for endgame replay**
 
@@ -78,7 +79,7 @@ This expansion should improve the game in five major ways:
 | Character unlocks | Challenges + milestones, some hidden unlocks later      |
 | Artifacts         | Run-only passive items, unlocked in batches over time   |
 | Dual evolutions   | Yes, but prototype on 3 weapons before all weapons      |
-| Talent tree       | Yes, but start smaller than the full 35–50 node version |
+| Talent tree       | Yes; first foundation uses large character-specific trees |
 | Scope style       | Vertical slices before massive content expansion        |
 
 ---
@@ -102,7 +103,7 @@ export const FEATURE_FLAGS = {
   characters: true,
   dualEvolutions: false,
   buildings: false,
-  talentTree: false,
+  talentTree: true,
   newGamePlus: false,
 } as const;
 ```

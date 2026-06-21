@@ -10,6 +10,7 @@ import type {
   SaveData,
 } from '../types/gameTypes';
 import { createDeathEchoSnapshot, parseDeathEchoSnapshot } from './deathEchoRules';
+import { createDefaultTalentProgress, sanitizeTalentProgress } from './TalentTreeSystem';
 
 export interface StorageLike {
   getItem(key: string): string | null;
@@ -33,6 +34,7 @@ export function createDefaultSave(): SaveData {
       'hungry-echo': 0,
       'fateful-thread': 0,
     },
+    talentProgress: createDefaultTalentProgress(),
     bestRunTimeMs: 0,
     highestBossDefeated: 0,
     totalKills: 0,
@@ -84,12 +86,17 @@ export function loadSave(storage: StorageLike = localStorage): SaveData {
     if (!unlockedArtifactTiers.includes('base')) {
       unlockedArtifactTiers.unshift('base');
     }
+    const wipeLegacyProgression = (parsed.version ?? 0) < 7;
     const migrated: SaveData = {
       ...defaults,
       ...parsed,
       version: SAVE_VERSION,
+      totalSouls: wipeLegacyProgression ? 0 : parsed.totalSouls ?? defaults.totalSouls,
+      spentSouls: wipeLegacyProgression ? 0 : parsed.spentSouls ?? defaults.spentSouls,
+      totalSoulsEarned: wipeLegacyProgression ? 0 : parsed.totalSoulsEarned ?? defaults.totalSoulsEarned,
       totalWardenKills: parsed.totalWardenKills ?? parsed.highestBossDefeated ?? 0,
-      metaLevels: { ...defaults.metaLevels, ...parsed.metaLevels },
+      metaLevels: wipeLegacyProgression ? defaults.metaLevels : { ...defaults.metaLevels, ...parsed.metaLevels },
+      talentProgress: wipeLegacyProgression ? createDefaultTalentProgress() : sanitizeTalentProgress(parsed.talentProgress),
       selectedCharacter,
       unlockedCharacters: [...new Set(unlockedCharacters)],
       characterStats: {
@@ -150,9 +157,24 @@ export function recordRunResult(save: SaveData, summary: RunSummary): RecordedRu
     },
     unlockedCharacters: [...save.unlockedCharacters],
     unlockedArtifactTiers: [...save.unlockedArtifactTiers],
+    talentProgress: {
+      haunted: {
+        legacySouls: save.talentProgress.haunted.legacySouls,
+        allocations: { ...save.talentProgress.haunted.allocations },
+      },
+      'the-penitent': {
+        legacySouls: save.talentProgress['the-penitent'].legacySouls,
+        allocations: { ...save.talentProgress['the-penitent'].allocations },
+      },
+      ashwalker: {
+        legacySouls: save.talentProgress.ashwalker.legacySouls,
+        allocations: { ...save.talentProgress.ashwalker.allocations },
+      },
+    },
   };
   next.totalSouls += summary.souls;
   next.totalSoulsEarned += summary.souls;
+  next.talentProgress[summary.characterId].legacySouls += summary.souls;
   next.totalKills += summary.kills;
   next.totalRuns += 1;
   next.totalDeaths += summary.victory ? 0 : 1;

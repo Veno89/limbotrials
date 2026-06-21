@@ -300,7 +300,7 @@ describe('categorized upgrade system', () => {
 
   it('applies curse tradeoffs and limits rerolls', () => {
     const save = createDefaultSave();
-    save.metaLevels['fateful-thread'] = 1;
+    save.talentProgress.haunted.allocations['haunted-echo-notable-1'] = 1;
     const run = new RunState(save);
     expect(run.rerolls).toBe(2);
     expect(run.applyUpgrade('curse-blood-price')).toBe(true);

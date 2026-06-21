@@ -1,10 +1,11 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants';
 import { audio } from '../systems/AudioSystem';
-import { availableSouls, loadSave } from '../systems/SaveSystem';
+import { loadSave } from '../systems/SaveSystem';
 import { addButton, addTitle, formatTime } from '../ui/uiHelpers';
 import { loadLastRunSummary } from '../systems/BalanceReportStore';
 import { FEATURE_FLAGS } from '../config/featureFlags';
+import { availableTalentPoints, earnedTalentPoints } from '../systems/TalentTreeSystem';
 
 export class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -37,11 +38,17 @@ export class MainMenuScene extends Phaser.Scene {
     }
 
     const best = save.bestRunTimeMs > 0 ? formatTime(save.bestRunTimeMs) : '--:--';
+    const characterProgress = save.talentProgress[save.selectedCharacter];
     this.add
       .text(
         GAME_WIDTH / 2,
         lastRun ? 590 : 540,
-        `UNSPENT SOULS  ${availableSouls(save)}\nBEST TRIAL  ${best}   /   TOTAL KILLS  ${save.totalKills}`,
+        `LEGACY SOULS  ${characterProgress.legacySouls}   /   TALENT POINTS  ${availableTalentPoints(
+          save,
+          save.selectedCharacter,
+        )} AVAILABLE / ${earnedTalentPoints(save, save.selectedCharacter)} EARNED\nBEST TRIAL  ${best}   /   TOTAL KILLS  ${
+          save.totalKills
+        }`,
         {
           fontFamily: 'Cinzel, serif',
           fontSize: '15px',

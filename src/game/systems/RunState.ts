@@ -31,6 +31,8 @@ import {
 } from '../utils/statModifiers';
 import { BalanceTelemetry } from './BalanceTelemetry';
 import { SPECIAL_EFFECT_HANDLERS } from './SpecialEffectHandlers';
+import { TALENT_EFFECT_HANDLERS } from './TalentEffectHandlers';
+import { getAllocatedTalentNodes } from './TalentTreeSystem';
 import { calculateThreat } from './threatRules';
 import { CurseSystem } from './CurseSystem';
 
@@ -67,6 +69,7 @@ export class RunState {
   elapsedMs = 0;
   rerolls: number;
   private weaponCap = WEAPON_CAP;
+  private upgradeChoiceBonus = 0;
   private readonly globalWeaponModifiers: WeaponModifier[] = [];
   private readonly artifactDefinitions = new Map<ArtifactId, ArtifactDefinition>();
 
@@ -79,13 +82,9 @@ export class RunState {
     this.characterId = save.unlockedCharacters.includes(characterId) ? characterId : 'haunted';
     const character = CHARACTERS[this.characterId];
     this.stats = clampPlayerStats({ ...BASE_PLAYER_STATS, ...character.baseStatOverrides });
-    applyStatModifiers(this.stats, [
-      { stat: 'maxHealth', mode: 'add', value: save.metaLevels['vital-remnant'] * 10 },
-      { stat: 'damage', mode: 'add', value: save.metaLevels['cruel-memory'] * 0.05 },
-      { stat: 'soulGain', mode: 'add', value: save.metaLevels['hungry-echo'] * 0.12 },
-    ]);
+    this.rerolls = 1;
+    this.applyTalentProgress(save);
     this.health = this.stats.maxHealth;
-    this.rerolls = 1 + save.metaLevels['fateful-thread'];
     this.addWeapon(character.starterWeapon);
   }
 
@@ -329,6 +328,33 @@ export class RunState {
     return this.weaponCap;
   }
 
+  getUpgradeChoiceCount(): number {
+    return 3 + this.upgradeChoiceBonus;
+  }
+
+  addUpgradeChoiceBonus(amount: number): void {
+    this.upgradeChoiceBonus = Math.max(0, this.upgradeChoiceBonus + amount);
+  }
+
+  addRerolls(amount: number): void {
+    this.rerolls += Math.max(0, amount);
+  }
+
+  addStartingShield(amount: number): void {
+    this.shield += Math.max(0, amount);
+  }
+
+  addStartingCurse(amount: number, reason: string): void {
+    const result = this.curse.gain(amount, reason);
+    if (!result) {
+      return;
+    }
+    this.balance.recordTimeline(`talent:curse:+${result.amount}`, this.elapsedMs);
+    for (const tier of result.crossedTiers) {
+      this.balance.recordTimeline(`curse:tier:${tier.id}`, this.elapsedMs);
+    }
+  }
+
   useReroll(): boolean {
     if (this.rerolls <= 0) {
       return false;
@@ -390,6 +416,23 @@ export class RunState {
     modifiers: readonly WeaponModifier[],
   ): void {
     applyWeaponModifiers(state.stats, modifiers, WEAPONS[id].baseStats);
+  }
+
+  private applyTalentProgress(save: SaveData): void {
+    const nodes = getAllocatedTalentNodes(save, this.characterId);
+    for (const { node, ranks } of nodes) {
+      for (let rank = 0; rank < ranks; rank += 1) {
+        if (node.modifiers) {
+          applyStatModifiers(this.stats, node.modifiers);
+        }
+        if (node.weaponModifiers) {
+          this.globalWeaponModifiers.push(...node.weaponModifiers);
+        }
+      }
+      if (node.effect) {
+        TALENT_EFFECT_HANDLERS[node.effect](this, ranks);
+      }
+    }
   }
 
   private advanceWeapon(id: WeaponId, state: WeaponRuntimeState): void {

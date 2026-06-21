@@ -12,7 +12,7 @@ Everlasting Oblivion: Limbo Trial is a compact grimdark arena roguelite. The com
 4. Level up and choose one of three upgrades, sometimes accepting a cursed variant for stronger power and higher risk.
 5. Survive authored encounter beats, mixed enemy behaviors, and elite arrivals.
 6. Defeat the Limbo Warden or die.
-7. Keep earned souls and spend them on permanent legacy ranks.
+7. Feed earned souls into that character's legacy level and spend the resulting talent points.
 
 ## Run Pacing
 
@@ -110,7 +110,13 @@ Any remaining focused choices continue appearing after their target weapon evolv
 allowing late builds to complete these identities instead of collapsing into generic
 stat offers.
 
-Permanent progression intentionally stays small: starting health, starting damage, soul gain, and additional run rerolls.
+Permanent progression is now character-specific. Each character has three exclusive-ish
+talent paths; souls earned by playing that character fill a legacy track that grants
+talent points. Players can nearly fill one path, reach a capstone with spare points
+for a second path, or split power broadly while missing the deepest identities. Small
+nodes use normal stat or weapon modifiers, while major nodes use typed run-start
+effects such as extra upgrade choices, extra rerolls, starting shields, weapon slots,
+pierce, or starting with curse.
 
 ### Curse, Cursed Rewards, And Echoes
 

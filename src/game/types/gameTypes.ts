@@ -162,6 +162,37 @@ export type BalancePresetId =
 export type UpgradeOfferKind = 'standard' | 'curse';
 export type CharacterId = 'haunted' | 'the-penitent' | 'ashwalker';
 export type SpecialEffectId = 'extra-weapon-slot' | 'all-weapons-pierce';
+export type TalentPathId =
+  | 'haunted-reaper'
+  | 'haunted-echo'
+  | 'haunted-remnant'
+  | 'penitent-burden'
+  | 'penitent-atonement'
+  | 'penitent-pilgrim'
+  | 'ashwalker-ember'
+  | 'ashwalker-cinderstep'
+  | 'ashwalker-hunger';
+export type TalentNodeSlug =
+  | 'root'
+  | 'left-1'
+  | 'right-1'
+  | 'notable-1'
+  | 'middle'
+  | 'choice-a'
+  | 'choice-b'
+  | 'notable-2'
+  | 'deep-left'
+  | 'deep-right'
+  | 'capstone';
+export type TalentNodeId = `${TalentPathId}-${TalentNodeSlug}`;
+export type TalentNodeTier = 'minor' | 'notable' | 'choice' | 'capstone';
+export type TalentEffectId =
+  | 'extra-upgrade-choice'
+  | 'extra-reroll'
+  | 'extra-weapon-slot'
+  | 'all-weapons-pierce'
+  | 'starting-shield'
+  | 'start-with-curse';
 export type WeaponUpgradeEffectId =
   | 'soul-bolt-splintering-memory'
   | 'hellfire-spreading-sentence'
@@ -409,11 +440,42 @@ export interface MetaUpgradeDefinition {
   costs: number[];
 }
 
+export interface TalentPathDefinition {
+  id: TalentPathId;
+  characterId: CharacterId;
+  name: string;
+  description: string;
+  color: number;
+}
+
+export interface TalentNodeDefinition {
+  id: TalentNodeId;
+  characterId: CharacterId;
+  pathId: TalentPathId;
+  tier: TalentNodeTier;
+  name: string;
+  description: string;
+  maxRanks: number;
+  pathPointsRequired: number;
+  prerequisites: TalentNodeId[];
+  choiceGroup?: string;
+  modifiers?: StatModifier[];
+  weaponModifiers?: WeaponModifier[];
+  effect?: TalentEffectId;
+  position: { row: number; column: number };
+}
+
+export interface CharacterTalentProgress {
+  legacySouls: number;
+  allocations: Partial<Record<TalentNodeId, number>>;
+}
+
 export interface SaveData {
   version: number;
   totalSouls: number;
   spentSouls: number;
   metaLevels: Record<MetaUpgradeId, number>;
+  talentProgress: Record<CharacterId, CharacterTalentProgress>;
   bestRunTimeMs: number;
   highestBossDefeated: number;
   totalKills: number;
