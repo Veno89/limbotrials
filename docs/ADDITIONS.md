@@ -137,7 +137,7 @@ export const BALANCE = {
   baseLegendaryArtifactChance: 0.05,
   baseRareArtifactChance: 0.15,
 
-  maxActiveChests: 2,
+  maxActiveChests: 1,
   maxActiveHazards: 30,
   maxActiveBuildings: 2,
 } as const;

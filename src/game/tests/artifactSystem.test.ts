@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { ARTIFACTS, getAvailableArtifacts, rollArtifact } from '../data/artifacts';
+import { ENEMIES } from '../data/enemies';
 import { mutateArtifactReward } from '../systems/CursedRewardMutationSystem';
+import { ArtifactEffectSystem } from '../systems/ArtifactEffectSystem';
 import { createDefaultSave } from '../systems/SaveSystem';
 import { RunState } from '../systems/RunState';
 
@@ -13,6 +15,13 @@ function seededRandom(seed: number): () => number {
 }
 
 describe('artifact system', () => {
+  it('gives every redesigned stat relic a typed runtime identity', () => {
+    const flatOnly = Object.values(ARTIFACTS).filter(
+      (artifact) => (artifact.modifiers || artifact.weaponModifiers) && !artifact.effect && !artifact.special,
+    );
+    expect(flatOnly).toEqual([]);
+  });
+
   it('filters locked tiers and never rolls an owned artifact', () => {
     const save = createDefaultSave();
     const available = getAvailableArtifacts(save);
@@ -44,8 +53,39 @@ describe('artifact system', () => {
   it('applies percentage modifiers with the same factor convention as upgrades', () => {
     const run = new RunState(createDefaultSave());
     expect(run.applyArtifact('winged-sandals')).toBe(true);
-    expect(run.stats.moveSpeed).toBeCloseTo(246.4);
+    expect(run.stats.moveSpeed).toBeCloseTo(242);
     expect(run.applyArtifact('winged-sandals')).toBe(false);
+  });
+
+  it('runs typed artifact effects from the central artifact effect system', () => {
+    const run = new RunState(createDefaultSave());
+    const effect = artifactEffects(run);
+    expect(run.applyArtifact('pendant-of-vigor')).toBe(true);
+    effect.onArtifactGained(ARTIFACTS['pendant-of-vigor'].effect);
+    expect(run.shield).toBe(35);
+
+    expect(run.applyArtifact('winged-sandals')).toBe(true);
+    effect.onDash();
+    expect(effect.reducedCooldowns).toBe(220);
+
+    expect(run.applyArtifact('magnet-stone')).toBe(true);
+    for (let index = 0; index < 5; index += 1) {
+      effect.onPickupCollected(1, 1);
+    }
+    expect(run.souls).toBe(3);
+  });
+
+  it('lets blood vial heal through enemy-death hooks', () => {
+    const run = new RunState(createDefaultSave());
+    const effect = artifactEffects(run);
+    expect(run.applyArtifact('blood-vial')).toBe(true);
+    run.health = 50;
+
+    for (let index = 0; index < 10; index += 1) {
+      effect.onEnemyDeath({ x: 0, y: 0, lifetimeMs: 1000, definition: ENEMIES['lost-soul'] });
+    }
+
+    expect(run.health).toBe(54);
   });
 
   it('applies typed special effects to current and future weapons', () => {
@@ -82,3 +122,25 @@ describe('artifact system', () => {
     });
   });
 });
+
+function artifactEffects(run: RunState): ArtifactEffectSystem & { reducedCooldowns: number } {
+  let reducedCooldowns = 0;
+  const effect = new ArtifactEffectSystem(
+    run,
+    {
+      warning: () => undefined,
+      ring: () => undefined,
+    },
+    {
+      reduceWeaponCooldowns: (milliseconds) => {
+        reducedCooldowns += milliseconds;
+      },
+      collectAllPickups: () => undefined,
+      grantPowerup: () => undefined,
+      spawnPowerup: () => undefined,
+      playerPosition: () => ({ x: 0, y: 0 }),
+    },
+  ) as ArtifactEffectSystem & { reducedCooldowns: number };
+  Object.defineProperty(effect, 'reducedCooldowns', { get: () => reducedCooldowns });
+  return effect;
+}

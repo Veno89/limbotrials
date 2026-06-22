@@ -14,9 +14,10 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Add first meaningful weapon and risk/reward upgrade families: cadence tradeoffs, authored weapon effects, post-evolution specializations, axe-count scaling, and XP/threat risk
 - [x] Add the first conditional upgrade families around movement, dashes, shields, elite hunting, and curse/Echo interaction
 - [x] Add visible curse escalation, curse surge events, curse-specific enemy stat pressure, and first Cinder Reliquary containment tuning
+- [x] Start the build-defining artifact pass with lower reliquary frequency and typed runtime effects for every redesigned regular stat relic
 - [ ] Use uploaded Supabase run data to tune curse pressure, conditional upgrades, Warden duration, and Cinder containment before expanding the weapon roster
 - [ ] Add five additional weapons individually, each with a unique evolution
-- [ ] Follow with build-defining artifacts, unique artifact assets, and NG+ Lite with optional Torments and later distinct bosses
+- [ ] Follow with unique artifact assets, deeper artifact families, NG+ Lite with optional Torments, and later distinct bosses
 
 ## Phase 1: Playable Foundation
 

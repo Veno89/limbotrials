@@ -162,6 +162,27 @@ export type BalancePresetId =
 export type UpgradeOfferKind = 'standard' | 'curse';
 export type CharacterId = 'haunted' | 'the-penitent' | 'ashwalker';
 export type SpecialEffectId = 'extra-weapon-slot' | 'all-weapons-pierce';
+export type ArtifactEffectId =
+  | 'vital-shield'
+  | 'winged-quicken'
+  | 'magnet-tithe'
+  | 'whetstone-cadence'
+  | 'blood-vial-feast'
+  | 'buckler-break'
+  | 'hallowed-tithe'
+  | 'vampiric-elite-heal'
+  | 'soul-lantern-vacuum'
+  | 'shadow-perfect-dodge'
+  | 'lucky-powerup'
+  | 'unstable-frenzy'
+  | 'spiked-retaliation'
+  | 'hourglass-quicken'
+  | 'golden-windfall'
+  | 'death-gaze-blink'
+  | 'giants-last-stand'
+  | 'wardens-prize'
+  | 'soul-furnace-stoke'
+  | 'ascended-choice';
 export type TalentPathId =
   | 'haunted-reaper'
   | 'haunted-echo'
@@ -393,6 +414,7 @@ export interface ArtifactDefinition {
   modifiers?: StatModifier[];
   weaponModifiers?: WeaponModifier[];
   special?: SpecialEffectId;
+  effect?: ArtifactEffectId;
   curse?: CurseRewardDefinition;
 }
 

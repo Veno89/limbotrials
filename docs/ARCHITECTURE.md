@@ -40,6 +40,7 @@ src/game/
 - `WeaponSynergySystem`: cached loadout-pair bonuses.
 - `CursedRewardMutationSystem`: central mutation layer that turns eligible upgrade or artifact offers into cursed variants without duplicating the base reward systems.
 - `ConditionalUpgradeSystem`: runtime bridge for typed conditional upgrades that depend on movement, dash windows, shields, target kind, and enemy deaths.
+- `ArtifactEffectSystem`: runtime bridge for typed artifact effects that depend on pickups, dashes, shield breaks, enemy deaths, and one-time claim rewards.
 - `DeathEchoSystem`: one-run controller that turns the latest saved death snapshot into a readable generated Echo encounter.
 - `PickupSystem`: soul drops, bounded pickup consolidation, magnet movement, and collection.
 - `PowerupSystem`: cooldown-bounded random healing, vacuum, and temporary frenzy drops plus guaranteed elite drops.
@@ -62,7 +63,7 @@ Generated walk cycles are not integrated unless every adjacent pose has a meanin
 - `StatsPanel`: reusable live global/per-weapon build dropdown shared by gameplay and upgrade scenes.
 - `BalanceDebugOverlay`: development-only live sample metrics.
 - `SaveSystem`: versioned storage, defaults, purchases, run-history recording, and unlock migration.
-- `SpecialEffectHandlers`: typed registry for the small number of artifact effects that cannot be expressed as modifiers.
+- `SpecialEffectHandlers`: typed registry for artifact effects that change structural run rules, such as weapon slot cap or universal pierce.
 - `deathEchoRules`: pure snapshot validation, snapshot creation, Echo stat scaling, ability translation, and spawn-plan rules.
 - `conditionalUpgradeRules`: pure damage multipliers, cursed/Echo target detection, and conditional soul-reward values.
 
@@ -129,7 +130,7 @@ Run stats are applied in this order:
 - `data/talentTree.ts`: character talent paths, node definitions, point thresholds, and tree layout metadata
 - `data/powerups.ts`: powerup presentation, pickup explanations, and optional timed-effect duration
 
-Artifacts may declare `special` only when its ID exists in `SpecialEffectHandlers`. Tooltip-only special effects are not allowed.
+Artifacts may declare `special` only when its ID exists in `SpecialEffectHandlers`. Artifacts may declare `effect` only when its ID is handled by `ArtifactEffectSystem`. Tooltip-only special effects are not allowed.
 Talent major nodes may declare `effect` only when its ID exists in `TalentEffectHandlers`. Smaller talent nodes should prefer normal `StatModifier` or `WeaponModifier` entries.
 
 ## Data-Driven Content
@@ -226,10 +227,11 @@ Only genuinely new behavior should require an `EnemySystem` change.
 ## Add An Artifact
 
 1. Add its typed ID and definition in `data/artifacts.ts`.
-2. Prefer stat or weapon modifiers.
-3. Add a typed special-effect handler before declaring a `special`.
-4. Assign an existing pool tier and verify locked tiers remain filtered.
-5. Let the mutation layer create ordinary cursed variants unless the artifact needs a hand-authored cursed identity.
+2. Use stat or weapon modifiers for baseline values.
+3. Add an `ArtifactEffectId` and handler in `ArtifactEffectSystem` before declaring a runtime `effect`.
+4. Add a typed special-effect handler before declaring a structural `special`.
+5. Assign an existing pool tier and verify locked tiers remain filtered.
+6. Let the mutation layer create ordinary cursed variants unless the artifact needs a hand-authored cursed identity.
 
 ## Add A Talent Node
 

@@ -73,10 +73,11 @@
 - Reworked the end screen around player actions: main menu, same-character retry, a styled name-gated **Upload Run** panel that records analytics and leaderboard score together, and a quit path back to the landing page.
 - Added structured cursed-reward analytics so uploaded runs record authored/generated curse choices, curse gain, before/after tiers, timing, pattern, and downside separately from timeline strings.
 - Replaced the flat legacy meta upgrades with a first large character talent-tree foundation: save version 7 wipes old soul progression, each character earns legacy-soul talent points from played runs, and the new tree UI supports path-gated allocation, choice locks, refunds, and typed run-start effects.
+- Started the artifact identity pass: reliquaries now appear much less often, at most one can be active, and redesigned regular artifacts combine stronger modifiers with typed runtime effects for kills, dashes, pickups, shields, powerups, and one-time claim rewards.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, visible run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -85,7 +86,7 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 - The Penitent, Ashwalker, and enemy art remain single-frame concept art; Haunted has stable directional hover frames but no accepted walk cycle.
 - Procedural audio is intentionally temporary and should be replaced with authored effects and music.
 - New higher-density spawn targets, XP pacing, weapon values, and boss health still need repeated full-run playtesting.
-- Artifact frequency, character profiles, and hazard pressure need repeated full-run playtesting.
+- The new lower-frequency artifact cadence, stronger artifact effects, character profiles, and hazard pressure need repeated full-run playtesting.
 - Standard-run survivability, the longer pre-evolution curve, and the completed cadence targets need repeated human playtesting before broad weapon power reductions.
 - Threat health and damage scaling, elite pressure, and the rebuilt Warden's target fight duration need repeated completed-build playtesting.
 - Curse reward frequency, tier thresholds, the new curse surge pressure, cursed enemy stat scaling, and Death Echo spawn timing need repeated human playtesting.
@@ -97,4 +98,4 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 
 ## Next Recommended Task
 
-Begin the artifact identity pass: reduce reliquary frequency, then redesign flat-stat artifacts into fewer, stronger, mostly-upside run-shaping relics while reserving double-edged risk for cursed artifact variants.
+Playtest the lower-frequency artifact pass with uploaded run analytics, then tune any relic effect that dominates safe builds before moving into unique artifact assets or deeper artifact/cursed-artifact families.

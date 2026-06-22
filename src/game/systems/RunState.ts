@@ -7,6 +7,7 @@ import { EVOLUTION_READY_LEVEL, MAX_WEAPON_LEVEL, WEAPON_CAP } from '../types/ga
 import type {
   AppliedRewardResult,
   ArtifactDefinition,
+  ArtifactEffectId,
   BalancePresetId,
   CharacterId,
   ConditionalUpgradeEffectId,
@@ -277,6 +278,10 @@ export class RunState {
 
   getArtifactDefinition(id: ArtifactId): ArtifactDefinition {
     return this.artifactDefinitions.get(id) ?? ARTIFACTS[id];
+  }
+
+  hasArtifactEffect(effect: ArtifactEffectId): boolean {
+    return [...this.artifacts].some((id) => this.getArtifactDefinition(id).effect === effect);
   }
 
   hasUpgrade(id: UpgradeId): boolean {

@@ -156,11 +156,11 @@ Characters change base stats and the starter weapon. Character-exclusive weapon 
 
 ### Artifacts And Chests
 
-The first reliquary appears after 25-35 seconds; later reliquaries appear every 65-85 seconds. They spawn within a reachable ring around the player, remain for 60 seconds, show a direction/distance/countdown tracker, and open on contact. At most two may be active. Each valid reliquary grants one unowned artifact from the currently unlocked pool; an exhausted pool yields souls.
+The first reliquary appears after 55-75 seconds; later reliquaries appear every 155-190 seconds. They spawn within a reachable ring around the player, remain for 75 seconds, show a direction/distance/countdown tracker, and open on contact. At most one may be active. Each valid reliquary grants one unowned artifact from the currently unlocked pool; an exhausted pool yields souls.
 
 Reliquaries are cracked black-stone and iron chests sealed with cyan soul light and restrained gold accents. They have no floating world label; a compact compass, distance, and timer line preserves discoverability without a boxed objective window. Walking into one ruptures its soul-lock without pausing combat: the chest collapses, lock fragments burst outward, and the reward icon follows a curved cyan-gold soul trail into the player before showing a short receipt. The close-range path naturally loops around the player, giving contact opening its own visual identity.
 
-Artifacts are run-only passive items. The labeled icons beneath the health HUD are artifacts, not temporary buffs, and expose name, rarity, and effect tooltips. Their modifiers use the shared stat rules and hard caps. Artifact pool tiers unlock from total kills and Warden victories.
+Artifacts are run-only passive items. They drop less often than early prototype relics, but should be more build-shaping when claimed: most regular artifacts combine a stronger stat package with one typed runtime effect such as kill cadence, shield breaks, perfect-dodge rewards, powerup drops, or pickup loops. Cursed artifact variants carry the sharper double-edged risk. The labeled icons beneath the health HUD are artifacts, not temporary buffs, and expose name, rarity, and effect tooltips. Their modifiers use the shared stat rules and hard caps. Artifact pool tiers unlock from total kills and Warden victories.
 
 ## Combat Readability
 

@@ -14,7 +14,7 @@ describe('chest rules', () => {
   });
 
   it('schedules spawns from active elapsed time rather than a scene clock', () => {
-    expect(scheduleNextChestSpawn(0, BALANCE.firstChestSpawnDelayMs.min)).toBe(25000);
-    expect(scheduleNextChestSpawn(42000, BALANCE.chestSpawnDelayMs.min)).toBe(107000);
+    expect(scheduleNextChestSpawn(0, BALANCE.firstChestSpawnDelayMs.min)).toBe(55000);
+    expect(scheduleNextChestSpawn(42000, BALANCE.chestSpawnDelayMs.min)).toBe(197000);
   });
 });

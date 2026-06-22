@@ -39,6 +39,7 @@ import { mutateArtifactReward } from '../systems/CursedRewardMutationSystem';
 import { DeathEchoSystem } from '../systems/DeathEchoSystem';
 import { ConditionalUpgradeSystem } from '../systems/ConditionalUpgradeSystem';
 import { CurseEventSystem } from '../systems/CurseEventSystem';
+import { ArtifactEffectSystem } from '../systems/ArtifactEffectSystem';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -73,6 +74,7 @@ export class GameScene extends Phaser.Scene {
   private playerVisuals!: PlayerVisualSystem;
   private deathEcho?: DeathEchoSystem;
   private conditionalUpgrades!: ConditionalUpgradeSystem;
+  private artifactEffects!: ArtifactEffectSystem;
   private curseEvents?: CurseEventSystem;
   private characterId?: CharacterId;
 
@@ -142,6 +144,7 @@ export class GameScene extends Phaser.Scene {
       audio.play('dash');
       this.juice.ring(this.player.x, this.player.y, 58, COLORS.soul, 180);
       this.conditionalUpgrades.onDash(this.time.now);
+      this.artifactEffects.onDash();
     });
     this.pickups = new PickupSystem(this, this.player, this.run.stats, (xp, souls) =>
       this.collectPickup(xp, souls),
@@ -156,6 +159,13 @@ export class GameScene extends Phaser.Scene {
       this.powerups,
       this.conditionalUpgrades,
     );
+    this.artifactEffects = new ArtifactEffectSystem(this.run, this.juice, {
+      reduceWeaponCooldowns: (milliseconds) => this.weapons.reduceCooldowns(milliseconds),
+      collectAllPickups: () => this.pickups.collectAll(),
+      grantPowerup: (id) => this.powerups.grantNow(id),
+      spawnPowerup: (x, y) => this.powerups.trySpawn(x, y, true),
+      playerPosition: () => ({ x: this.player.x, y: this.player.y }),
+    });
     this.bossAttacks = new BossAttackSystem(
       this,
       this.player,
@@ -220,6 +230,7 @@ export class GameScene extends Phaser.Scene {
         const result = reward ? this.run.applyArtifactReward(reward) : { applied: false };
         if (reward && result.applied) {
           this.run.balance.recordTimeline(`artifact:${reward.id}`, this.run.elapsedMs);
+          this.artifactEffects.onArtifactGained(reward.effect);
           this.handleCurseGain(result.curse, reward.curse?.warning);
           audio.play('level-up');
           this.lootReveal.reveal(x, y, {
@@ -364,6 +375,7 @@ export class GameScene extends Phaser.Scene {
     this.run.balance.recordDamageAttempt(source, perfectDodge, this.run.elapsedMs);
     if (perfectDodge) {
       this.weapons.reduceCooldowns(450);
+      this.artifactEffects.onPerfectDodge();
       this.juice.ring(this.player.x, this.player.y, 92, COLORS.pale, 260);
       this.juice.warning('PERFECT DODGE: WEAPONS QUICKEN', '#d9edf4');
       return;
@@ -380,7 +392,9 @@ export class GameScene extends Phaser.Scene {
     });
     this.juice.playerDamage();
     audio.play('hurt');
-    if (this.run.takeDamage(damage, source).fatal) {
+    const result = this.run.takeDamage(damage, source);
+    this.artifactEffects.onPlayerDamaged(result);
+    if (result.fatal) {
       this.run.balance.recordDeath(source, this.run.elapsedMs);
       this.endRun(false);
     }
@@ -390,6 +404,7 @@ export class GameScene extends Phaser.Scene {
     this.run.kills += 1;
     this.run.balance.recordEnemyDeath(death.definition.id, death.lifetimeMs);
     this.conditionalUpgrades.onEnemyDeath(death);
+    this.artifactEffects.onEnemyDeath(death);
     if (death.definition.elite || death.definition.boss) {
       this.run.balance.recordTimeline(`kill:${death.definition.id}`, this.run.elapsedMs);
     }
@@ -409,6 +424,7 @@ export class GameScene extends Phaser.Scene {
     audio.play('pickup');
     this.run.addSouls(souls);
     const levelsGained = this.run.addXp(xp);
+    this.artifactEffects.onPickupCollected(xp, souls);
     for (let index = 0; index < levelsGained; index += 1) {
       audio.play('level-up');
       this.offers.request('standard');
