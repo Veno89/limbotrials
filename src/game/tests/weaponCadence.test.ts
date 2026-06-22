@@ -36,6 +36,10 @@ describe('weapon cadence identities', () => {
   });
 
   it('makes Wailing Shards a dense medium-cadence radial safety burst', () => {
+    expect(WEAPONS['wailing-shards']).toMatchObject({
+      texture: 'weapon-wailing-shards',
+      iconTexture: 'weapon-wailing-shards',
+    });
     expect(WEAPONS['wailing-shards'].baseStats).toMatchObject({
       damage: 20,
       cooldownMs: 1500,

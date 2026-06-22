@@ -29,9 +29,11 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     elapsedMs: 180000,
     weapons: [],
     upgrades: [
-      ...repeated('bone-scythe-area', 2),
+      'bone-scythe-area',
+      'bone-scythe-crimson-harvest',
+      'bone-scythe-area',
       'bone-scythe-crit',
-      ...repeated('level-bone-scythe', 2),
+      'level-bone-scythe',
       'evolve-bone-scythe',
       'stat-movement',
     ],

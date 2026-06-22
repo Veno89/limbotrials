@@ -99,8 +99,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     behavior: 'radial-projectile',
     name: 'Wailing Shards',
     description: 'Casts shrieking fragments in every direction.',
-    texture: 'projectile-magic',
-    iconTexture: 'projectile-magic',
+    texture: 'weapon-wailing-shards',
+    iconTexture: 'weapon-wailing-shards',
     baseStats: stats({
       damage: 20,
       cooldownMs: 1500,

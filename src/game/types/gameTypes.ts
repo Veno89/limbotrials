@@ -75,6 +75,7 @@ export type UpgradeId =
   | 'bloodletter-axe-count'
   | 'dirge-staff-targets'
   | 'dirge-staff-haste'
+  | 'bone-scythe-crimson-harvest'
   | 'bone-scythe-committed-reap'
   | 'wailing-shards-fractured-choir'
   | 'cinder-reliquary-funeral-furnace'
@@ -149,6 +150,7 @@ export type EnemyAbilityId =
   | 'echo-charge';
 export type PlayerDamageSourceId = EnemyId | EnemyAbilityId | BossAttackId | 'blood-shrine';
 export type PowerupId = 'mending-soul' | 'soul-vacuum' | 'grave-frenzy';
+export type StatusEffectId = 'bleed' | 'poison';
 export type BalancePresetId =
   | 'standard'
   | 'scythe-evolution'
@@ -215,6 +217,7 @@ export type TalentEffectId =
   | 'starting-shield'
   | 'start-with-curse';
 export type WeaponUpgradeEffectId =
+  | 'bone-scythe-crimson-harvest'
   | 'soul-bolt-splintering-memory'
   | 'hellfire-spreading-sentence'
   | 'dirge-staff-echoed-rites';
@@ -452,6 +455,18 @@ export interface EnemyDefinition {
     requiredCurseTier?: CurseTierId;
     tags?: readonly EnemyTag[];
   };
+}
+
+export interface StatusEffectDefinition {
+  id: StatusEffectId;
+  name: string;
+  description: string;
+  iconTexture: string;
+  color: number;
+  durationMs: number;
+  tickIntervalMs: number;
+  baseDamagePerTick: number;
+  maxStacks: number;
 }
 
 export interface MetaUpgradeDefinition {

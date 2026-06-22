@@ -35,7 +35,8 @@ src/game/
 - `BossAttackSystem`: the Warden's six telegraphed attack patterns and focused boss-only telegraph, lane, and hazard helpers.
 - `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for nine weapons.
 - `WeaponEvolutionSystem`: level-seven capstone effects.
-- `WeaponUpgradeEffectSystem`: three focused authored pre-evolution effects for projectile splintering, spreading area blasts, and delayed judgment echoes.
+- `WeaponUpgradeEffectSystem`: focused authored weapon effects for projectile splintering, spreading area blasts, delayed judgment echoes, and status application triggers.
+- `StatusEffectSystem`: data-defined enemy status lifetimes, stack refreshes, compact debuff icons, and damage-over-time ticks with weapon attribution.
 - `CrimsonOrbitSystem`: focused persistent runtime controller for evolved Bloodletter Axe positioning and repeated collision checks.
 - `WeaponSynergySystem`: cached loadout-pair bonuses.
 - `CursedRewardMutationSystem`: central mutation layer that turns eligible upgrade or artifact offers into cursed variants without duplicating the base reward systems.
@@ -127,6 +128,7 @@ Run stats are applied in this order:
 - `data/artifacts.ts`: artifact definitions plus availability and weighted roll rules
 - `data/characters.ts`: character definitions and unlock evaluation
 - `data/enemies.ts`: enemy definitions, including hazard and bomb specialists
+- `data/statusEffects.ts`: status-effect definitions, icon textures, stack caps, durations, and tick cadence
 - `data/talentTree.ts`: character talent paths, node definitions, point thresholds, and tree layout metadata
 - `data/powerups.ts`: powerup presentation, pickup explanations, and optional timed-effect duration
 
@@ -154,6 +156,11 @@ Authored behavior-changing upgrades declare a typed `weaponEffect` ID.
 effects require, while `weaponUpgradeEffectRules.ts` owns their bounded target
 counts, geometry, delays, radii, and damage scales. Runtime activation resolves
 through `RunState.hasWeaponEffect`, making the typed definition the actual contract.
+
+Bleed and poison definitions live in `data/statusEffects.ts`; timing and stacking
+rules live in `statusEffectRules.ts`; and `StatusEffectSystem` owns runtime icons,
+expiry, and tick damage. Weapons, enemies, bosses, artifacts, or talents should
+apply statuses through `StatusEffectSystem` rather than duplicating DOT timers.
 
 XP-risk upgrades use the normal typed stat-modifier path. `xpGain` changes collected
 run XP, while `threatPowerBonus` contributes directly to the bounded power score in
@@ -222,7 +229,16 @@ Only genuinely new behavior should require an `EnemySystem` change.
 2. Add a definition in `data/upgrades.ts`.
 3. Choose `weapon`, `weapon-level`, `weapon-upgrade`, `weapon-evolution`, `stat`, or `curse`.
 4. Prefer typed `StatModifier` or `WeaponModifier` effects.
-5. Add `curse` metadata only for authored cursed rewards; generated cursed variants should stay in `CursedRewardMutationSystem`.
+5. Add a `WeaponUpgradeEffectId` and handler in `WeaponUpgradeEffectSystem` before declaring a runtime `weaponEffect`.
+6. Add `curse` metadata only for authored cursed rewards; generated cursed variants should stay in `CursedRewardMutationSystem`.
+
+## Add A Status Effect
+
+1. Add its ID to `StatusEffectId`.
+2. Add its definition in `data/statusEffects.ts`.
+3. Add or update pure stacking/timing rules in `statusEffectRules.ts`.
+4. Apply it through `StatusEffectSystem` from the focused weapon, enemy, boss, artifact, or talent system that owns the trigger.
+5. Add focused tests for stacking, expiry, and any content trigger that applies it.
 
 ## Add An Artifact
 

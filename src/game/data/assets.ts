@@ -32,10 +32,15 @@ import iconBow from '../../../assets/sprites/items/icon_bow_long.png?url';
 import iconStaff from '../../../assets/sprites/items/icon_staff_archmage.png?url';
 import bossKey from '../../../assets/sprites/items/key_boss.png?url';
 import artifactCursedHourglass from '../../../assets/test/artifacts/cursed_hourglass.png?url';
+import pickupXp from '../../../assets/test/misc/xp.png?url';
+import statusBleed from '../../../assets/test/misc/blood_drop.png?url';
+import statusPoison from '../../../assets/test/misc/poison.png?url';
+import statusSkull from '../../../assets/test/misc/skull.png?url';
 import weaponBoneScythe from '../../../assets/test/weapons/bone_scythe.png?url';
 import weaponSoulBolt from '../../../assets/test/weapons/soul_bolt.png?url';
 import weaponHellfireSigil from '../../../assets/test/weapons/hellfire_sigil.png?url';
 import weaponGraveLance from '../../../assets/test/weapons/grave_lance.png?url';
+import weaponWailingShards from '../../../assets/test/weapons/wailing_shard.png?url';
 import weaponCinderReliquary from '../../../assets/test/weapons/cinder_reliquary.png?url';
 import weaponAshenLongbow from '../../../assets/test/weapons/ashen_longbow.png?url';
 import weaponBloodletterAxe from '../../../assets/test/weapons/bloodletter_axe.png?url';
@@ -94,10 +99,15 @@ export const ASSETS: Array<[string, string]> = [
   ['icon-staff', iconStaff],
   ['boss-key', bossKey],
   ['artifact-cursed-hourglass', artifactCursedHourglass],
+  ['pickup-xp', pickupXp],
+  ['status-bleed', statusBleed],
+  ['status-poison', statusPoison],
+  ['status-skull', statusSkull],
   ['weapon-bone-scythe', weaponBoneScythe],
   ['weapon-soul-bolt', weaponSoulBolt],
   ['weapon-hellfire-sigil', weaponHellfireSigil],
   ['weapon-grave-lance', weaponGraveLance],
+  ['weapon-wailing-shards', weaponWailingShards],
   ['weapon-cinder-reliquary', weaponCinderReliquary],
   ['weapon-ashen-longbow', weaponAshenLongbow],
   ['weapon-bloodletter-axe', weaponBloodletterAxe],

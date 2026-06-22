@@ -167,7 +167,14 @@ describe('categorized upgrade system', () => {
     expect(after.stats.cooldownMs).toBeCloseTo(before.cooldownMs * 1.45);
   });
 
-  it('defines focused projectile, area, and echo effects without a generic script payload', () => {
+  it('defines focused authored weapon effects without a generic script payload', () => {
+    expect(UPGRADES['bone-scythe-crimson-harvest']).toMatchObject({
+      category: 'weapon-upgrade',
+      maxStacks: 1,
+      targetWeapon: 'bone-scythe',
+      weaponEffect: 'bone-scythe-crimson-harvest',
+      iconTexture: 'status-bleed',
+    });
     expect(UPGRADES['soul-bolt-splintering-memory']).toMatchObject({
       category: 'weapon-upgrade',
       maxStacks: 1,
@@ -198,6 +205,15 @@ describe('categorized upgrade system', () => {
     expect(run.getWeaponState('soul-bolt').level).toBe(2);
     expect(run.getWeaponState('bone-scythe').level).toBe(1);
     expect(run.applyUpgrade('soul-bolt-splintering-memory')).toBe(false);
+  });
+
+  it('applies Crimson Harvest as a Bone Scythe status upgrade', () => {
+    const run = new RunState(createDefaultSave());
+
+    expect(run.applyUpgrade('bone-scythe-crimson-harvest')).toBe(true);
+    expect(run.hasWeaponEffect('bone-scythe-crimson-harvest')).toBe(true);
+    expect(run.getWeaponState('bone-scythe').level).toBe(2);
+    expect(run.applyUpgrade('bone-scythe-crimson-harvest')).toBe(false);
   });
 
   it('applies authored focused effects to evolved weapons without advancing beyond level seven', () => {

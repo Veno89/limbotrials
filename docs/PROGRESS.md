@@ -74,10 +74,11 @@
 - Added structured cursed-reward analytics so uploaded runs record authored/generated curse choices, curse gain, before/after tiers, timing, pattern, and downside separately from timeline strings.
 - Replaced the flat legacy meta upgrades with a first large character talent-tree foundation: save version 7 wipes old soul progression, each character earns legacy-soul talent points from played runs, and the new tree UI supports path-gated allocation, choice locks, refunds, and typed run-start effects.
 - Started the artifact identity pass: reliquaries now appear much less often, at most one can be active, and redesigned regular artifacts combine stronger modifiers with typed runtime effects for kills, dashes, pickups, shields, powerups, and one-time claim rewards.
+- Swapped ground XP remnants and Wailing Shards to handmade test assets, added data-defined bleed and poison status profiles, and introduced Crimson Harvest as a Bone Scythe bleed upgrade with compact enemy debuff icons and source-attributed DOT ticks.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, a first enemy status-effect foundation, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -91,6 +92,7 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 - Threat health and damage scaling, elite pressure, and the rebuilt Warden's target fight duration need repeated completed-build playtesting.
 - Curse reward frequency, tier thresholds, the new curse surge pressure, cursed enemy stat scaling, and Death Echo spawn timing need repeated human playtesting.
 - Conditional upgrade values and offer frequency need full-run tuning against safe and high-curse builds.
+- Crimson Harvest bleed values, debuff icon readability, and future poison/player-status hooks need playtesting before wider status-effect content.
 - Talent node values, point thresholds, and the first tree UI need playtesting before deeper visual polish.
 - The Phaser engine bundle triggers Vite's large-chunk warning.
 - Visual effect object pooling is not implemented yet; effects are intentionally modest.
@@ -98,4 +100,4 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 
 ## Next Recommended Task
 
-Playtest the lower-frequency artifact pass with uploaded run analytics, then tune any relic effect that dominates safe builds before moving into unique artifact assets or deeper artifact/cursed-artifact families.
+Playtest the new XP/Wailing assets and Crimson Harvest bleed readability, then decide whether poison should enter through a weapon upgrade, an enemy, or a cursed relic before widening status effects.

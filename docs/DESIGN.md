@@ -32,7 +32,7 @@ Movement and positioning are the player's primary actions. Haunted begins with B
 - **Bone Scythe:** dependable moderate-cadence circular close-range coverage.
 - **Hellfire Sigil:** delayed area damage near an enemy.
 - **Grave Lance:** slow, high-damage line projectile with strong penetration.
-- **Wailing Shards:** dense medium-cadence radial projectile coverage.
+- **Wailing Shards:** dense medium-cadence radial projectile coverage using handmade shard art.
 - **Cinder Reliquary:** very slow, large expanding positional pulse.
 - **Ashen Longbow:** deliberate fixed-count directional volley with impact-burst evolution.
 - **Bloodletter Axe:** one or more piercing thrown executioner axes that return until they evolve into Crimson Orbit, replacing throws with three to five axes that continuously circle Haunted and repeatedly reap nearby enemies.
@@ -110,6 +110,12 @@ Any remaining focused choices continue appearing after their target weapon evolv
 allowing late builds to complete these identities instead of collapsing into generic
 stat offers.
 
+The first status-effect foundation adds data-defined bleeding and poison profiles,
+small debuff icons above affected enemies, and source-attributed damage-over-time
+ticks. Crimson Harvest is the first live use: a rare Bone Scythe focused upgrade
+that makes melee sweeps inflict a short stacking bleed. Wailing Shards only uses
+its new shard art and does not carry bleed by default.
+
 Permanent progression is now character-specific. Each character has three exclusive-ish
 talent paths; souls earned by playing that character fill a legacy track that grants
 talent points. Players can nearly fill one path, reach a capstone with spare points
@@ -169,6 +175,7 @@ Artifacts are run-only passive items. They drop less often than early prototype 
 - Enemy explosions use red-orange impact language.
 - Ground hazards retain thematic fill colors but always carry a red danger rim.
 - Safe pickups use blue, green, or gold.
+- Harmful status icons are compact and sit near affected sprites; bleed uses blood-red drops, poison uses green bottle language.
 - Active ground hazards are capped so visual pressure cannot grow without bound.
 
 Normal enemies primarily fund run XP, while permanent souls are concentrated on specialists, elites, bosses, and occasional bonus drops. XP requirements follow a scaled square curve. Ground soul remnants consolidate after 90 objects so dense waves do not create unbounded pickup objects. Random powerups cannot appear before one minute and have a ninety-second cooldown; elite powerups remain guaranteed.

@@ -40,6 +40,7 @@ import { DeathEchoSystem } from '../systems/DeathEchoSystem';
 import { ConditionalUpgradeSystem } from '../systems/ConditionalUpgradeSystem';
 import { CurseEventSystem } from '../systems/CurseEventSystem';
 import { ArtifactEffectSystem } from '../systems/ArtifactEffectSystem';
+import { StatusEffectSystem } from '../systems/StatusEffectSystem';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -75,6 +76,7 @@ export class GameScene extends Phaser.Scene {
   private deathEcho?: DeathEchoSystem;
   private conditionalUpgrades!: ConditionalUpgradeSystem;
   private artifactEffects!: ArtifactEffectSystem;
+  private statuses!: StatusEffectSystem;
   private curseEvents?: CurseEventSystem;
   private characterId?: CharacterId;
 
@@ -139,6 +141,7 @@ export class GameScene extends Phaser.Scene {
       () => this.deathEcho?.profile(),
     );
     this.conditionalUpgrades = new ConditionalUpgradeSystem(this.player, this.run, this.juice);
+    this.statuses = new StatusEffectSystem(this, this.enemies, this.run);
     this.movement = new PlayerMovementSystem(this, this.player, this.run.stats, () => {
       this.run.balance.recordDash();
       audio.play('dash');
@@ -158,6 +161,7 @@ export class GameScene extends Phaser.Scene {
       this.juice,
       this.powerups,
       this.conditionalUpgrades,
+      this.statuses,
     );
     this.artifactEffects = new ArtifactEffectSystem(this.run, this.juice, {
       reduceWeaponCooldowns: (milliseconds) => this.weapons.reduceCooldowns(milliseconds),
@@ -311,6 +315,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.enemies.update(time, this.run.elapsedMs);
     this.weapons.update(time);
+    this.statuses.update(time);
     this.pickups.update();
     this.powerups.update();
     this.shrine.update();

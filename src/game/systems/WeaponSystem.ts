@@ -15,6 +15,7 @@ import { CrimsonOrbitSystem } from './CrimsonOrbitSystem';
 import { calculateBloodletterThrow, getBloodletterThrowAngles } from './weaponRules';
 import { WeaponUpgradeEffectSystem } from './WeaponUpgradeEffectSystem';
 import type { ConditionalUpgradeSystem } from './ConditionalUpgradeSystem';
+import type { StatusEffectSystem } from './StatusEffectSystem';
 
 interface ProjectileRuntime {
   weaponId: WeaponId;
@@ -51,12 +52,20 @@ export class WeaponSystem {
     private readonly juice: JuiceSystem,
     private readonly powerups: PowerupSystem,
     private readonly conditionalUpgrades: ConditionalUpgradeSystem,
+    private readonly statuses: StatusEffectSystem,
   ) {
     this.projectiles = scene.physics.add.group();
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
     this.synergies = new WeaponSynergySystem(run);
     this.crimsonOrbit = new CrimsonOrbitSystem(scene, player, enemies);
-    this.upgradeEffects = new WeaponUpgradeEffectSystem(scene, player, enemies, run, juice);
+    this.upgradeEffects = new WeaponUpgradeEffectSystem(
+      scene,
+      player,
+      enemies,
+      run,
+      juice,
+      (...args) => this.statuses.applyToEnemy(...args),
+    );
   }
 
   update(time: number): void {

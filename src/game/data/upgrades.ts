@@ -346,7 +346,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'wailing-shards',
     weaponModifiers: [{ stat: 'projectileCount', mode: 'add', value: 2 }],
-    iconTexture: 'projectile-magic',
+    iconTexture: 'weapon-wailing-shards',
   },
   'wailing-shards-speed': {
     id: 'wailing-shards-speed',
@@ -357,7 +357,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     maxStacks: 3,
     targetWeapon: 'wailing-shards',
     weaponModifiers: [{ stat: 'projectileSpeed', mode: 'multiply', value: 1.25 }],
-    iconTexture: 'projectile-magic',
+    iconTexture: 'weapon-wailing-shards',
   },
   'cinder-reliquary-area': {
     id: 'cinder-reliquary-area',
@@ -458,6 +458,17 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     weaponModifiers: [{ stat: 'cooldownMs', mode: 'multiply', value: 0.87 }],
     iconTexture: 'weapon-dirge-staff',
   },
+  'bone-scythe-crimson-harvest': {
+    id: 'bone-scythe-crimson-harvest',
+    category: 'weapon-upgrade',
+    name: 'Crimson Harvest',
+    description: 'Bone Scythe sweeps inflict a short stacking bleed.',
+    rarity: 'rare',
+    maxStacks: 1,
+    targetWeapon: 'bone-scythe',
+    weaponEffect: 'bone-scythe-crimson-harvest',
+    iconTexture: 'status-bleed',
+  },
   'bone-scythe-committed-reap': {
     id: 'bone-scythe-committed-reap',
     category: 'weapon-upgrade',
@@ -487,7 +498,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
       { stat: 'damage', mode: 'multiply', value: 0.8 },
       { stat: 'cooldownMs', mode: 'multiply', value: 1.15 },
     ],
-    iconTexture: 'projectile-magic',
+    iconTexture: 'weapon-wailing-shards',
   },
   'cinder-reliquary-funeral-furnace': {
     id: 'cinder-reliquary-funeral-furnace',

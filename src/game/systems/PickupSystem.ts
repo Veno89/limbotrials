@@ -33,7 +33,7 @@ export class PickupSystem {
         return;
       }
     }
-    const pickup = this.group.create(x, y, 'soul') as Phaser.Physics.Arcade.Image;
+    const pickup = this.group.create(x, y, 'pickup-xp') as Phaser.Physics.Arcade.Image;
     pickup.setDisplaySize(18, 18).setDepth(14).setBlendMode(Phaser.BlendModes.ADD);
     this.pickups.set(pickup, { xp, souls });
     this.scene.tweens.add({
