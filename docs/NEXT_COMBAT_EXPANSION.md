@@ -308,11 +308,21 @@ evolved specializations rather than claiming an invalid level increase.
 
 Avoid adding a generic scripting language for upgrades. Use typed behavior flags and focused handlers only where normal stat and weapon modifiers are insufficient.
 
-## Phase E: Five Additional Weapons
+## Phase E: Additional Weapons
 
-Add weapons after the existing cadence pass and upgrade-family foundation are stable. Each new weapon must ship with its own evolution, focused upgrades, telemetry, and readable visual language.
+Add weapons after the existing cadence pass and upgrade-family foundation are stable. Each new weapon must ship with its own evolution, focused upgrades, telemetry, and readable visual language. Poison Flask is the first implemented weapon from this expansion direction; add the remaining weapons one at a time rather than as a batch.
 
-### 1. Spectral Chains
+### Implemented 1. Poison Flask
+
+- **Base:** throws venom bottles that deal impact damage and leave acid pools on the ground.
+- **Cadence:** slow.
+- **Strength:** delayed ground control and clustered enemies.
+- **Weakness:** delayed payoff, lower immediate precision, and pool positioning.
+- **Evolution - Virulent Mire:** acid pools last longer, deal slightly more tick damage, and apply poison to enemies inside them.
+
+The concepts below remain candidates for the remaining weapon slots and later roster expansion.
+
+### Candidate: Spectral Chains
 
 - **Base:** sweeps a chained arc toward nearby groups, damaging enemies along the curve.
 - **Cadence:** medium.
@@ -320,7 +330,7 @@ Add weapons after the existing cadence pass and upgrade-family foundation are st
 - **Weakness:** poor against distant isolated targets.
 - **Evolution - Procession Bindings:** chains jump between several enemies and briefly pull lesser enemies toward the final struck target.
 
-### 2. Tombstone Hammer
+### Candidate: Tombstone Hammer
 
 - **Base:** slow ground slam that sends a short shockwave forward.
 - **Cadence:** very slow.
@@ -328,7 +338,7 @@ Add weapons after the existing cadence pass and upgrade-family foundation are st
 - **Weakness:** downtime and directional commitment.
 - **Evolution - Final Interment:** the impact raises delayed tombstone eruptions along the shockwave path.
 
-### 3. Wraith Lantern
+### Candidate: Wraith Lantern
 
 - **Base:** periodically releases a seeking wraith that persists briefly and attacks nearby enemies.
 - **Cadence:** slow summon cycle.
@@ -336,7 +346,7 @@ Add weapons after the existing cadence pass and upgrade-family foundation are st
 - **Weakness:** delayed damage and bounded summon count.
 - **Evolution - Lantern Procession:** released wraiths orbit once before hunting targets, protecting the player during deployment.
 
-### 4. Mourning Bell
+### Candidate: Mourning Bell
 
 - **Base:** emits a large, slow pulse that damages and briefly slows lesser enemies.
 - **Cadence:** very slow.
@@ -344,7 +354,7 @@ Add weapons after the existing cadence pass and upgrade-family foundation are st
 - **Weakness:** low direct single-target output.
 - **Evolution - Thirteenth Toll:** every several casts releases a much larger toll that causes struck enemies to emit secondary echoes.
 
-### 5. Ossuary Needles
+### Candidate: Ossuary Needles
 
 - **Base:** fires a narrow burst of fast bone needles toward a target.
 - **Cadence:** fast burst with a meaningful reload pause.
@@ -375,7 +385,7 @@ NG+ should increase challenge and rewards, but standard mode must first have a s
 5. [Complete] Establish distinct cadence and power targets for all existing weapons.
 6. [Implemented; tuning ongoing] Expand meaningful upgrade families and reduce generic-stat offer dominance.
 7. [Implemented; tuning ongoing] Make high curse visibly and mechanically escalate through curse-specific enemy pressure, curse surge events, and player/HUD feedback.
-8. Add the five new weapons one at a time with complete evolutions and tests.
+8. Add the remaining new weapons one at a time with complete evolutions and tests.
 9. Continue into build-defining artifacts and NG+ Lite with optional Torments.
 
 ## Success Criteria

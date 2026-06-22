@@ -28,7 +28,7 @@ function seededRandom(seed: number): () => number {
 
 describe('categorized upgrade system', () => {
   it('defines unlock, level, and evolution progression for every weapon', () => {
-    expect(Object.keys(WEAPONS)).toHaveLength(9);
+    expect(Object.keys(WEAPONS)).toHaveLength(10);
     for (const weapon of Object.values(WEAPONS)) {
       const progression = Object.values(UPGRADES).filter((upgrade) => upgrade.targetWeapon === weapon.id);
       expect(Object.values(UPGRADES).some((upgrade) => upgrade.unlockWeapon === weapon.id)).toBe(
@@ -242,6 +242,20 @@ describe('categorized upgrade system', () => {
     });
   });
 
+  it('lets Poison Flask widen pools and throw extra bottles through focused upgrades', () => {
+    const run = new RunState(createDefaultSave());
+    expect(run.addWeapon('poison-flask')).toBe(true);
+    const before = { ...run.getWeaponState('poison-flask').stats };
+
+    expect(run.applyUpgrade('poison-flask-area')).toBe(true);
+    expect(run.getWeaponState('poison-flask').level).toBe(2);
+    expect(run.getWeaponState('poison-flask').stats.area).toBeGreaterThan(before.area);
+
+    expect(run.applyUpgrade('poison-flask-count')).toBe(true);
+    expect(run.getWeaponState('poison-flask').stats.projectileCount).toBe(before.projectileCount + 1);
+    expect(run.getWeaponState('poison-flask').stats.cooldownMs).toBeCloseTo(before.cooldownMs * 1.12);
+  });
+
   it('tracks per-weapon run results', () => {
     const run = new RunState(createDefaultSave());
     run.recordWeaponHit('bone-scythe', 42, true, true, false);
@@ -265,6 +279,9 @@ describe('categorized upgrade system', () => {
       'soul-bolt-projectiles',
       'level-grave-lance',
       'grave-lance-pierce',
+      'level-poison-flask',
+      'poison-flask-area',
+      'poison-flask-count',
     ]);
     expect(choices.some((choice) => forbidden.has(choice.id))).toBe(false);
   });

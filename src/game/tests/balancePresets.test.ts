@@ -30,7 +30,9 @@ describe('balance presets', () => {
       'ashen-longbow',
       'bloodletter-axe',
       'dirge-staff',
+      'poison-flask',
     ]);
+    expect(BALANCE_PRESETS['new-weapon-lab'].upgrades).toContain('evolve-poison-flask');
     expect(BALANCE_PRESETS['weapon-identity-lab'].upgrades).toEqual(
       expect.arrayContaining([
         'bone-scythe-committed-reap',

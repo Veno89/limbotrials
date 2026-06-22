@@ -81,6 +81,7 @@ export class DebugControlsSystem {
       'grave-lance',
       'cinder-reliquary',
       'wailing-shards',
+      'poison-flask',
     ];
     for (const weapon of weapons) {
       this.run.addWeapon(weapon);
@@ -98,6 +99,7 @@ export class DebugControlsSystem {
       'ashen-longbow': ['level-ashen-longbow', 'evolve-ashen-longbow'],
       'bloodletter-axe': ['level-bloodletter-axe', 'evolve-bloodletter-axe'],
       'dirge-staff': ['level-dirge-staff', 'evolve-dirge-staff'],
+      'poison-flask': ['level-poison-flask', 'evolve-poison-flask'],
     } as const;
     for (const weapon of this.run.weapons) {
       const [level, evolution] = progression[weapon];

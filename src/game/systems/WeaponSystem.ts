@@ -16,12 +16,20 @@ import { calculateBloodletterThrow, getBloodletterThrowAngles } from './weaponRu
 import { WeaponUpgradeEffectSystem } from './WeaponUpgradeEffectSystem';
 import type { ConditionalUpgradeSystem } from './ConditionalUpgradeSystem';
 import type { StatusEffectSystem } from './StatusEffectSystem';
+import { AcidPoolSystem } from './AcidPoolSystem';
+import {
+  poisonFlaskImpactRadius,
+  poisonFlaskPoolProfile,
+  poisonFlaskTravelMs,
+} from './acidPoolRules';
 
 interface ProjectileRuntime {
   weaponId: WeaponId;
   pierceRemaining: number;
   expiresAt: number;
   hit: Set<Phaser.Physics.Arcade.Image>;
+  landingX?: number;
+  landingY?: number;
   returnAt?: number;
   returning?: boolean;
   outboundExhausted?: boolean;
@@ -42,6 +50,7 @@ export class WeaponSystem {
   private readonly synergies: WeaponSynergySystem;
   private readonly crimsonOrbit: CrimsonOrbitSystem;
   private readonly upgradeEffects: WeaponUpgradeEffectSystem;
+  private readonly acidPools: AcidPoolSystem;
   private crimsonOrbitActive = false;
 
   constructor(
@@ -58,6 +67,12 @@ export class WeaponSystem {
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
     this.synergies = new WeaponSynergySystem(run);
     this.crimsonOrbit = new CrimsonOrbitSystem(scene, player, enemies);
+    this.acidPools = new AcidPoolSystem(
+      scene,
+      enemies,
+      statuses,
+      (...args) => this.damageEnemy(...args),
+    );
     this.upgradeEffects = new WeaponUpgradeEffectSystem(
       scene,
       player,
@@ -94,6 +109,7 @@ export class WeaponSystem {
       }
     }
     this.updateProjectiles(time);
+    this.acidPools.update(time);
   }
 
   getCooldownState(id: WeaponId, time: number): WeaponCooldownState {
@@ -134,6 +150,8 @@ export class WeaponSystem {
       this.fireChainStrike(id, state);
     } else if (behavior === 'radial-projectile') {
       this.fireRadialProjectiles(id, state, time);
+    } else if (behavior === 'lobbed-projectile') {
+      this.firePoisonFlask(id, state, time);
     } else if (behavior === 'pulse') {
       this.firePulse(id, state);
     } else {
@@ -198,6 +216,27 @@ export class WeaponSystem {
     }
   }
 
+  private firePoisonFlask(id: WeaponId, state: WeaponRuntimeState, time: number): void {
+    const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range);
+    if (!target) {
+      return;
+    }
+    audio.play('hellfire');
+    const count = Math.max(1, Math.floor(state.stats.projectileCount));
+    for (let index = 0; index < count; index += 1) {
+      const scatterAngle = count === 1 ? 0 : (index / count) * Math.PI * 2;
+      const scatter = count === 1 ? 0 : 42;
+      this.createLobbedProjectile(
+        id,
+        state,
+        target.x + Math.cos(scatterAngle) * scatter,
+        target.y + Math.sin(scatterAngle) * scatter,
+        time,
+      );
+    }
+    this.juice.ring(this.player.x, this.player.y, 46, 0x51d96b, 190);
+  }
+
   private fireChainStrike(id: WeaponId, state: WeaponRuntimeState): void {
     const excluded = new Set<Phaser.Physics.Arcade.Image>();
     const count = Math.max(1, Math.floor(state.stats.targetCount));
@@ -250,6 +289,41 @@ export class WeaponSystem {
       returnAt: bloodletter ? time + bloodletter.outboundDurationMs : undefined,
       returning: false,
       outboundExhausted: false,
+    });
+  }
+
+  private createLobbedProjectile(
+    id: WeaponId,
+    state: WeaponRuntimeState,
+    landingX: number,
+    landingY: number,
+    time: number,
+  ): void {
+    const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, landingX, landingY);
+    const travelMs = poisonFlaskTravelMs(
+      Phaser.Math.Distance.Between(this.player.x, this.player.y, landingX, landingY),
+      state.stats.projectileSpeed,
+    );
+    const projectile = this.projectiles.create(
+      this.player.x,
+      this.player.y,
+      WEAPONS[id].texture,
+    ) as Phaser.Physics.Arcade.Image;
+    projectile
+      .setDisplaySize(state.stats.projectileSize, state.stats.projectileSize)
+      .setDepth(30)
+      .setRotation(angle)
+      .setBlendMode(Phaser.BlendModes.ADD);
+    const body = projectile.body as Phaser.Physics.Arcade.Body;
+    const seconds = travelMs / 1000;
+    body.setVelocity((landingX - this.player.x) / seconds, (landingY - this.player.y) / seconds);
+    this.projectileRuntime.set(projectile, {
+      weaponId: id,
+      pierceRemaining: 0,
+      expiresAt: time + travelMs,
+      hit: new Set(),
+      landingX,
+      landingY,
     });
   }
 
@@ -341,7 +415,14 @@ export class WeaponSystem {
 
   private updateProjectiles(time: number): void {
     for (const [projectile, runtime] of this.projectileRuntime) {
-      if (!projectile.active || time >= runtime.expiresAt) {
+      if (!projectile.active) {
+        this.destroyProjectile(projectile);
+        continue;
+      }
+      if (time >= runtime.expiresAt) {
+        if (runtime.landingX !== undefined && runtime.landingY !== undefined) {
+          this.landPoisonFlask(runtime, runtime.landingX, runtime.landingY, true);
+        }
         this.destroyProjectile(projectile);
         continue;
       }
@@ -378,6 +459,11 @@ export class WeaponSystem {
         runtime.hit.add(enemy);
         const result = this.damageEnemy(enemy, definition, runtime.weaponId);
         this.afterProjectileImpact(runtime.weaponId, enemy, result.killed, runtime.hit);
+        if (runtime.weaponId === 'poison-flask') {
+          this.landPoisonFlask(runtime, enemy.x, enemy.y, false);
+          shouldDestroy = true;
+          return;
+        }
         if (runtime.pierceRemaining <= 0) {
           if (runtime.returnAt !== undefined && !runtime.returning) {
             runtime.outboundExhausted = true;
@@ -429,6 +515,20 @@ export class WeaponSystem {
         this.damageEnemy(enemy, definition, weaponId, damageScale);
       }
     });
+  }
+
+  private landPoisonFlask(runtime: ProjectileRuntime, x: number, y: number, impactDamage: boolean): void {
+    const state = this.run.getWeaponState(runtime.weaponId);
+    this.juice.ring(x, y, state.stats.area, 0x51d96b, 260);
+    if (impactDamage) {
+      this.damageArea(x, y, poisonFlaskImpactRadius(state.stats), runtime.weaponId);
+    }
+    this.acidPools.spawn(
+      x,
+      y,
+      runtime.weaponId,
+      poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)),
+    );
   }
 
   private afterAreaAttack(id: WeaponId, x: number, y: number, radius: number): void {

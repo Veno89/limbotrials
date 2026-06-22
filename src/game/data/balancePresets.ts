@@ -120,9 +120,9 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
   'new-weapon-lab': {
     id: 'new-weapon-lab',
     name: 'NEW WEAPON LAB',
-    description: 'Evolution-ready Ashen Longbow, Bloodletter Axe, and Dirge Staff against mixed pressure.',
+    description: 'Evolution-ready Ashen Longbow, Bloodletter Axe, Dirge Staff, and Poison Flask against mixed pressure.',
     elapsedMs: 180000,
-    weapons: ['ashen-longbow', 'bloodletter-axe', 'dirge-staff'],
+    weapons: ['ashen-longbow', 'bloodletter-axe', 'dirge-staff', 'poison-flask'],
     upgrades: [
       ...repeated('level-ashen-longbow', 2),
       'ashen-longbow-volley',
@@ -133,6 +133,10 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
       ...repeated('level-dirge-staff', 2),
       'dirge-staff-targets',
       ...repeated('level-dirge-staff', 2),
+      ...repeated('level-poison-flask', 2),
+      'poison-flask-area',
+      ...repeated('level-poison-flask', 2),
+      'evolve-poison-flask',
     ],
     replenishEveryMs: 600,
     spawns: [

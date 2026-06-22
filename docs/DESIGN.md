@@ -37,11 +37,12 @@ Movement and positioning are the player's primary actions. Haunted begins with B
 - **Ashen Longbow:** deliberate fixed-count directional volley with impact-burst evolution.
 - **Bloodletter Axe:** one or more piercing thrown executioner axes that return until they evolve into Crimson Orbit, replacing throws with three to five axes that continuously circle Haunted and repeatedly reap nearby enemies.
 - **Dirge Staff:** instant multi-target judgments with area-burst evolution.
+- **Poison Flask:** slow lobbed venom bottles that deal impact damage, leave acid pools, and evolve into longer-lived pools that poison enemies inside them.
 
 The cadence identity pass makes Soul Bolt the frequent low-impact option; Bone
 Scythe and Wailing Shards provide dependable nearby coverage; and Hellfire Sigil,
-Grave Lance, Dirge Staff, Cinder Reliquary, and Ashen Longbow have longer downtime
-with materially stronger individual actions. Ashen Longbow keeps a fixed base
+Grave Lance, Poison Flask, Dirge Staff, Cinder Reliquary, and Ashen Longbow have longer downtime
+with materially stronger individual actions or ground-control payoff. Ashen Longbow keeps a fixed base
 volley through ordinary levels so additional arrows remain a meaningful choice.
 Bloodletter Axe always completes its full outbound range before returning until
 Crimson Orbit replaces the throw. Headsman's Procession adds returning axes before
@@ -112,9 +113,9 @@ stat offers.
 
 The first status-effect foundation adds data-defined bleeding and poison profiles,
 small debuff icons above affected enemies, and source-attributed damage-over-time
-ticks. Crimson Harvest is the first live use: a rare Bone Scythe focused upgrade
-that makes melee sweeps inflict a short stacking bleed. Wailing Shards only uses
-its new shard art and does not carry bleed by default.
+ticks. Crimson Harvest makes Bone Scythe sweeps inflict a short stacking bleed,
+while evolved Poison Flask acid pools apply poison. Wailing Shards only uses its
+new shard art and does not carry bleed by default.
 
 Permanent progression is now character-specific. Each character has three exclusive-ish
 talent paths; souls earned by playing that character fill a legacy track that grants

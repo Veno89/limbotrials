@@ -103,6 +103,7 @@ export const ASSETS: Array<[string, string]> = [
   ['status-bleed', statusBleed],
   ['status-poison', statusPoison],
   ['status-skull', statusSkull],
+  ['weapon-poison-flask', statusPoison],
   ['weapon-bone-scythe', weaponBoneScythe],
   ['weapon-soul-bolt', weaponSoulBolt],
   ['weapon-hellfire-sigil', weaponHellfireSigil],

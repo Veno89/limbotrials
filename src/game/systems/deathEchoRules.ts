@@ -37,6 +37,7 @@ const VALID_WEAPON_IDS = new Set<WeaponId>([
   'ashen-longbow',
   'bloodletter-axe',
   'dirge-staff',
+  'poison-flask',
 ]);
 const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'lost-soul',
@@ -170,6 +171,7 @@ function abilitiesForWeapon(weapon: WeaponId): DeathEchoAbility[] {
   switch (weapon) {
     case 'hellfire-sigil':
     case 'cinder-reliquary':
+    case 'poison-flask':
       return ['rupture', 'bolt'];
     case 'bloodletter-axe':
     case 'bone-scythe':

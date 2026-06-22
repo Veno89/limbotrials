@@ -67,4 +67,22 @@ describe('weapon cadence identities', () => {
     });
     expect(longbow.levelGrowth.some((modifier) => modifier.stat === 'projectileCount')).toBe(false);
   });
+
+  it('makes Poison Flask a slow lobbed area-control weapon', () => {
+    const flask = WEAPONS['poison-flask'];
+    expect(flask).toMatchObject({
+      behavior: 'lobbed-projectile',
+      texture: 'weapon-poison-flask',
+      iconTexture: 'weapon-poison-flask',
+    });
+    expect(flask.baseStats).toMatchObject({
+      damage: 26,
+      cooldownMs: 2400,
+      range: 680,
+      area: 92,
+      projectileSpeed: 520,
+      projectileSize: 34,
+    });
+    expect(flask.levelGrowth.some((modifier) => modifier.stat === 'projectileCount')).toBe(false);
+  });
 });

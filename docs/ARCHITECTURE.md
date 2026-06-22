@@ -33,11 +33,12 @@ src/game/
 - `ChestSystem`: bounded player-relative reliquary spawning, proximity opening, objective data, and despawn behavior.
 - `LootRevealSystem`: non-modal soul-lock burst, curved reward travel, and player-side loot receipt after a reliquary opens.
 - `BossAttackSystem`: the Warden's six telegraphed attack patterns and focused boss-only telegraph, lane, and hazard helpers.
-- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for nine weapons.
+- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for ten weapons.
 - `WeaponEvolutionSystem`: level-seven capstone effects.
 - `WeaponUpgradeEffectSystem`: focused authored weapon effects for projectile splintering, spreading area blasts, delayed judgment echoes, and status application triggers.
 - `StatusEffectSystem`: data-defined enemy status lifetimes, stack refreshes, compact debuff icons, and damage-over-time ticks with weapon attribution.
 - `CrimsonOrbitSystem`: focused persistent runtime controller for evolved Bloodletter Axe positioning and repeated collision checks.
+- `AcidPoolSystem`: focused persistent runtime controller for player-created acid pools, tick timing, pool visuals, and evolved poison application.
 - `WeaponSynergySystem`: cached loadout-pair bonuses.
 - `CursedRewardMutationSystem`: central mutation layer that turns eligible upgrade or artifact offers into cursed variants without duplicating the base reward systems.
 - `ConditionalUpgradeSystem`: runtime bridge for typed conditional upgrades that depend on movement, dash windows, shields, target kind, and enemy deaths.
@@ -102,6 +103,10 @@ It converts current Bloodletter stats and attack speed into bounded axe count,
 radius, size, angular speed, hit cadence, and damage scale. `CrimsonOrbitSystem`
 owns only its persistent visuals and collision timing; final damage and telemetry
 remain routed through `WeaponSystem`.
+
+Poison Flask's pure pool and travel rules live in `systems/acidPoolRules.ts`.
+`AcidPoolSystem` owns lingering pool lifetime, tick cadence, and poison status
+application, while final damage and telemetry remain routed through `WeaponSystem`.
 
 `systems/enemyAbilityRules.ts` owns the authored elite-charge distance, duration,
 and derived movement multiplier so the red telegraph and actual charge cannot drift
@@ -270,6 +275,7 @@ Only genuinely new behavior should require an `EnemySystem` change.
 1. Add its ID and definition, base stats, behavior, and level growth in `data/weapons.ts`.
 2. Reuse an existing behavior or add its focused firing method in `WeaponSystem`.
 3. Add a categorized weapon unlock definition.
+4. Add level, evolution, focused-upgrade, balance-preset, and cadence coverage when the weapon introduces a new role.
 
 Weapon behavior is the one content area that intentionally uses strategies in code because projectile, radial, and delayed-area attacks have different runtime needs.
 

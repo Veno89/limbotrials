@@ -206,4 +206,28 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       description: 'Each judgment erupts around the condemned target.',
     },
   },
+  'poison-flask': {
+    id: 'poison-flask',
+    behavior: 'lobbed-projectile',
+    name: 'Poison Flask',
+    description: 'Throws venom flasks that burst on impact and leave acid pools behind.',
+    texture: 'weapon-poison-flask',
+    iconTexture: 'weapon-poison-flask',
+    baseStats: stats({
+      damage: 26,
+      cooldownMs: 2400,
+      range: 680,
+      area: 92,
+      projectileSpeed: 520,
+      projectileSize: 34,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.17 },
+      { stat: 'area', mode: 'multiply', value: 1.08 },
+    ],
+    evolution: {
+      name: 'Virulent Mire',
+      description: 'Acid pools last longer, bite harder, and poison enemies they burn.',
+    },
+  },
 };

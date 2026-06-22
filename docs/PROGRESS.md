@@ -5,7 +5,7 @@
 - Created the Phaser 4.1 browser project from the original asset-only workspace.
 - Integrated supplied menu, player, enemy, boss, projectile, item, floor, prop, and light-source art.
 - Implemented a complete start-run-to-death-or-victory loop.
-- Added nine weapons, categorized progression definitions, ten regular enemies, two elites, and one boss.
+- Added ten weapons, categorized progression definitions, ten regular enemies, two elites, and one boss.
 - Added run rewards, versioned local save data, and three permanent upgrades.
 - Added strict type checking, linting, 128 automated tests, production build, and a Chrome smoke test.
 - Added save-backed feedback and volume settings plus procedural placeholder audio.
@@ -75,10 +75,11 @@
 - Replaced the flat legacy meta upgrades with a first large character talent-tree foundation: save version 7 wipes old soul progression, each character earns legacy-soul talent points from played runs, and the new tree UI supports path-gated allocation, choice locks, refunds, and typed run-start effects.
 - Started the artifact identity pass: reliquaries now appear much less often, at most one can be active, and redesigned regular artifacts combine stronger modifiers with typed runtime effects for kills, dashes, pickups, shields, powerups, and one-time claim rewards.
 - Swapped ground XP remnants and Wailing Shards to handmade test assets, added data-defined bleed and poison status profiles, and introduced Crimson Harvest as a Bone Scythe bleed upgrade with compact enemy debuff icons and source-attributed DOT ticks.
+- Added Poison Flask as the first new weapon-roster expansion: lobbed bottles deal impact damage, leave acid pools, and evolve into Virulent Mire pools that last longer and apply poison.
 
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, a first enemy status-effect foundation, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, a first enemy status-effect foundation, ten weapons, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
@@ -92,7 +93,7 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 - Threat health and damage scaling, elite pressure, and the rebuilt Warden's target fight duration need repeated completed-build playtesting.
 - Curse reward frequency, tier thresholds, the new curse surge pressure, cursed enemy stat scaling, and Death Echo spawn timing need repeated human playtesting.
 - Conditional upgrade values and offer frequency need full-run tuning against safe and high-curse builds.
-- Crimson Harvest bleed values, debuff icon readability, and future poison/player-status hooks need playtesting before wider status-effect content.
+- Crimson Harvest bleed values, Poison Flask pool readability/damage, debuff icon readability, and future player-status hooks need playtesting before wider status-effect content.
 - Talent node values, point thresholds, and the first tree UI need playtesting before deeper visual polish.
 - The Phaser engine bundle triggers Vite's large-chunk warning.
 - Visual effect object pooling is not implemented yet; effects are intentionally modest.
@@ -100,4 +101,4 @@ The latest instrumented automated stress sample with 200 additional enemies, fiv
 
 ## Next Recommended Task
 
-Playtest the new XP/Wailing assets and Crimson Harvest bleed readability, then decide whether poison should enter through a weapon upgrade, an enemy, or a cursed relic before widening status effects.
+Playtest Poison Flask pool readability, evolved poison application, and Crimson Harvest bleed values, then use uploaded run data to tune status damage before adding the next new weapon.

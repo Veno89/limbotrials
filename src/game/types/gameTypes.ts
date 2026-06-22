@@ -11,7 +11,8 @@ export type WeaponId =
   | 'cinder-reliquary'
   | 'ashen-longbow'
   | 'bloodletter-axe'
-  | 'dirge-staff';
+  | 'dirge-staff'
+  | 'poison-flask';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -20,6 +21,7 @@ export type WeaponBehavior =
   | 'chain-strike'
   | 'sigil'
   | 'radial-projectile'
+  | 'lobbed-projectile'
   | 'pulse';
 export type UpgradeCategory =
   | 'weapon'
@@ -37,6 +39,7 @@ export type UpgradeId =
   | 'unlock-ashen-longbow'
   | 'unlock-bloodletter-axe'
   | 'unlock-dirge-staff'
+  | 'unlock-poison-flask'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -46,6 +49,7 @@ export type UpgradeId =
   | 'level-ashen-longbow'
   | 'level-bloodletter-axe'
   | 'level-dirge-staff'
+  | 'level-poison-flask'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -55,6 +59,7 @@ export type UpgradeId =
   | 'evolve-ashen-longbow'
   | 'evolve-bloodletter-axe'
   | 'evolve-dirge-staff'
+  | 'evolve-poison-flask'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -75,6 +80,8 @@ export type UpgradeId =
   | 'bloodletter-axe-count'
   | 'dirge-staff-targets'
   | 'dirge-staff-haste'
+  | 'poison-flask-area'
+  | 'poison-flask-count'
   | 'bone-scythe-crimson-harvest'
   | 'bone-scythe-committed-reap'
   | 'wailing-shards-fractured-choir'

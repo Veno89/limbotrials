@@ -79,7 +79,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'wailing-shards',
     'Hear Wailing Shards',
     'Add Wailing Shards: radial spectral projectiles.',
-    'projectile-magic',
+    'weapon-wailing-shards',
   ),
   'unlock-cinder-reliquary': weaponUnlock(
     'unlock-cinder-reliquary',
@@ -108,6 +108,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Raise Dirge Staff',
     'Add Dirge Staff: instant judgments against several nearby souls.',
     'weapon-dirge-staff',
+  ),
+  'unlock-poison-flask': weaponUnlock(
+    'unlock-poison-flask',
+    'poison-flask',
+    'Uncork Poison Flask',
+    'Add Poison Flask: thrown bottles that burst and leave acid pools.',
+    'weapon-poison-flask',
   ),
 
   'level-bone-scythe': weaponLevel(
@@ -143,7 +150,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'wailing-shards',
     'Wailing Shards Level',
     '+15% damage and +1 shard.',
-    'projectile-magic',
+    'weapon-wailing-shards',
   ),
   'level-cinder-reliquary': weaponLevel(
     'level-cinder-reliquary',
@@ -172,6 +179,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Dirge Staff Level',
     '+18% damage and +1 condemned target.',
     'weapon-dirge-staff',
+  ),
+  'level-poison-flask': weaponLevel(
+    'level-poison-flask',
+    'poison-flask',
+    'Poison Flask Level',
+    '+17% damage and +8% acid pool area.',
+    'weapon-poison-flask',
   ),
 
   'evolve-bone-scythe': weaponEvolution(
@@ -207,7 +221,7 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'wailing-shards',
     'Awaken Mourning Choir',
     'Evolve Wailing Shards. Each shard erupts in a wailing blast on impact.',
-    'projectile-magic',
+    'weapon-wailing-shards',
   ),
   'evolve-cinder-reliquary': weaponEvolution(
     'evolve-cinder-reliquary',
@@ -236,6 +250,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Awaken Last Rites',
     'Evolve Dirge Staff. Each judgment erupts around its condemned target.',
     'weapon-dirge-staff',
+  ),
+  'evolve-poison-flask': weaponEvolution(
+    'evolve-poison-flask',
+    'poison-flask',
+    'Awaken Virulent Mire',
+    'Evolve Poison Flask. Acid pools last longer, bite harder, and poison enemies they burn.',
+    'weapon-poison-flask',
   ),
 
   'bone-scythe-area': {
@@ -457,6 +478,31 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     targetWeapon: 'dirge-staff',
     weaponModifiers: [{ stat: 'cooldownMs', mode: 'multiply', value: 0.87 }],
     iconTexture: 'weapon-dirge-staff',
+  },
+  'poison-flask-area': {
+    id: 'poison-flask-area',
+    category: 'weapon-upgrade',
+    name: 'Widened Spill',
+    description: 'Poison Flask acid pools gain +22% area.',
+    rarity: 'uncommon',
+    maxStacks: 3,
+    targetWeapon: 'poison-flask',
+    weaponModifiers: [{ stat: 'area', mode: 'multiply', value: 1.22 }],
+    iconTexture: 'weapon-poison-flask',
+  },
+  'poison-flask-count': {
+    id: 'poison-flask-count',
+    category: 'weapon-upgrade',
+    name: 'Second Bottle',
+    description: 'Poison Flask throws +1 flask, but its cooldown is 12% longer.',
+    rarity: 'rare',
+    maxStacks: 2,
+    targetWeapon: 'poison-flask',
+    weaponModifiers: [
+      { stat: 'projectileCount', mode: 'add', value: 1 },
+      { stat: 'cooldownMs', mode: 'multiply', value: 1.12 },
+    ],
+    iconTexture: 'weapon-poison-flask',
   },
   'bone-scythe-crimson-harvest': {
     id: 'bone-scythe-crimson-harvest',

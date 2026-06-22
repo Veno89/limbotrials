@@ -16,8 +16,9 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Add visible curse escalation, curse surge events, curse-specific enemy stat pressure, and first Cinder Reliquary containment tuning
 - [x] Start the build-defining artifact pass with lower reliquary frequency and typed runtime effects for every redesigned regular stat relic
 - [x] Add handmade XP/Wailing Shards asset swaps and the first bleed/poison status-effect foundation with a Bone Scythe bleed upgrade
-- [ ] Use uploaded Supabase run data to tune curse pressure, conditional upgrades, Warden duration, and Cinder containment before expanding the weapon roster
-- [ ] Add five additional weapons individually, each with a unique evolution
+- [ ] Use uploaded Supabase run data to tune curse pressure, conditional upgrades, Warden duration, and Cinder containment while expanding the weapon roster in small chunks
+- [x] Add first additional weapon: Poison Flask with lobbed impact, acid pools, and poison-applying evolution
+- [ ] Add four additional weapons individually, each with a unique evolution
 - [ ] Follow with unique artifact assets, deeper artifact families, NG+ Lite with optional Torments, and later distinct bosses
 
 ## Phase 1: Playable Foundation
@@ -40,7 +41,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Adaptive weapon action bar with cooldowns
 - [x] Categorized weapon/level/upgrade/stat progression
 - [x] Five-weapon cap and early weapon-offer weighting
-- [x] Nine thematic weapons with per-weapon levels
+- [x] Ten thematic weapons with per-weapon levels
 - [x] Versioned local save and simple permanent progression
 - [ ] Balance pass based on real play sessions
 - [ ] Replace selected concept sprites with animation-ready sheets
@@ -73,7 +74,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Brute charge, ranged Void Caster, and Screamer danger-zone behaviors
 - [x] Gravebound Archer ranged pressure and Veil Stalker lunge behavior
 - [x] Authored encounter beats and guaranteed elite power rewards
-- [x] Explicit level-seven evolution choices for all nine weapons
+- [x] Explicit level-seven evolution choices for the original nine weapons and Poison Flask
 - [x] Loadout synergies with visible HUD callouts
 - [x] Separate risk/reward curse event pool
 - [x] Run-level curse tiers, cursed reward mutation, curse-gated enemies, and a first Death Echo return
