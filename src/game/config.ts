@@ -3,14 +3,16 @@ import { GAME_HEIGHT, GAME_WIDTH } from './constants';
 import { BootScene } from './scenes/BootScene';
 import { GameOverScene, VictoryScene } from './scenes/EndScenes';
 import { GameScene } from './scenes/GameScene';
+import { JournalScene } from './scenes/JournalScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
 import { MetaProgressionScene } from './scenes/MetaProgressionScene';
 import { PauseScene } from './scenes/PauseScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { SettingsScene } from './scenes/SettingsScene';
 import { UpgradeScene } from './scenes/UpgradeScene';
-import { BalanceReportScene } from './scenes/BalanceReportScene';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
+import { DevModeScene } from './scenes/DevModeScene';
+import { ShopScene } from './scenes/ShopScene';
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -38,14 +40,16 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     BootScene,
     PreloadScene,
     MainMenuScene,
+    JournalScene,
     MetaProgressionScene,
     SettingsScene,
     CharacterSelectScene,
     GameScene,
+    ShopScene,
     UpgradeScene,
     PauseScene,
     GameOverScene,
     VictoryScene,
-    BalanceReportScene,
+    ...(import.meta.env.DEV ? [DevModeScene] : []),
   ],
 };

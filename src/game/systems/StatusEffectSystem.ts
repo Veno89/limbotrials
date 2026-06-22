@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { STATUS_EFFECTS } from '../data/statusEffects';
-import type { EnemyDefinition, StatusEffectId } from '../types/gameTypes';
+import type { EnemyDefinition, StatusEffectId, WeaponId } from '../types/gameTypes';
 import type { EnemySystem } from './EnemySystem';
 import type { RunState } from './RunState';
 import {
   advanceStatusTicks,
   applyStatusEffect,
   dueStatusTicks,
+  fullDurationStatusDamage,
   isStatusExpired,
   statusTickDamage,
   type ActiveStatusEffect,
@@ -16,6 +17,11 @@ import {
 interface EnemyStatusEntry {
   status: ActiveStatusEffect;
   icon: Phaser.GameObjects.Image;
+}
+
+export interface ConsumedStatusEffect {
+  damage: number;
+  sourceWeaponId?: WeaponId;
 }
 
 export class StatusEffectSystem {
@@ -28,6 +34,7 @@ export class StatusEffectSystem {
     private readonly scene: Phaser.Scene,
     private readonly enemies: EnemySystem,
     private readonly run: RunState,
+    private readonly onStatusApplied: (id: StatusEffectId) => void = () => undefined,
   ) {}
 
   applyToEnemy(
@@ -40,6 +47,7 @@ export class StatusEffectSystem {
     if (!sprite.active || !enemyDefinition) {
       return;
     }
+    this.onStatusApplied(id);
     const statuses = this.getEnemyStatuses(sprite);
     const existing = statuses.get(id);
     const now = this.scene.time.now;
@@ -54,6 +62,33 @@ export class StatusEffectSystem {
       status,
       icon: this.createIcon(id),
     });
+  }
+
+  consumeFromEnemy(
+    sprite: Phaser.Physics.Arcade.Image,
+    id: StatusEffectId,
+  ): ConsumedStatusEffect | undefined {
+    const statuses = this.enemyStatuses.get(sprite);
+    const entry = statuses?.get(id);
+    if (!statuses || !entry) {
+      return undefined;
+    }
+    if (isStatusExpired(entry.status, this.scene.time.now)) {
+      this.removeStatus(statuses, id);
+      if (statuses.size <= 0) {
+        this.enemyStatuses.delete(sprite);
+      }
+      return undefined;
+    }
+    const consumed: ConsumedStatusEffect = {
+      damage: fullDurationStatusDamage(STATUS_EFFECTS[id], entry.status),
+      ...(entry.status.sourceWeaponId ? { sourceWeaponId: entry.status.sourceWeaponId } : {}),
+    };
+    this.removeStatus(statuses, id);
+    if (statuses.size <= 0) {
+      this.enemyStatuses.delete(sprite);
+    }
+    return consumed;
   }
 
   update(time: number): void {

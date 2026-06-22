@@ -12,7 +12,8 @@ export type WeaponId =
   | 'ashen-longbow'
   | 'bloodletter-axe'
   | 'dirge-staff'
-  | 'poison-flask';
+  | 'poison-flask'
+  | 'sanguine-needle';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -40,6 +41,7 @@ export type UpgradeId =
   | 'unlock-bloodletter-axe'
   | 'unlock-dirge-staff'
   | 'unlock-poison-flask'
+  | 'unlock-sanguine-needle'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -50,6 +52,7 @@ export type UpgradeId =
   | 'level-bloodletter-axe'
   | 'level-dirge-staff'
   | 'level-poison-flask'
+  | 'level-sanguine-needle'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -60,6 +63,7 @@ export type UpgradeId =
   | 'evolve-bloodletter-axe'
   | 'evolve-dirge-staff'
   | 'evolve-poison-flask'
+  | 'evolve-sanguine-needle'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -82,6 +86,7 @@ export type UpgradeId =
   | 'dirge-staff-haste'
   | 'poison-flask-area'
   | 'poison-flask-count'
+  | 'sanguine-needle-bloodletting'
   | 'bone-scythe-crimson-harvest'
   | 'bone-scythe-committed-reap'
   | 'wailing-shards-fractured-choir'
@@ -191,7 +196,9 @@ export type ArtifactEffectId =
   | 'giants-last-stand'
   | 'wardens-prize'
   | 'soul-furnace-stoke'
-  | 'ascended-choice';
+  | 'ascended-choice'
+  | 'red-ledger-tithe'
+  | 'market-heart-ward';
 export type TalentPathId =
   | 'haunted-reaper'
   | 'haunted-echo'
@@ -222,7 +229,15 @@ export type TalentEffectId =
   | 'extra-weapon-slot'
   | 'all-weapons-pierce'
   | 'starting-shield'
-  | 'start-with-curse';
+  | 'start-with-curse'
+  | 'bone-scythe-harvest-steps'
+  | 'bone-scythe-crooked-reach'
+  | 'bone-scythe-grave-procession'
+  | 'bone-scythe-first-reaping'
+  | 'bone-scythe-consume-bleed'
+  | 'bone-scythe-reaping-wake'
+  | 'bone-scythe-executioner'
+  | 'bone-scythe-full-circle';
 export type WeaponUpgradeEffectId =
   | 'bone-scythe-crimson-harvest'
   | 'soul-bolt-splintering-memory'
@@ -384,6 +399,7 @@ export interface UpgradeDefinition {
   targetWeapon?: WeaponId;
   unlockWeapon?: WeaponId;
   iconTexture: string;
+  source?: 'standard' | 'shop';
   curse?: CurseRewardDefinition;
 }
 
@@ -409,7 +425,9 @@ export type ArtifactId =
   | 'soul-furnace'
   | 'extra-pocket'
   | 'spectral-pass'
-  | 'ascended-crown';
+  | 'ascended-crown'
+  | 'red-ledger'
+  | 'heart-of-the-market';
 
 export type ArtifactRarity = 'common' | 'uncommon' | 'rare' | 'legendary';
 export type ArtifactPoolTier = 'base' | 'tier-2' | 'tier-3' | 'tier-4' | 'ng-plus';
@@ -425,7 +443,31 @@ export interface ArtifactDefinition {
   weaponModifiers?: WeaponModifier[];
   special?: SpecialEffectId;
   effect?: ArtifactEffectId;
+  source?: 'standard' | 'shop';
   curse?: CurseRewardDefinition;
+}
+
+export type JournalDiscoveryKind =
+  | 'weapons'
+  | 'evolutions'
+  | 'artifacts'
+  | 'enemies'
+  | 'bosses'
+  | 'buffs'
+  | 'debuffs';
+
+export interface JournalEntryCollection {
+  weapons: WeaponId[];
+  evolutions: WeaponId[];
+  artifacts: ArtifactId[];
+  enemies: EnemyId[];
+  bosses: EnemyId[];
+  buffs: PowerupId[];
+  debuffs: StatusEffectId[];
+}
+
+export interface JournalDiscoveryState extends JournalEntryCollection {
+  seen: JournalEntryCollection;
 }
 
 export interface WeaponDefinition {
@@ -505,6 +547,7 @@ export interface TalentNodeDefinition {
   choiceGroup?: string;
   modifiers?: StatModifier[];
   weaponModifiers?: WeaponModifier[];
+  targetWeapon?: WeaponId;
   effect?: TalentEffectId;
   position: { row: number; column: number };
 }
@@ -532,6 +575,7 @@ export interface SaveData {
   unlockedCharacters: CharacterId[];
   characterStats: Record<CharacterId, CharacterRunStats>;
   unlockedArtifactTiers: ArtifactPoolTier[];
+  journal: JournalDiscoveryState;
   deathEcho?: DeathEchoSnapshot;
   settings: {
     screenShake: boolean;

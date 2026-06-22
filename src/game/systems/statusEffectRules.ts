@@ -15,7 +15,7 @@ export interface ActiveStatusEffect {
 }
 
 export const BONE_SCYTHE_CRIMSON_HARVEST = {
-  bleedDamageScale: 0.09,
+  bleedDamageScale: 0.11,
 } as const;
 
 export function boneScytheBleedDamage(baseDamage: number): number {
@@ -65,6 +65,14 @@ export function advanceStatusTicks(
 
 export function statusTickDamage(status: ActiveStatusEffect): number {
   return Math.max(1, Math.round(status.damagePerTick * status.stacks));
+}
+
+export function fullDurationStatusDamage(
+  definition: StatusEffectDefinition,
+  status: ActiveStatusEffect,
+): number {
+  const totalTicks = Math.ceil(definition.durationMs / definition.tickIntervalMs);
+  return statusTickDamage(status) * totalTicks;
 }
 
 export function isStatusExpired(status: ActiveStatusEffect, now: number): boolean {

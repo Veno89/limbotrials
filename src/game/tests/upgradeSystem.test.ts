@@ -28,7 +28,7 @@ function seededRandom(seed: number): () => number {
 
 describe('categorized upgrade system', () => {
   it('defines unlock, level, and evolution progression for every weapon', () => {
-    expect(Object.keys(WEAPONS)).toHaveLength(10);
+    expect(Object.keys(WEAPONS)).toHaveLength(11);
     for (const weapon of Object.values(WEAPONS)) {
       const progression = Object.values(UPGRADES).filter((upgrade) => upgrade.targetWeapon === weapon.id);
       expect(Object.values(UPGRADES).some((upgrade) => upgrade.unlockWeapon === weapon.id)).toBe(
@@ -84,8 +84,8 @@ describe('categorized upgrade system', () => {
     expect(run.getWeaponState('bone-scythe').stats.area).toBeGreaterThan(evolvedArea);
   });
 
-  it('lifts Bone Scythe baseline while preserving its close-range identity', () => {
-    expect(WEAPONS['bone-scythe'].baseStats.damage).toBe(46);
+  it('keeps Bone Scythe baseline restrained so its character talents stay meaningful', () => {
+    expect(WEAPONS['bone-scythe'].baseStats.damage).toBe(36);
     expect(WEAPONS['bone-scythe'].baseStats.cooldownMs).toBe(1500);
     expect(WEAPONS['bone-scythe'].baseStats.range).toBe(150);
   });

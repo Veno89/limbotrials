@@ -24,7 +24,8 @@ The balance system turns play sessions into comparable evidence. It records outc
 5. Review all four tabs and copy the JSON when comparing multiple runs.
 6. Change one balance variable at a time before repeating the test.
 
-The latest completed report remains available from **Last Balance Report** on the main menu.
+Completed uploaded run summaries are retained in Supabase for comparison. The old
+local **Last Balance Report** menu screen has been retired.
 
 ## Standard Run Targets
 
@@ -60,8 +61,13 @@ These are comparison targets, not guaranteed outcomes. Record deviations across 
 - `G`: Grant a shield immediately
 - `U`: Grant Grave Frenzy immediately
 - `O`: End the current run and open results quickly
+- `` ` `` or `F12`: Open local Dev Mode. The Weapons tab adds a selected weapon, advances individual levels or directly to level six, applies its evolution, and exposes its focused upgrades; Advanced, Artifacts, and Spawns retain exact content tools.
 
 Preset scenarios use fixed builds, run clocks, enemy groups, and spawn positions. Their authored enemy groups continuously replenish toward fixed target populations so damage output can be measured under sustained pressure. Ambient waves and authored run events are disabled during presets, and preset rewards never affect permanent save progression.
+
+The Dev Mode overlay is Vite-dev-only. Its preferences are stored in browser
+localStorage, while optional scratch preset files matching `dev-mode*.local.json`
+are ignored by git.
 
 ## Report Tabs
 

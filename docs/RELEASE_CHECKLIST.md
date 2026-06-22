@@ -15,8 +15,8 @@
 ## Required Before Public Demo
 
 - [ ] Complete several full fifteen-minute balance runs on keyboard.
-- [ ] Export and compare balance reports for each full-run test.
-- [ ] Verify the latest balance report remains accessible after returning to the menu.
+- [ ] Upload and compare Supabase run analytics for each full-run test.
+- [ ] Verify completed standard runs reach run analytics and named scores reach the leaderboard.
 - [ ] Complete one full run centered on each weapon evolution and synergy pair.
 - [ ] Verify curse event, blood shrine, reroll, skip, and all three powerups in play.
 - [ ] Verify chest timing, artifact tooltips, all three characters, and both character unlocks in play.

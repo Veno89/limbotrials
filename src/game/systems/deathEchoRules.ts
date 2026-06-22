@@ -38,6 +38,7 @@ const VALID_WEAPON_IDS = new Set<WeaponId>([
   'bloodletter-axe',
   'dirge-staff',
   'poison-flask',
+  'sanguine-needle',
 ]);
 const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'lost-soul',

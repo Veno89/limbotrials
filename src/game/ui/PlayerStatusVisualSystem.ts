@@ -1,8 +1,7 @@
 import Phaser from 'phaser';
 import { COLORS } from '../constants';
-import type { PowerupSystem } from '../systems/PowerupSystem';
+import type { ActiveBuffStatus, PowerupSystem } from '../systems/PowerupSystem';
 import type { RunState } from '../systems/RunState';
-import type { PowerupId } from '../types/gameTypes';
 import { curseVisualFor } from './curseVisualRules';
 
 interface BuffRow {
@@ -16,7 +15,7 @@ export class PlayerStatusVisualSystem {
   private readonly curseLabel: Phaser.GameObjects.Text;
   private readonly shieldAura: Phaser.GameObjects.Arc;
   private readonly shieldLabel: Phaser.GameObjects.Text;
-  private readonly buffRows = new Map<PowerupId, BuffRow>();
+  private readonly buffRows = new Map<string, BuffRow>();
   private previousShield = 0;
 
   constructor(
@@ -24,6 +23,7 @@ export class PlayerStatusVisualSystem {
     private readonly player: Phaser.Physics.Arcade.Image,
     private readonly run: RunState,
     private readonly powerups: PowerupSystem,
+    private readonly getAdditionalBuffs: () => ActiveBuffStatus[] = () => [],
   ) {
     this.curseAura = scene.add
       .circle(player.x, player.y, 52, COLORS.blood, 0.08)
@@ -107,7 +107,7 @@ export class PlayerStatusVisualSystem {
   }
 
   private updateBuffs(): void {
-    const active = this.powerups.getActiveBuffs();
+    const active = [...this.powerups.getActiveBuffs(), ...this.getAdditionalBuffs()];
     const activeIds = new Set(active.map((buff) => buff.id));
     for (const [id, row] of this.buffRows) {
       if (!activeIds.has(id)) {
@@ -125,7 +125,7 @@ export class PlayerStatusVisualSystem {
     });
   }
 
-  private createBuffRow(id: PowerupId, color: number): BuffRow {
+  private createBuffRow(id: string, color: number): BuffRow {
     const back = this.scene.add
       .rectangle(0, 0, 90, 8, 0x020405, 0.9)
       .setStrokeStyle(1, COLORS.border, 0.75);

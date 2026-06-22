@@ -9,7 +9,7 @@ import type { EnemySystem } from './EnemySystem';
 import type { JuiceSystem } from './JuiceSystem';
 import type { RunState } from './RunState';
 import { WeaponEvolutionSystem } from './WeaponEvolutionSystem';
-import type { PowerupSystem } from './PowerupSystem';
+import type { ActiveBuffStatus, PowerupSystem } from './PowerupSystem';
 import { WeaponSynergySystem } from './WeaponSynergySystem';
 import { CrimsonOrbitSystem } from './CrimsonOrbitSystem';
 import { calculateBloodletterThrow, getBloodletterThrowAngles } from './weaponRules';
@@ -22,6 +22,16 @@ import {
   poisonFlaskPoolProfile,
   poisonFlaskTravelMs,
 } from './acidPoolRules';
+import {
+  boneScytheConditionalDamageScale,
+  crookedReachDamageScale,
+  crookedReachPullDistance,
+  isPointInScytheSweep,
+  type ScytheSweepProfile,
+} from './scytheRules';
+import { ScytheWakeSystem } from './ScytheWakeSystem';
+import { BoneScytheTalentRuntimeSystem } from './BoneScytheTalentRuntimeSystem';
+import { ScytheProcessionSystem } from './ScytheProcessionSystem';
 
 interface ProjectileRuntime {
   weaponId: WeaponId;
@@ -51,7 +61,11 @@ export class WeaponSystem {
   private readonly crimsonOrbit: CrimsonOrbitSystem;
   private readonly upgradeEffects: WeaponUpgradeEffectSystem;
   private readonly acidPools: AcidPoolSystem;
+  private readonly scytheWakes: ScytheWakeSystem;
+  private readonly scytheTalents: BoneScytheTalentRuntimeSystem;
+  private readonly scytheProcessions: ScytheProcessionSystem;
   private crimsonOrbitActive = false;
+  private scytheFacingAngle = Math.PI / 2;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -73,6 +87,21 @@ export class WeaponSystem {
       statuses,
       (...args) => this.damageEnemy(...args),
     );
+    this.scytheWakes = new ScytheWakeSystem(
+      scene,
+      enemies,
+      (...args) => this.damageEnemy(...args),
+    );
+    this.scytheTalents = new BoneScytheTalentRuntimeSystem(
+      () => this.scene.time.now,
+      juice,
+      () => ({ x: player.x, y: player.y }),
+    );
+    this.scytheProcessions = new ScytheProcessionSystem(
+      scene,
+      enemies,
+      (...args) => this.damageEnemy(...args),
+    );
     this.upgradeEffects = new WeaponUpgradeEffectSystem(
       scene,
       player,
@@ -84,6 +113,10 @@ export class WeaponSystem {
   }
 
   update(time: number): void {
+    const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
+    if (playerBody.velocity.lengthSq() > 1) {
+      this.scytheFacingAngle = Math.atan2(playerBody.velocity.y, playerBody.velocity.x);
+    }
     const bloodletterState = this.run.weaponStates.get('bloodletter-axe');
     const orbitActive = Boolean(bloodletterState && this.evolutions.isEvolved('bloodletter-axe'));
     if (orbitActive && !this.crimsonOrbitActive) {
@@ -110,6 +143,16 @@ export class WeaponSystem {
     }
     this.updateProjectiles(time);
     this.acidPools.update(time);
+    this.scytheWakes.update(time);
+    this.scytheProcessions.update(time);
+  }
+
+  getMoveSpeedMultiplier(): number {
+    return this.scytheTalents.moveSpeedMultiplier();
+  }
+
+  getActiveTalentBuffs(): ActiveBuffStatus[] {
+    return this.scytheTalents.getActiveBuffs();
   }
 
   getCooldownState(id: WeaponId, time: number): WeaponCooldownState {
@@ -329,41 +372,83 @@ export class WeaponSystem {
 
   private fireBoneScythe(id: WeaponId, state: WeaponRuntimeState): void {
     const radius = state.stats.area;
+    const talents = this.run.getBoneScytheTalentProfile();
+    const profile: ScytheSweepProfile = {
+      facingAngle: this.scytheFacingAngle,
+      fullCircle: talents.fullCircle,
+    };
     audio.play('scythe');
-    this.juice.ring(this.player.x, this.player.y, radius, COLORS.pale, 360);
-    this.juice.ring(this.player.x, this.player.y, radius * 0.72, COLORS.soul, 300);
-
-    const sweep = this.scene.add.container(this.player.x, this.player.y).setDepth(32).setAlpha(0.95);
+    this.juice.ring(this.player.x, this.player.y, profile.fullCircle ? radius : 48, COLORS.soul, 260);
+    const sweep = this.scene.add
+      .container(this.player.x, this.player.y)
+      .setDepth(32)
+      .setAlpha(0.95)
+      .setRotation(profile.fullCircle ? 0 : profile.facingAngle);
     const crescent = this.scene.add.graphics();
     crescent.lineStyle(13, COLORS.pale, 0.72);
     crescent.beginPath();
-    crescent.arc(0, 0, radius * 0.88, -0.92, 0.92);
+    crescent.arc(
+      0,
+      0,
+      radius * 0.88,
+      profile.fullCircle ? 0 : -Math.PI / 2,
+      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
+    );
     crescent.strokePath();
     crescent.lineStyle(4, COLORS.soul, 0.95);
     crescent.beginPath();
-    crescent.arc(0, 0, radius * 0.76, -1.02, 1.02);
+    crescent.arc(
+      0,
+      0,
+      radius * 0.76,
+      profile.fullCircle ? 0 : -Math.PI / 2,
+      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
+    );
     crescent.strokePath();
     sweep.add(crescent);
-    for (let index = 0; index < 3; index += 1) {
+    const bladeAngles = profile.fullCircle
+      ? [-Math.PI * 0.75, -Math.PI * 0.25, Math.PI * 0.25, Math.PI * 0.75]
+      : [-Math.PI * 0.38, 0, Math.PI * 0.38];
+    bladeAngles.forEach((angle, index) => {
       const blade = this.scene.add
-        .image(radius * (0.55 + index * 0.16), 0, WEAPONS[id].texture)
-        .setDisplaySize(72 - index * 8, 72 - index * 8)
-        .setRotation(Math.PI / 2)
+        .image(Math.cos(angle) * radius * 0.72, Math.sin(angle) * radius * 0.72, WEAPONS[id].texture)
+        .setDisplaySize(68, 68)
+        .setRotation(angle + Math.PI / 2)
         .setTint(index === 0 ? COLORS.pale : COLORS.soul)
-        .setAlpha(1 - index * 0.2)
+        .setAlpha(0.9)
         .setBlendMode(Phaser.BlendModes.ADD);
       sweep.add(blade);
-    }
+    });
     this.scene.tweens.add({
       targets: sweep,
-      angle: 330,
+      rotation: sweep.rotation + (profile.fullCircle ? Math.PI * 0.65 : 0.42),
       alpha: 0,
       duration: 380,
       ease: 'Cubic.Out',
       onComplete: () => sweep.destroy(),
     });
-    this.damageArea(this.player.x, this.player.y, radius, id);
-    this.afterAreaAttack(id, this.player.x, this.player.y, radius);
+    const hitCount = this.damageScytheSweep(this.player.x, this.player.y, radius, id, 1, profile);
+    const reapOutcome = this.scytheTalents.recordReap(hitCount, talents);
+    if (reapOutcome.graveProcessionTriggered) {
+      this.scytheProcessions.spawn(
+        this.player.x,
+        this.player.y,
+        profile.facingAngle,
+        radius,
+        id,
+        0.75,
+      );
+    }
+    this.upgradeEffects.afterBoneScytheAttack(id, this.player.x, this.player.y, radius, profile);
+    this.scytheWakes.spawn(
+      this.player.x,
+      this.player.y,
+      radius,
+      id,
+      talents.wakeDamageScale,
+      profile,
+    );
+    this.afterAreaAttack(id, this.player.x, this.player.y, radius, profile);
   }
 
   private fireHellfire(id: WeaponId, state: WeaponRuntimeState): void {
@@ -517,6 +602,62 @@ export class WeaponSystem {
     });
   }
 
+  private damageScytheSweep(
+    x: number,
+    y: number,
+    radius: number,
+    weaponId: WeaponId,
+    damageScale: number,
+    profile: ScytheSweepProfile,
+  ): number {
+    const talents = this.run.getBoneScytheTalentProfile();
+    let hitCount = 0;
+    this.enemies.forEach((enemy, definition) => {
+      if (isPointInScytheSweep(x, y, enemy.x, enemy.y, radius, profile, definition.radius * 0.35)) {
+        hitCount += 1;
+        const health = this.enemies.getHealth(enemy);
+        const healthRatio = health && health.max > 0 ? health.current / health.max : 1;
+        const distance = Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y);
+        const pullDistance = crookedReachPullDistance(distance, radius, talents.crookedReachRanks);
+        const result = this.damageEnemy(
+          enemy,
+          definition,
+          weaponId,
+          damageScale *
+            boneScytheConditionalDamageScale(healthRatio, talents) *
+            crookedReachDamageScale(distance, radius, talents.crookedReachRanks),
+        );
+        if (!result.killed && !definition.boss && pullDistance > 0) {
+          this.enemies.pullToward(enemy, x, y, pullDistance);
+        }
+        if (!result.killed && talents.consumeBleed) {
+          this.consumeBleed(enemy, definition, weaponId);
+        }
+      }
+    });
+    return hitCount;
+  }
+
+  private consumeBleed(
+    enemy: Phaser.Physics.Arcade.Image,
+    definition: EnemyDefinition,
+    fallbackWeaponId: WeaponId,
+  ): void {
+    const consumed = this.statuses.consumeFromEnemy(enemy, 'bleed');
+    if (!consumed) {
+      return;
+    }
+    const result = this.enemies.damage(enemy, consumed.damage, false);
+    this.run.recordWeaponHit(
+      consumed.sourceWeaponId ?? fallbackWeaponId,
+      result.dealt,
+      result.killed,
+      false,
+      Boolean(definition.boss),
+    );
+    this.juice.ring(enemy.x, enemy.y, 32, 0x9f1f2d, 180);
+  }
+
   private landPoisonFlask(runtime: ProjectileRuntime, x: number, y: number, impactDamage: boolean): void {
     const state = this.run.getWeaponState(runtime.weaponId);
     this.juice.ring(x, y, state.stats.area, 0x51d96b, 260);
@@ -531,9 +672,61 @@ export class WeaponSystem {
     );
   }
 
-  private afterAreaAttack(id: WeaponId, x: number, y: number, radius: number): void {
-    this.upgradeEffects.afterAreaAttack(id, x, y, radius, (...args) => this.damageArea(...args));
-    this.evolutions.afterAreaAttack(id, x, y, radius, (...args) => this.damageArea(...args));
+  private afterAreaAttack(
+    id: WeaponId,
+    x: number,
+    y: number,
+    radius: number,
+    scytheProfile?: ScytheSweepProfile,
+  ): void {
+    const damageArea = scytheProfile
+      ? (areaX: number, areaY: number, areaRadius: number, weaponId: WeaponId, damageScale: number) =>
+          this.damageScytheSweep(areaX, areaY, areaRadius, weaponId, damageScale, scytheProfile)
+      : (...args: Parameters<WeaponSystem['damageArea']>) => this.damageArea(...args);
+    this.upgradeEffects.afterAreaAttack(id, x, y, radius, damageArea);
+    this.evolutions.afterAreaAttack(
+      id,
+      x,
+      y,
+      radius,
+      damageArea,
+      scytheProfile
+        ? (visualX, visualY, visualRadius, color) =>
+            this.drawScytheEcho(visualX, visualY, visualRadius, color, scytheProfile)
+        : undefined,
+    );
+  }
+
+  private drawScytheEcho(
+    x: number,
+    y: number,
+    radius: number,
+    color: number,
+    profile: ScytheSweepProfile,
+  ): void {
+    const root = this.scene.add
+      .container(x, y)
+      .setDepth(31)
+      .setRotation(profile.fullCircle ? 0 : profile.facingAngle);
+    const arc = this.scene.add.graphics();
+    arc.lineStyle(9, color, 0.8);
+    arc.beginPath();
+    arc.arc(
+      0,
+      0,
+      radius * 0.9,
+      profile.fullCircle ? 0 : -Math.PI / 2,
+      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
+    );
+    arc.strokePath();
+    root.add(arc);
+    this.scene.tweens.add({
+      targets: root,
+      rotation: root.rotation + (profile.fullCircle ? 0.7 : 0.24),
+      alpha: 0,
+      duration: 240,
+      onComplete: () => root.destroy(),
+    });
   }
 
   private afterProjectileImpact(

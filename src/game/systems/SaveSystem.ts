@@ -10,6 +10,11 @@ import type {
   SaveData,
 } from '../types/gameTypes';
 import { createDeathEchoSnapshot, parseDeathEchoSnapshot } from './deathEchoRules';
+import {
+  createDefaultJournalDiscovery,
+  discoverFromRunSummary,
+  sanitizeJournalDiscovery,
+} from './JournalDiscoverySystem';
 import { createDefaultTalentProgress, sanitizeTalentProgress } from './TalentTreeSystem';
 
 export interface StorageLike {
@@ -51,6 +56,7 @@ export function createDefaultSave(): SaveData {
       ashwalker: emptyCharacterStats(),
     },
     unlockedArtifactTiers: ['base'],
+    journal: createDefaultJournalDiscovery(),
     settings: {
       screenShake: true,
       particles: true,
@@ -108,6 +114,7 @@ export function loadSave(storage: StorageLike = localStorage): SaveData {
         ashwalker: { ...defaults.characterStats.ashwalker, ...parsed.characterStats?.ashwalker },
       },
       unlockedArtifactTiers: [...new Set(unlockedArtifactTiers)],
+      journal: sanitizeJournalDiscovery(parsed.journal),
       deathEcho: parseDeathEchoSnapshot(parsed.deathEcho),
       settings: { ...defaults.settings, ...parsed.settings },
     };
@@ -186,6 +193,7 @@ export function recordRunResult(save: SaveData, summary: RunSummary): RecordedRu
   } else {
     next.deathEcho = createDeathEchoSnapshot(summary);
   }
+  discoverFromRunSummary(next, summary);
 
   const characterStats = next.characterStats[summary.characterId];
   characterStats.runs += 1;

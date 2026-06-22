@@ -41,6 +41,7 @@ const weaponEvolution = (
   name: string,
   description: string,
   iconTexture: string,
+  weaponModifiers?: UpgradeDefinition['weaponModifiers'],
 ): UpgradeDefinition => ({
   id,
   category: 'weapon-evolution',
@@ -50,6 +51,7 @@ const weaponEvolution = (
   maxStacks: 1,
   targetWeapon: weapon,
   iconTexture,
+  weaponModifiers,
 });
 
 export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
@@ -116,6 +118,17 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Add Poison Flask: thrown bottles that burst and leave acid pools.',
     'weapon-poison-flask',
   ),
+  'unlock-sanguine-needle': {
+    ...weaponUnlock(
+      'unlock-sanguine-needle',
+      'sanguine-needle',
+      'Buy Sanguine Needle',
+      'Add Sanguine Needle: a fast, penetrating blood-forged dart.',
+      'weapon-sanguine-needle',
+    ),
+    rarity: 'rare',
+    source: 'shop',
+  },
 
   'level-bone-scythe': weaponLevel(
     'level-bone-scythe',
@@ -187,6 +200,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     '+17% damage and +8% acid pool area.',
     'weapon-poison-flask',
   ),
+  'level-sanguine-needle': weaponLevel(
+    'level-sanguine-needle',
+    'sanguine-needle',
+    'Sanguine Needle Level',
+    '+19% damage and +1 penetration.',
+    'weapon-sanguine-needle',
+  ),
 
   'evolve-bone-scythe': weaponEvolution(
     'evolve-bone-scythe',
@@ -257,6 +277,18 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Awaken Virulent Mire',
     'Evolve Poison Flask. Acid pools last longer, bite harder, and poison enemies they burn.',
     'weapon-poison-flask',
+  ),
+  'evolve-sanguine-needle': weaponEvolution(
+    'evolve-sanguine-needle',
+    'sanguine-needle',
+    'Awaken Exsanguination',
+    'Evolve Sanguine Needle. Fire three stronger blood darts with greater penetration.',
+    'weapon-sanguine-needle',
+    [
+      { stat: 'projectileCount', mode: 'add', value: 2 },
+      { stat: 'pierce', mode: 'add', value: 2 },
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+    ],
   ),
 
   'bone-scythe-area': {
@@ -503,6 +535,20 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
       { stat: 'cooldownMs', mode: 'multiply', value: 1.12 },
     ],
     iconTexture: 'weapon-poison-flask',
+  },
+  'sanguine-needle-bloodletting': {
+    id: 'sanguine-needle-bloodletting',
+    category: 'weapon-upgrade',
+    name: 'Barbed Transfusion',
+    description: '+1 blood dart, but 15% longer cooldown.',
+    rarity: 'rare',
+    maxStacks: 2,
+    targetWeapon: 'sanguine-needle',
+    weaponModifiers: [
+      { stat: 'projectileCount', mode: 'add', value: 1 },
+      { stat: 'cooldownMs', mode: 'multiply', value: 1.15 },
+    ],
+    iconTexture: 'weapon-sanguine-needle',
   },
   'bone-scythe-crimson-harvest': {
     id: 'bone-scythe-crimson-harvest',

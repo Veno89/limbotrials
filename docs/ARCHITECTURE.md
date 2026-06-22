@@ -22,8 +22,10 @@ src/game/
 - `CurseSystem`: run-local curse total, tier lookup, threshold crossings, and curse gain results.
 - `BalanceTelemetry`: pure event aggregation and one-minute balance reporting.
 - `BalancePresetSystem`: applies data-defined focused test scenarios.
-- `BalanceReportStore`: persists only the latest completed report outside permanent progression.
 - `DebugControlsSystem`: development shortcuts and live-overlay coordination.
+- `DevModeSettings`: localStorage-backed dev-only preferences such as invincibility; no personal dev preset data is committed.
+- `devWeaponModel`: pure weapon-to-unlock/level/evolution/focused-upgrade mapping for local dev tools.
+- `JournalDiscoverySystem`: save-backed content discovery for the player journal, including sanitization and run-summary inference.
 - `PlayerMovementSystem`: keyboard movement and dash timing.
 - `PlayerVisualSystem`: optional character-specific directional presentation layered over the unchanged physics body.
 - `EnemySpawnSystem`: phased role-based spawn sessions, ambient population cap, weighted elite pools, and boss timing.
@@ -33,7 +35,7 @@ src/game/
 - `ChestSystem`: bounded player-relative reliquary spawning, proximity opening, objective data, and despawn behavior.
 - `LootRevealSystem`: non-modal soul-lock burst, curved reward travel, and player-side loot receipt after a reliquary opens.
 - `BossAttackSystem`: the Warden's six telegraphed attack patterns and focused boss-only telegraph, lane, and hazard helpers.
-- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for ten weapons.
+- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for eleven weapons.
 - `WeaponEvolutionSystem`: level-seven capstone effects.
 - `WeaponUpgradeEffectSystem`: focused authored weapon effects for projectile splintering, spreading area blasts, delayed judgment echoes, and status application triggers.
 - `StatusEffectSystem`: data-defined enemy status lifetimes, stack refreshes, compact debuff icons, and damage-over-time ticks with weapon attribution.
@@ -45,6 +47,10 @@ src/game/
 - `ArtifactEffectSystem`: runtime bridge for typed artifact effects that depend on pickups, dashes, shield breaks, enemy deaths, and one-time claim rewards.
 - `DeathEchoSystem`: one-run controller that turns the latest saved death snapshot into a readable generated Echo encounter.
 - `PickupSystem`: soul drops, bounded pickup consolidation, magnet movement, and collection.
+- `ShopSystem`: active-run Blood Market scheduling, world presence, proximity interaction, expiry, and objective state.
+- `shopRules`: pure spawn-chance, blood-affordability, and shop-exclusive offer selection rules.
+- `ArenaFloorSystem`: weighted rendering of the supplied 128px arena tiles; `arenaFloorRules` keeps decorative variants sparse and deterministic.
+- `pickupAttractionRules`: pure XP-globe sizing, normal magnet speed, and Soul Vacuum motion profiles.
 - `PowerupSystem`: cooldown-bounded random healing, vacuum, and temporary frenzy drops plus guaranteed elite drops.
 - `UpgradeOfferSystem`: queued standard/curse choices, rerolls, and skip rewards.
 - `ArenaShrineSystem`: proximity interaction for the arena's blood shrine.
@@ -52,6 +58,9 @@ src/game/
 - `AudioSystem`: shared procedural placeholder tones and ambient audio.
 - `EnemySeparationSystem`: local spatial-hash crowd repulsion.
 - `HudSystem`: fixed-camera run information.
+- `JournalScene`: player-facing encyclopedia for discovered weapons, evolutions, artifacts, enemies, bosses, buffs, and debuffs. Unknown entries render as `???`.
+- `DevModeScene`: Vite-dev-only test overlay for invincibility, exact upgrade/artifact grants, weapon grants, powerups, enemy spawns, and a high-health target dummy.
+- `DevWeaponPanel`: weapon-centric local test controls for adding, leveling, evolution preparation, evolution, and focused upgrades.
 - `ArtifactBar`: acquired-artifact icons, rarity frames, and tooltips.
 - `ChestObjectiveHud`: direction, distance, and remaining lifetime for the nearest active reliquary.
 - `PlayerStatusVisualSystem`: player-following shield state and generic timed-powerup duration bars.
@@ -196,6 +205,44 @@ choice pairs, and refunds. `MetaProgressionScene` renders the current first-pass
 tree UI but does not own allocation rules. `RunState` applies allocated talent
 modifiers at run start and delegates typed non-stat effects to
 `TalentEffectHandlers`.
+
+Bone Scythe uses the shared geometry in `scytheRules`: its baseline attack,
+Crimson Harvest application, and evolved follow-up all use a forward 180-degree
+sweep based on the player's last movement direction. Haunted's Reaper capstone
+changes that shared profile to 360 degrees through a typed talent effect.
+
+Journal discovery is part of the versioned local save. Runtime systems should
+record discovery at the moment content is actually seen or claimed: weapon unlocks,
+weapon evolutions, artifact claims, enemy spawns, powerup collection, and status
+application. `JournalDiscoverySystem` also infers discoveries from completed run
+summaries as a backup. Journal UI should read from the model in `journalModel.ts`
+rather than duplicating data-file traversal in scene code. Each category also owns
+a save-backed seen list; main-menu and category badges count discovered entries
+that have not yet been viewed.
+
+Local dev mode is available only under `import.meta.env.DEV`. The overlay applies
+real `RunState` upgrades, artifacts, weapons, powerups, and enemy spawns so test
+setups exercise the same paths as normal play. Persisted dev preferences use
+browser localStorage; optional local preset files are ignored by git. Weapon
+progression controls derive their definitions through `devWeaponModel` rather than
+maintaining a second hardcoded progression map.
+
+Pause-menu submenus use a typed return target through `MenuNavigationSystem`.
+Journal and Settings replace the pause overlay while `GameScene` remains paused,
+are explicitly moved above the paused game, then start a fresh `PauseScene` when
+returning. Pause actions call the public `GameScene` lifecycle instead of passing
+function callbacks through scene data.
+
+The Blood Market is a separate timed world event rather than a chest variant.
+`data/shop.ts` owns its catalogue and HP prices. Shop rewards declare
+`source: 'shop'`; normal upgrade and reliquary selection exclude that source
+centrally. `ShopScene` pauses the active run, while `RunState.spendBlood` ensures
+a purchase can never consume the player's final HP.
+
+`PickupSystem` owns XP-globe runtime state and collection callbacks. Soul Vacuum
+marks existing pickups for staggered attraction and lets them complete through the
+same collection path as ordinary magnet movement; it does not bypass XP, soul,
+artifact, telemetry, or level-up handling.
 
 ## Website And Leaderboard
 

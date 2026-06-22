@@ -30,7 +30,10 @@ export function selectUpgradeChoices(
 ): UpgradeDefinition[] {
   const weaponCap = context.weaponCap ?? WEAPON_CAP;
   const pool = Object.values(UPGRADES).filter(
-    (upgrade) => upgrade.category !== 'curse' && isEligible(upgrade, context, weaponCap),
+    (upgrade) =>
+      upgrade.source !== 'shop' &&
+      upgrade.category !== 'curse' &&
+      isEligible(upgrade, context, weaponCap),
   );
   const choices: UpgradeDefinition[] = [];
   const evolutionCandidates = pool.filter((upgrade) => upgrade.category === 'weapon-evolution');
@@ -78,7 +81,10 @@ export function selectCurseChoices(
   count = 3,
 ): UpgradeDefinition[] {
   const pool = Object.values(UPGRADES).filter(
-    (upgrade) => upgrade.category === 'curse' && isEligible(upgrade, context, context.weaponCap ?? WEAPON_CAP),
+    (upgrade) =>
+      upgrade.source !== 'shop' &&
+      upgrade.category === 'curse' &&
+      isEligible(upgrade, context, context.weaponCap ?? WEAPON_CAP),
   );
   const choices: UpgradeDefinition[] = [];
   while (choices.length < count && pool.length > 0) {

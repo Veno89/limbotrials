@@ -1,9 +1,23 @@
 import Phaser from 'phaser';
 import type { PlayerStats } from '../types/gameTypes';
+import {
+  magnetAttractionSpeed,
+  PICKUP_COLLECTION_DISTANCE,
+  pickupDisplaySize,
+  vacuumMotionProfile,
+  vacuumStartDelay,
+} from './pickupAttractionRules';
+
+interface PickupVacuumRuntime {
+  startAt: number;
+  seed: number;
+}
 
 interface PickupRuntime {
   xp: number;
   souls: number;
+  displaySize: number;
+  vacuum?: PickupVacuumRuntime;
 }
 
 export const MAX_SOUL_PICKUPS = 90;
@@ -28,14 +42,15 @@ export class PickupSystem {
         const runtime = this.pickups.get(target)!;
         runtime.xp += xp;
         runtime.souls += souls;
-        const size = Math.min(30, 18 + Math.log2(runtime.xp + runtime.souls + 1) * 2);
-        target.setDisplaySize(size, size);
+        runtime.displaySize = pickupDisplaySize(runtime.xp + runtime.souls);
+        target.setDisplaySize(runtime.displaySize, runtime.displaySize);
         return;
       }
     }
     const pickup = this.group.create(x, y, 'pickup-xp') as Phaser.Physics.Arcade.Image;
-    pickup.setDisplaySize(18, 18).setDepth(14).setBlendMode(Phaser.BlendModes.ADD);
-    this.pickups.set(pickup, { xp, souls });
+    const displaySize = pickupDisplaySize(xp + souls);
+    pickup.setDisplaySize(displaySize, displaySize).setDepth(14).setBlendMode(Phaser.BlendModes.ADD);
+    this.pickups.set(pickup, { xp, souls, displaySize });
     this.scene.tweens.add({
       targets: pickup,
       scaleX: pickup.scaleX * 1.2,
@@ -48,6 +63,7 @@ export class PickupSystem {
   }
 
   update(): void {
+    const time = this.scene.time.now;
     for (const [pickup, runtime] of this.pickups) {
       if (!pickup.active) {
         this.pickups.delete(pickup);
@@ -55,20 +71,50 @@ export class PickupSystem {
       }
       const distance = Phaser.Math.Distance.Between(pickup.x, pickup.y, this.player.x, this.player.y);
       const body = pickup.body as Phaser.Physics.Arcade.Body;
-      if (distance < this.stats.pickupRadius) {
-        const angle = Phaser.Math.Angle.Between(pickup.x, pickup.y, this.player.x, this.player.y);
-        const speed = 190 + (1 - distance / this.stats.pickupRadius) * 420;
+      const angle = Phaser.Math.Angle.Between(pickup.x, pickup.y, this.player.x, this.player.y);
+      if (runtime.vacuum && time >= runtime.vacuum.startAt) {
+        const profile = vacuumMotionProfile(distance, time - runtime.vacuum.startAt, runtime.vacuum.seed);
+        body.setVelocity(
+          Math.cos(angle + profile.angleOffset) * profile.speed,
+          Math.sin(angle + profile.angleOffset) * profile.speed,
+        );
+        pickup
+          .setDisplaySize(runtime.displaySize * profile.scale, runtime.displaySize * profile.scale)
+          .setRotation(pickup.rotation + 0.08);
+      } else if (runtime.vacuum) {
+        body.setVelocity(0, 0);
+      } else if (distance < this.stats.pickupRadius) {
+        const speed = magnetAttractionSpeed(distance, this.stats.pickupRadius);
         body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
       } else {
         body.setVelocity(0, 0);
       }
-      if (distance < 26) {
+      if (distance < PICKUP_COLLECTION_DISTANCE) {
         this.collect(pickup, runtime);
       }
     }
   }
 
-  collectAll(): void {
+  vacuumAll(): void {
+    const ordered = [...this.pickups.entries()].sort(
+      ([first], [second]) =>
+        Phaser.Math.Distance.Squared(first.x, first.y, this.player.x, this.player.y) -
+        Phaser.Math.Distance.Squared(second.x, second.y, this.player.x, this.player.y),
+    );
+    ordered.forEach(([pickup, runtime], index) => {
+      if (runtime.vacuum) {
+        return;
+      }
+      this.scene.tweens.killTweensOf(pickup);
+      pickup.setDisplaySize(runtime.displaySize, runtime.displaySize);
+      runtime.vacuum = {
+        startAt: this.scene.time.now + vacuumStartDelay(index),
+        seed: index * 0.73,
+      };
+    });
+  }
+
+  collectAllImmediately(): void {
     for (const [pickup, runtime] of [...this.pickups]) {
       this.collect(pickup, runtime);
     }

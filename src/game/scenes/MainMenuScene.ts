@@ -1,11 +1,12 @@
 import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants';
+import { requestReturnToSite } from '../gameExitEvents';
 import { audio } from '../systems/AudioSystem';
 import { loadSave } from '../systems/SaveSystem';
-import { addButton, addTitle, formatTime } from '../ui/uiHelpers';
-import { loadLastRunSummary } from '../systems/BalanceReportStore';
+import { addButton, addTitle } from '../ui/uiHelpers';
 import { FEATURE_FLAGS } from '../config/featureFlags';
-import { availableTalentPoints, earnedTalentPoints } from '../systems/TalentTreeSystem';
+import { availableTalentPoints } from '../systems/TalentTreeSystem';
+import { unseenJournalCount } from '../systems/JournalDiscoverySystem';
 
 export class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -21,56 +22,64 @@ export class MainMenuScene extends Phaser.Scene {
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
       .setAlpha(0.72);
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.32).setOrigin(0);
-    addTitle(this, GAME_WIDTH / 2, 128, 'EVERLASTING OBLIVION', 52);
-    addTitle(this, GAME_WIDTH / 2, 186, 'LIMBO TRIAL', 25).setColor('#8eb9ca');
+    addTitle(this, GAME_WIDTH / 2, 132, 'EVERLASTING OBLIVION', 46);
+    addTitle(this, GAME_WIDTH / 2, 183, 'LIMBO TRIAL', 21).setColor('#8eb9ca');
 
-    addButton(this, GAME_WIDTH / 2, 325, 'BEGIN THE TRIAL', () => {
+    const availablePoints = save.unlockedCharacters.reduce(
+      (total, characterId) => total + availableTalentPoints(save, characterId),
+      0,
+    );
+    const newJournalEntries = unseenJournalCount(save);
+    const menuButton = { height: 46, fontSize: 16 } as const;
+    addButton(this, GAME_WIDTH / 2, 292, 'BEGIN THE TRIAL', () => {
       this.scene.start(FEATURE_FLAGS.characters ? 'CharacterSelectScene' : 'GameScene');
-    }, 330);
-    addButton(this, GAME_WIDTH / 2, 390, 'LEGACY OF ASH', () => this.scene.start('MetaProgressionScene'), 330);
-    addButton(this, GAME_WIDTH / 2, 455, 'SETTINGS', () => this.scene.start('SettingsScene'), 330);
-    const lastRun = loadLastRunSummary();
-    if (lastRun) {
-      addButton(this, GAME_WIDTH / 2, 520, 'LAST BALANCE REPORT', () => {
-        this.scene.pause();
-        this.scene.launch('BalanceReportScene', { summary: lastRun, returnScene: this.scene.key });
-      }, 330);
-    }
-
-    const best = save.bestRunTimeMs > 0 ? formatTime(save.bestRunTimeMs) : '--:--';
-    const characterProgress = save.talentProgress[save.selectedCharacter];
-    this.add
-      .text(
-        GAME_WIDTH / 2,
-        lastRun ? 590 : 540,
-        `LEGACY SOULS  ${characterProgress.legacySouls}   /   TALENT POINTS  ${availableTalentPoints(
-          save,
-          save.selectedCharacter,
-        )} AVAILABLE / ${earnedTalentPoints(save, save.selectedCharacter)} EARNED\nBEST TRIAL  ${best}   /   TOTAL KILLS  ${
-          save.totalKills
-        }`,
-        {
-          fontFamily: 'Cinzel, serif',
-          fontSize: '15px',
-          color: '#b7c8cf',
-          align: 'center',
-          lineSpacing: 9,
-          stroke: '#030506',
-          strokeThickness: 4,
-        },
-      )
-      .setOrigin(0.5);
-    this.add
-      .text(
-        GAME_WIDTH / 2,
-        GAME_HEIGHT - 34,
-        'WASD / ARROWS TO MOVE   /   SPACE TO DASH   /   ESC TO PAUSE',
-        {
-          fontFamily: 'Cinzel, serif',
-          fontSize: '13px',
-          color: '#83959c',
-        },
-      )
-      .setOrigin(0.5);
+    }, 300, undefined, menuButton);
+    addButton(
+      this,
+      GAME_WIDTH / 2,
+      352,
+      'META UPGRADES',
+      () => this.scene.start('MetaProgressionScene'),
+      300,
+      badgeCount(availablePoints),
+      menuButton,
+    );
+    addButton(
+      this,
+      GAME_WIDTH / 2,
+      412,
+      'JOURNAL',
+      () => this.scene.start('JournalScene'),
+      300,
+      badgeCount(newJournalEntries),
+      menuButton,
+    );
+    addButton(
+      this,
+      GAME_WIDTH / 2,
+      472,
+      'SETTINGS',
+      () => this.scene.start('SettingsScene'),
+      300,
+      undefined,
+      menuButton,
+    );
+    addButton(
+      this,
+      GAME_WIDTH / 2,
+      532,
+      'QUIT',
+      () => requestReturnToSite(),
+      300,
+      undefined,
+      menuButton,
+    );
   }
+}
+
+function badgeCount(count: number): string | undefined {
+  if (count <= 0) {
+    return undefined;
+  }
+  return count > 99 ? '99+' : String(count);
 }

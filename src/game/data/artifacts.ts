@@ -251,11 +251,38 @@ export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
     ],
     effect: 'ascended-choice',
   },
+  'red-ledger': {
+    id: 'red-ledger',
+    name: 'Red Ledger',
+    description: 'Gain 18% damage and 25% more Souls. Every 16 kills pays a blood dividend; elites pay more.',
+    rarity: 'rare',
+    poolTier: 'base',
+    iconTexture: 'status-bleed',
+    source: 'shop',
+    modifiers: [
+      { stat: 'damage', mode: 'multiply', value: 1.18 },
+      { stat: 'soulGain', mode: 'multiply', value: 1.25 },
+    ],
+    effect: 'red-ledger-tithe',
+  },
+  'heart-of-the-market': {
+    id: 'heart-of-the-market',
+    name: 'Heart of the Market',
+    description: 'Attack 25% faster. Taking HP damage periodically wraps you in an 18-point blood ward.',
+    rarity: 'legendary',
+    poolTier: 'base',
+    iconTexture: 'status-bleed',
+    source: 'shop',
+    modifiers: [{ stat: 'attackSpeed', mode: 'multiply', value: 1.25 }],
+    effect: 'market-heart-ward',
+  },
 };
 
 export function getAvailableArtifacts(save: SaveData): ArtifactDefinition[] {
   const unlockedTiers = save.unlockedArtifactTiers || ['base'];
-  return Object.values(ARTIFACTS).filter((art) => unlockedTiers.includes(art.poolTier));
+  return Object.values(ARTIFACTS).filter(
+    (art) => art.source !== 'shop' && unlockedTiers.includes(art.poolTier),
+  );
 }
 
 export function rollArtifact(

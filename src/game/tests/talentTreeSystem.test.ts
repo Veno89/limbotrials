@@ -83,7 +83,7 @@ describe('talent tree system', () => {
     expect(progress.haunted.allocations['ashwalker-ember-root']).toBeUndefined();
   });
 
-  it('applies talent stats and run-start effects through RunState', () => {
+  it('applies targeted weapon talents and run-start effects through RunState', () => {
     const save = createDefaultSave();
     save.talentProgress.haunted.allocations = {
       'haunted-reaper-root': 2,
@@ -94,9 +94,70 @@ describe('talent tree system', () => {
 
     const run = new RunState(save);
 
-    expect(run.stats.damage).toBeGreaterThan(1);
+    expect(run.stats.damage).toBe(1);
+    expect(run.getWeaponState('bone-scythe').stats.damage).toBeGreaterThan(36);
     expect(run.getUpgradeChoiceCount()).toBe(4);
     expect(run.rerolls).toBe(2);
     expect(run.shield).toBe(30);
+  });
+
+  it('builds the approved Reaper combat profile without leaking bonuses to other weapons', () => {
+    const save = createDefaultSave();
+    save.talentProgress.haunted.allocations = {
+      'haunted-reaper-root': 5,
+      'haunted-reaper-right-1': 3,
+      'haunted-reaper-notable-1': 1,
+      'haunted-reaper-choice-b': 1,
+      'haunted-reaper-notable-2': 1,
+      'haunted-reaper-deep-left': 3,
+      'haunted-reaper-deep-right': 3,
+    };
+
+    const run = new RunState(save);
+    const scythe = run.getWeaponState('bone-scythe').stats;
+    run.addWeapon('soul-bolt');
+    const soulBolt = run.getWeaponState('soul-bolt').stats;
+
+    expect(scythe.damage).toBeGreaterThan(36);
+    expect(scythe.cooldownMs).toBeLessThan(1500);
+    expect(scythe.area).toBeLessThan(150);
+    expect(scythe.critChance).toBeCloseTo(0.06);
+    expect(scythe.critDamage).toBeCloseTo(0.36);
+    expect(soulBolt).toMatchObject({ damage: 18, cooldownMs: 500, area: 100 });
+    expect(run.getBoneScytheTalentProfile()).toMatchObject({
+      fullHealthDamageMultiplier: 1.6,
+      consumeBleed: true,
+      wakeDamageScale: 0.36,
+      executionHealthThreshold: 0.3,
+      executionDamageMultiplier: 1.45,
+    });
+  });
+
+  it('configures Harvest Steps, Crooked Reach, and fifth-reap Grave Procession', () => {
+    const save = createDefaultSave();
+    save.talentProgress.haunted.allocations = {
+      'haunted-reaper-left-1': 3,
+      'haunted-reaper-middle': 5,
+      'haunted-reaper-choice-a': 1,
+    };
+
+    const run = new RunState(save);
+
+    expect(run.getBoneScytheTalentProfile()).toMatchObject({
+      harvestStepsChance: 0.15,
+      harvestStepsMoveSpeedMultiplier: 1.15,
+      crookedReachRanks: 5,
+      graveProcessionInterval: 5,
+    });
+  });
+
+  it('turns the Haunted Reaper capstone into a full-circle Bone Scythe reap', () => {
+    const save = createDefaultSave();
+    save.talentProgress.haunted.allocations = { 'haunted-reaper-capstone': 1 };
+
+    const run = new RunState(save);
+
+    expect(TALENT_NODES['haunted-reaper-capstone'].effect).toBe('bone-scythe-full-circle');
+    expect(run.hasFullCircleBoneScythe()).toBe(true);
   });
 });

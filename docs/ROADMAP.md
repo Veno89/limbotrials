@@ -16,8 +16,10 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [x] Add visible curse escalation, curse surge events, curse-specific enemy stat pressure, and first Cinder Reliquary containment tuning
 - [x] Start the build-defining artifact pass with lower reliquary frequency and typed runtime effects for every redesigned regular stat relic
 - [x] Add handmade XP/Wailing Shards asset swaps and the first bleed/poison status-effect foundation with a Bone Scythe bleed upgrade
+- [x] Add save-backed Journal discovery UI and local-only dev test overlay
 - [ ] Use uploaded Supabase run data to tune curse pressure, conditional upgrades, Warden duration, and Cinder containment while expanding the weapon roster in small chunks
 - [x] Add first additional weapon: Poison Flask with lobbed impact, acid pools, and poison-applying evolution
+- [x] Add the first timed Blood Market event with HP purchases and shop-exclusive rewards
 - [ ] Add four additional weapons individually, each with a unique evolution
 - [ ] Follow with unique artifact assets, deeper artifact families, NG+ Lite with optional Torments, and later distinct bosses
 
@@ -63,6 +65,9 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [ ] Replace concept sprites with animation-ready enemy sheets
 - [x] Improved attack effects
 - [x] Upgrade-card icon and layout polish
+- [x] Player-facing content journal with hidden undiscovered entries
+- [x] Local-only dev mode for invincibility, exact content grants, enemy spawning, and target dummies
+- [x] Compact vertical Main/Pause menus, larger XP globes, animated Soul Vacuum suction, and weapon-centric dev progression controls
 - [x] Performance profiling at 150-300 enemies
 - [x] Asset build optimization; do not copy unused source art
 - [ ] Controller support
@@ -89,7 +94,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 ## Phase 6: Balance And Accessibility
 
 - [x] Add source-aware balance telemetry and one-minute pressure buckets
-- [x] Add persistent multi-tab balance reports with JSON export
+- [x] Add detailed balance reports and Supabase run-analytics persistence
 - [x] Add focused data-defined balance presets and live telemetry overlay
 - [ ] Complete repeated full-run balance sessions with varied loadouts
 - [ ] Tune curse risk, evolution power, elite rewards, and powerup frequency through repeated full-run sessions

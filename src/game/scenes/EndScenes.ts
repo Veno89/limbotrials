@@ -78,7 +78,7 @@ abstract class EndScene extends Phaser.Scene {
     const uploadStatus = this.add
       .text(
         GAME_WIDTH / 2,
-        586,
+        canUpload ? 558 : 548,
         canUpload ? 'ENTER A NAME TO UPLOAD THIS RUN' : 'LAB RUNS STAY LOCAL',
         {
           fontFamily: 'Cinzel, serif',
@@ -93,17 +93,17 @@ abstract class EndScene extends Phaser.Scene {
       showUploadResult(result);
     };
     if (this.summary.balance.presetId === 'standard') {
-      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, 478);
+      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, 462);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         this.nameForm?.destroy();
         this.nameForm = undefined;
       });
     }
-    addButton(this, 240, 650, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
-    addButton(this, 640, 650, 'TRY AGAIN', () => {
+    addButton(this, 240, 662, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
+    addButton(this, 640, 662, 'TRY AGAIN', () => {
       this.scene.start('GameScene', { characterId: this.summary.characterId });
     }, 250);
-    addButton(this, 1040, 650, 'QUIT', () => requestReturnToSite(), 250);
+    addButton(this, 1040, 662, 'QUIT', () => requestReturnToSite(), 250);
 
     function showUploadResult(result: RunSubmissionResult): void {
       if (uploadStatus.active) {

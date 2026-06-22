@@ -26,9 +26,9 @@ describe('weapon cadence identities', () => {
     expect(dirge.damage * dirge.targetCount).toBeGreaterThan(WEAPONS['grave-lance'].baseStats.damage);
   });
 
-  it('keeps Bone Scythe as dependable moderate close-range coverage', () => {
+  it('keeps Bone Scythe as lower-baseline close-range coverage with talent headroom', () => {
     expect(WEAPONS['bone-scythe'].baseStats).toMatchObject({
-      damage: 46,
+      damage: 36,
       cooldownMs: 1500,
       range: 150,
       area: 150,

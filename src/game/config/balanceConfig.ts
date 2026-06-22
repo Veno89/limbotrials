@@ -27,6 +27,18 @@ export const BALANCE = {
   chestLifetimeMs: 75000,
   chestMinPlayerDistance: 280,
   chestMaxPlayerDistance: 480,
+  firstShopCheckDelayMs: {
+    min: 90000,
+    max: 130000,
+  },
+  shopCheckDelayMs: {
+    min: 180000,
+    max: 240000,
+  },
+  shopSpawnChance: 0.55,
+  shopLifetimeMs: 65000,
+  shopMinPlayerDistance: 360,
+  shopMaxPlayerDistance: 560,
   maxThreatTier: 10,
   threatTierDurationMs: 90000,
   threatPowerScoreOffset: 8,

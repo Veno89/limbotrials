@@ -8,6 +8,7 @@ import type {
   TalentNodeTier,
   TalentPathDefinition,
   TalentPathId,
+  WeaponId,
   WeaponModifier,
 } from '../types/gameTypes';
 
@@ -28,6 +29,7 @@ interface NodeSpec {
   choiceGroup?: string;
   modifiers?: StatModifier[];
   weaponModifiers?: WeaponModifier[];
+  targetWeapon?: WeaponId;
   effect?: TalentEffectId;
   position: { row: number; column: number };
 }
@@ -73,11 +75,18 @@ const defineNodes = (path: TalentPathSeed): TalentNodeDefinition[] =>
     ...(node.choiceGroup ? { choiceGroup: `${path.id}:${node.choiceGroup}` } : {}),
     ...(node.modifiers ? { modifiers: node.modifiers } : {}),
     ...(node.weaponModifiers ? { weaponModifiers: node.weaponModifiers } : {}),
+    ...(node.targetWeapon ? { targetWeapon: node.targetWeapon } : {}),
     ...(node.effect ? { effect: node.effect } : {}),
     position: node.position,
   }));
 
-const root = (name: string, description: string, modifiers: StatModifier[]): NodeSpec => ({
+const root = (
+  name: string,
+  description: string,
+  modifiers: StatModifier[],
+  weaponModifiers?: WeaponModifier[],
+  targetWeapon?: WeaponId,
+): NodeSpec => ({
   slug: 'root',
   tier: 'minor',
   name,
@@ -85,10 +94,17 @@ const root = (name: string, description: string, modifiers: StatModifier[]): Nod
   maxRanks: 5,
   pathPointsRequired: 0,
   modifiers,
+  ...(weaponModifiers ? { weaponModifiers } : {}),
+  ...(targetWeapon ? { targetWeapon } : {}),
   position: { row: 0, column: 0 },
 });
 
-const leftOne = (name: string, description: string, modifiers: StatModifier[]): NodeSpec => ({
+const leftOne = (
+  name: string,
+  description: string,
+  modifiers: StatModifier[],
+  effect?: TalentEffectId,
+): NodeSpec => ({
   slug: 'left-1',
   tier: 'minor',
   name,
@@ -97,6 +113,7 @@ const leftOne = (name: string, description: string, modifiers: StatModifier[]): 
   pathPointsRequired: 3,
   prerequisites: ['root'],
   modifiers,
+  ...(effect ? { effect } : {}),
   position: { row: 1, column: -1 },
 });
 
@@ -105,6 +122,7 @@ const rightOne = (
   description: string,
   modifiers: StatModifier[],
   weaponModifiers?: WeaponModifier[],
+  targetWeapon?: WeaponId,
 ): NodeSpec => ({
   slug: 'right-1',
   tier: 'minor',
@@ -115,6 +133,7 @@ const rightOne = (
   prerequisites: ['root'],
   modifiers,
   ...(weaponModifiers ? { weaponModifiers } : {}),
+  ...(targetWeapon ? { targetWeapon } : {}),
   position: { row: 1, column: 1 },
 });
 
@@ -141,6 +160,7 @@ const middle = (
   description: string,
   modifiers: StatModifier[],
   weaponModifiers?: WeaponModifier[],
+  effect?: TalentEffectId,
 ): NodeSpec => ({
   slug: 'middle',
   tier: 'minor',
@@ -151,6 +171,7 @@ const middle = (
   prerequisites: ['root'],
   modifiers,
   ...(weaponModifiers ? { weaponModifiers } : {}),
+  ...(effect ? { effect } : {}),
   position: { row: 2, column: 1 },
 });
 
@@ -162,6 +183,7 @@ const choice = (
   column: number,
   effect?: TalentEffectId,
   weaponModifiers?: WeaponModifier[],
+  targetWeapon?: WeaponId,
 ): NodeSpec => ({
   slug,
   tier: 'choice',
@@ -174,6 +196,7 @@ const choice = (
   modifiers,
   ...(effect ? { effect } : {}),
   ...(weaponModifiers ? { weaponModifiers } : {}),
+  ...(targetWeapon ? { targetWeapon } : {}),
   position: { row: 3, column },
 });
 
@@ -202,6 +225,7 @@ const deep = (
   modifiers: StatModifier[],
   column: number,
   weaponModifiers?: WeaponModifier[],
+  effect?: TalentEffectId,
 ): NodeSpec => ({
   slug,
   tier: 'minor',
@@ -212,6 +236,7 @@ const deep = (
   prerequisites: ['notable-2'],
   modifiers,
   ...(weaponModifiers ? { weaponModifiers } : {}),
+  ...(effect ? { effect } : {}),
   position: { row: 5, column },
 });
 
@@ -235,17 +260,87 @@ const capstone = (
 
 const PATH_SEEDS: readonly TalentPathSeed[] = [
   talentPath('haunted-reaper', 'haunted', 'Reaper', 'Close-range execution and scythe pressure.', 0xd7bd82, [
-    root('Grave Grip', '+3% global damage per rank.', [stat('damage', 'multiply', 1.03)]),
-    leftOne('Harvest Steps', '+3% movement speed per rank.', [stat('moveSpeed', 'multiply', 1.03)]),
-    rightOne('Cruel Edge', '+3% critical damage per rank.', [stat('critDamage', 'add', 0.03)]),
-    notableOne('First Reaping', '+10% boss damage.', [stat('bossDamage', 'multiply', 1.1)]),
-    middle('Long Handle', '+3% weapon area per rank.', [], [weapon('area', 'multiply', 1.03)]),
-    choice('choice-a', 'Mournful Reach', '+8% pickup radius.', [stat('pickupRadius', 'multiply', 1.08)], -1),
-    choice('choice-b', 'Butcher Rhythm', '+6% attack speed.', [stat('attackSpeed', 'multiply', 1.06)], 1),
-    notableTwo('Bone-Marked Prey', '+8% critical chance.', [stat('critChance', 'add', 0.08)]),
-    deep('deep-left', 'Widened Reap', '+3% weapon area per rank.', [], -1, [weapon('area', 'multiply', 1.03)]),
-    deep('deep-right', 'Merciless Memory', '+4% damage per rank.', [stat('damage', 'multiply', 1.04)], 1),
-    capstone('Procession Reaper', 'All weapons pierce one additional enemy.', [], 'all-weapons-pierce'),
+    root(
+      'Grave Grip',
+      'Bone Scythe deals 4% more damage per rank.',
+      [],
+      [weapon('damage', 'multiply', 1.04)],
+      'bone-scythe',
+    ),
+    leftOne(
+      'Harvest Steps',
+      'Successful Bone Scythe reaps have a 5% chance per rank to grant 5% movement speed per rank for 3 seconds.',
+      [],
+      'bone-scythe-harvest-steps',
+    ),
+    rightOne(
+      'Cruel Edge',
+      'Bone Scythe gains +2% critical chance and +12% critical damage per rank.',
+      [],
+      [weapon('critChance', 'add', 0.02), weapon('critDamage', 'add', 0.12)],
+      'bone-scythe',
+    ),
+    notableOne(
+      'First Reaping',
+      'Bone Scythe deals 60% more damage to enemies at full health.',
+      [],
+      'bone-scythe-first-reaping',
+    ),
+    middle(
+      'Crooked Reach',
+      "Bone Scythe's outer half deals 6% more damage per rank and pulls surviving non-boss enemies inward.",
+      [],
+      undefined,
+      'bone-scythe-crooked-reach',
+    ),
+    choice(
+      'choice-a',
+      'Grave Procession',
+      'Every fifth Bone Scythe reap launches a forward spectral crescent.',
+      [],
+      -1,
+      'bone-scythe-grave-procession',
+    ),
+    choice(
+      'choice-b',
+      'Butcher Rhythm',
+      'Bone Scythe reaps 18% faster, but its sweep is 18% smaller.',
+      [],
+      1,
+      undefined,
+      [weapon('cooldownMs', 'multiply', 0.82), weapon('area', 'multiply', 0.82)],
+      'bone-scythe',
+    ),
+    notableTwo(
+      'Bone-Marked Prey',
+      'Bone Scythe consumes Bleed to deal its full-duration damage immediately.',
+      [],
+      'bone-scythe-consume-bleed',
+    ),
+    deep(
+      'deep-left',
+      'Reaping Wake',
+      'Bone Scythe leaves a spectral wake dealing 12% damage per rank.',
+      [],
+      -1,
+      undefined,
+      'bone-scythe-reaping-wake',
+    ),
+    deep(
+      'deep-right',
+      "Executioner's Due",
+      'Bone Scythe deals 15% more damage per rank to enemies below 30% health.',
+      [],
+      1,
+      undefined,
+      'bone-scythe-executioner',
+    ),
+    capstone(
+      'The Final Reaping',
+      'Bone Scythe reaps in a full 360-degree circle instead of a forward 180-degree sweep.',
+      [],
+      'bone-scythe-full-circle',
+    ),
   ]),
   talentPath('haunted-echo', 'haunted', 'Echo', 'Cursed memory, Death Echo pressure, and dangerous gain.', 0x9d72ff, [
     root('Whispered Debt', '+3% XP gain per rank.', [stat('xpGain', 'multiply', 1.03)]),

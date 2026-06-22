@@ -21,6 +21,8 @@ export type EvolutionDamageArea = (
   damageScale: number,
 ) => void;
 
+export type EvolutionAreaVisual = (x: number, y: number, radius: number, color: number) => void;
+
 export class WeaponEvolutionSystem {
   constructor(
     private readonly scene: Phaser.Scene,
@@ -39,12 +41,13 @@ export class WeaponEvolutionSystem {
     y: number,
     radius: number,
     damageArea: EvolutionDamageArea,
+    areaVisual?: EvolutionAreaVisual,
   ): void {
     if (!this.isEvolved(id)) {
       return;
     }
     if (id === 'bone-scythe') {
-      this.delayedArea(id, x, y, radius * 0.9, 190, COLORS.soul, 0.82, damageArea);
+      this.delayedArea(id, x, y, radius * 0.9, 190, COLORS.soul, 0.82, damageArea, areaVisual);
     } else if (id === 'hellfire-sigil') {
       this.delayedArea(id, x, y, radius * 0.9, 360, COLORS.hellfire, 0.34, damageArea);
       this.delayedArea(id, x, y, radius * 0.9, 720, COLORS.hellfire, 0.34, damageArea);
@@ -109,9 +112,14 @@ export class WeaponEvolutionSystem {
     color: number,
     damageScale: number,
     damageArea: EvolutionDamageArea,
+    areaVisual?: EvolutionAreaVisual,
   ): void {
     this.scene.time.delayedCall(delay, () => {
-      this.juice.ring(x, y, radius, color, 220);
+      if (areaVisual) {
+        areaVisual(x, y, radius, color);
+      } else {
+        this.juice.ring(x, y, radius, color, 220);
+      }
       damageArea(x, y, radius, id, damageScale);
     });
   }

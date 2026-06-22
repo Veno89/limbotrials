@@ -1,26 +1,28 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../constants';
 import { audio } from '../systems/AudioSystem';
+import {
+  MAIN_MENU_RETURN_TARGET,
+  returnFromMenu,
+  type MenuReturnTarget,
+} from '../systems/MenuNavigationSystem';
 import { loadSave, writeSave } from '../systems/SaveSystem';
 import type { SaveData } from '../types/gameTypes';
 import { addButton, addTitle } from '../ui/uiHelpers';
 
 interface SettingsSceneData {
-  returnScene?: string;
-  returnData?: object;
+  returnTarget?: MenuReturnTarget;
 }
 
 export class SettingsScene extends Phaser.Scene {
-  private returnScene = 'MainMenuScene';
-  private returnData?: object;
+  private returnTarget: MenuReturnTarget = MAIN_MENU_RETURN_TARGET;
 
   constructor() {
     super('SettingsScene');
   }
 
-  init(data: SettingsSceneData): void {
-    this.returnScene = data.returnScene ?? 'MainMenuScene';
-    this.returnData = data.returnData;
+  init(data: SettingsSceneData = {}): void {
+    this.returnTarget = data.returnTarget ?? MAIN_MENU_RETURN_TARGET;
   }
 
   create(): void {
@@ -53,9 +55,8 @@ export class SettingsScene extends Phaser.Scene {
       save.settings.effectsVolume = this.nextVolume(save.settings.effectsVolume);
       this.persistAndRestart(save);
     });
-    addButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 52, 'RETURN', () => {
-      this.scene.start(this.returnScene, this.returnData);
-    });
+    addButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 52, 'RETURN', () => this.returnToPreviousScene());
+    this.input.keyboard?.once('keydown-ESC', () => this.returnToPreviousScene());
   }
 
   private addSettingRow(
@@ -88,7 +89,21 @@ export class SettingsScene extends Phaser.Scene {
   private persistAndRestart(save: SaveData): void {
     writeSave(save);
     audio.configure(save.settings);
-    this.scene.restart({ returnScene: this.returnScene, returnData: this.returnData });
+    this.scene.restart({ returnTarget: this.returnTarget });
+  }
+
+  private returnToPreviousScene(): void {
+    returnFromMenu(
+      {
+        start: (sceneKey, data) => {
+          this.scene.start(sceneKey, data);
+        },
+        bringToTop: (sceneKey) => {
+          this.scene.bringToTop(sceneKey);
+        },
+      },
+      this.returnTarget,
+    );
   }
 
   private toggleLabel(enabled: boolean): string {

@@ -33,7 +33,7 @@ describe('save system', () => {
     expect(loadSave(storage).talentProgress.haunted.legacySouls).toBe(120);
   });
 
-  it('merges missing fields and wipes legacy souls during version 7 migration', () => {
+  it('merges missing fields and wipes legacy souls during old-save migration', () => {
     const storage = new MemoryStorage();
     storage.value = JSON.stringify({
       version: 6,
@@ -55,6 +55,8 @@ describe('save system', () => {
     expect(save.selectedCharacter).toBe('haunted');
     expect(save.unlockedCharacters).toEqual(['haunted']);
     expect(save.unlockedArtifactTiers).toEqual(['base']);
+    expect(save.journal.weapons).toEqual(['bone-scythe']);
+    expect(save.journal.artifacts).toEqual([]);
     expect(save.characterStats.ashwalker.runs).toBe(0);
   });
 
@@ -73,11 +75,19 @@ describe('save system', () => {
       selectedCharacter: 'unknown',
       unlockedCharacters: ['unknown'],
       unlockedArtifactTiers: ['not-a-tier'],
+      journal: {
+        weapons: ['fake-weapon'],
+        enemies: ['lost-soul', 'limbo-warden'],
+        bosses: ['limbo-warden', 'lost-soul'],
+      },
     });
     const save = loadSave(storage);
     expect(save.selectedCharacter).toBe('haunted');
     expect(save.unlockedCharacters).toEqual(['haunted']);
     expect(save.unlockedArtifactTiers).toEqual(['base']);
+    expect(save.journal.weapons).toEqual(['bone-scythe']);
+    expect(save.journal.enemies).toEqual(['lost-soul']);
+    expect(save.journal.bosses).toEqual(['limbo-warden']);
   });
 
   it('preserves current-version talent progress', () => {

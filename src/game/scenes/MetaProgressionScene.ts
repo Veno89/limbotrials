@@ -56,7 +56,7 @@ export class MetaProgressionScene extends Phaser.Scene {
       this.selectedCharacter = save.selectedCharacter;
     }
 
-    addTitle(this, GAME_WIDTH / 2, 46, 'LEGACY OF ASH', 34);
+    addTitle(this, GAME_WIDTH / 2, 46, 'META UPGRADES', 34);
     this.renderCharacterTabs(save);
     this.renderSummary(save);
     this.renderTree(save);
@@ -76,6 +76,7 @@ export class MetaProgressionScene extends Phaser.Scene {
       const character = CHARACTERS[characterId];
       const unlocked = save.unlockedCharacters.includes(characterId);
       const selected = characterId === this.selectedCharacter;
+      const available = unlocked ? availableTalentPoints(save, characterId) : 0;
       const x = 330 + index * 310;
       const tab = this.add
         .rectangle(x, 93, 260, 44, selected ? COLORS.panelLight : COLORS.panel, 0.96)
@@ -88,6 +89,17 @@ export class MetaProgressionScene extends Phaser.Scene {
           color: unlocked ? '#dce8ed' : '#697780',
         })
         .setOrigin(0.5);
+      if (available > 0) {
+        this.add.circle(x + 116, 76, 11, COLORS.gold, 1).setStrokeStyle(2, 0xf0d8a0);
+        this.add
+          .text(x + 116, 76, available > 99 ? '99+' : String(available), {
+            fontFamily: 'Inter, sans-serif',
+            fontSize: available > 9 ? '9px' : '11px',
+            fontStyle: 'bold',
+            color: '#071014',
+          })
+          .setOrigin(0.5);
+      }
       tab.on('pointerdown', () => {
         this.scene.restart({ characterId });
       });

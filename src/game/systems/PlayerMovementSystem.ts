@@ -15,6 +15,7 @@ export class PlayerMovementSystem {
     private readonly player: Phaser.Physics.Arcade.Image,
     private readonly stats: PlayerStats,
     private readonly onDash: () => void,
+    private readonly getMoveSpeedMultiplier: () => number = () => 1,
   ) {
     const keyboard = scene.input.keyboard;
     if (!keyboard) {
@@ -48,7 +49,10 @@ export class PlayerMovementSystem {
       this.onDash();
     }
 
-    const speed = time < this.dashEndsAt ? this.stats.dashSpeed : this.stats.moveSpeed;
+    const speed =
+      time < this.dashEndsAt
+        ? this.stats.dashSpeed
+        : this.stats.moveSpeed * this.getMoveSpeedMultiplier();
     body.setVelocity(this.direction.x * speed, this.direction.y * speed);
     if (this.direction.x !== 0) {
       this.player.setFlipX(this.direction.x < 0);

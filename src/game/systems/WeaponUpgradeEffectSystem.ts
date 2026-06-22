@@ -11,6 +11,7 @@ import {
   type DelayedAreaEffect,
 } from './weaponUpgradeEffectRules';
 import { boneScytheBleedDamage, type StatusApplicationSource } from './statusEffectRules';
+import { isPointInScytheSweep, type ScytheSweepProfile } from './scytheRules';
 
 type DamageEnemy = (
   sprite: Phaser.Physics.Arcade.Image,
@@ -44,9 +45,6 @@ export class WeaponUpgradeEffectSystem {
   ) {}
 
   afterAreaAttack(id: WeaponId, x: number, y: number, radius: number, damageArea: DamageArea): void {
-    if (id === 'bone-scythe' && this.run.hasWeaponEffect('bone-scythe-crimson-harvest')) {
-      this.applyBoneScytheBleed(id, x, y, radius);
-    }
     if (id === 'hellfire-sigil' && this.run.hasWeaponEffect('hellfire-spreading-sentence')) {
       const sourceAngle = Phaser.Math.Angle.Between(this.player.x, this.player.y, x, y);
       for (const effect of getHellfireSpreadEffects(x, y, radius, sourceAngle)) {
@@ -54,6 +52,18 @@ export class WeaponUpgradeEffectSystem {
       }
     } else if (id === 'dirge-staff' && this.run.hasWeaponEffect('dirge-staff-echoed-rites')) {
       this.delayedArea(id, getDirgeEchoEffect(x, y, radius), COLORS.soul, damageArea);
+    }
+  }
+
+  afterBoneScytheAttack(
+    id: WeaponId,
+    x: number,
+    y: number,
+    radius: number,
+    profile: ScytheSweepProfile,
+  ): void {
+    if (this.run.hasWeaponEffect('bone-scythe-crimson-harvest')) {
+      this.applyBoneScytheBleed(id, x, y, radius, profile);
     }
   }
 
@@ -87,10 +97,16 @@ export class WeaponUpgradeEffectSystem {
     }
   }
 
-  private applyBoneScytheBleed(id: WeaponId, x: number, y: number, radius: number): void {
+  private applyBoneScytheBleed(
+    id: WeaponId,
+    x: number,
+    y: number,
+    radius: number,
+    profile: ScytheSweepProfile,
+  ): void {
     const damagePerTick = boneScytheBleedDamage(this.run.getWeaponState(id).stats.damage);
     this.enemies.forEach((enemy, definition) => {
-      if (Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y) > radius + definition.radius * 0.5) {
+      if (!isPointInScytheSweep(x, y, enemy.x, enemy.y, radius, profile, definition.radius * 0.5)) {
         return;
       }
       this.applyStatusToEnemy(enemy, 'bleed', {
@@ -98,7 +114,7 @@ export class WeaponUpgradeEffectSystem {
         damagePerTick,
       });
     });
-    this.juice.ring(x, y, radius * 0.62, COLORS.blood, 190);
+    this.juice.ring(x, y, profile.fullCircle ? radius * 0.62 : 42, COLORS.blood, 190);
   }
 
   private delayedArea(id: WeaponId, effect: DelayedAreaEffect, color: number, damageArea: DamageArea): void {

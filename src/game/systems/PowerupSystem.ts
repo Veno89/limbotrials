@@ -12,7 +12,7 @@ import type { RunState } from './RunState';
 import type { PowerupId } from '../types/gameTypes';
 
 export interface ActiveBuffStatus {
-  id: PowerupId;
+  id: string;
   label: string;
   color: number;
   remainingMs: number;
@@ -30,6 +30,7 @@ export class PowerupSystem {
     private readonly run: RunState,
     private readonly souls: PickupSystem,
     private readonly juice: JuiceSystem,
+    private readonly onPowerupApplied: (id: PowerupId) => void = () => undefined,
   ) {}
 
   trySpawn(x: number, y: number, guaranteed = false): void {
@@ -108,11 +109,12 @@ export class PowerupSystem {
 
   private apply(id: PowerupId): void {
     const definition = POWERUPS[id];
+    this.onPowerupApplied(id);
     if (id === 'mending-soul') {
       const healed = Math.round(this.run.heal(25));
       this.juice.warning(`${definition.name.toUpperCase()}: RESTORED ${healed} HP`, '#92e6b1');
     } else if (id === 'soul-vacuum') {
-      this.souls.collectAll();
+      this.souls.vacuumAll();
       this.juice.warning(`${definition.name.toUpperCase()}: ${definition.pickupMessage.toUpperCase()}`, '#69d9ff');
     } else {
       this.frenzyUntil = Math.max(this.frenzyUntil, this.run.elapsedMs) + definition.durationMs!;

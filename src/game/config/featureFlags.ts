@@ -3,6 +3,7 @@ export const FEATURE_FLAGS = {
   newEnemies: true,
   artifacts: true,
   chests: true,
+  shop: true,
   characters: true,
   dualEvolutions: false,
   buildings: false,

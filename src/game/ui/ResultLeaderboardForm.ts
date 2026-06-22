@@ -59,7 +59,7 @@ export class ResultLeaderboardForm {
       });
     });
 
-    scene.add.dom(x, y, this.root);
+    scene.add.dom(x, y, this.root).setOrigin(0.5);
   }
 
   destroy(): void {

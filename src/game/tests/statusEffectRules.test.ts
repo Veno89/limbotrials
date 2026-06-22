@@ -4,6 +4,7 @@ import {
   applyStatusEffect,
   boneScytheBleedDamage,
   dueStatusTicks,
+  fullDurationStatusDamage,
   isStatusExpired,
   statusTickDamage,
 } from '../systems/statusEffectRules';
@@ -46,7 +47,14 @@ describe('status effect rules', () => {
   });
 
   it('derives Bone Scythe bleed from weapon damage without falling below the floor', () => {
-    expect(boneScytheBleedDamage(46)).toBe(4);
+    expect(boneScytheBleedDamage(36)).toBe(4);
     expect(boneScytheBleedDamage(10)).toBe(2);
+  });
+
+  it('calculates the full-duration damage consumed from a status', () => {
+    const bleed = STATUS_EFFECTS.bleed;
+    const status = applyStatusEffect(bleed, 0, undefined, { damagePerTick: 10 });
+
+    expect(fullDurationStatusDamage(bleed, status)).toBe(40);
   });
 });

@@ -17,10 +17,10 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     id: 'bone-scythe',
     behavior: 'scythe',
     name: 'Bone Scythe',
-    description: 'Reaps nearby souls in a broad spectral sweep.',
+    description: 'Reaps souls in a 180-degree spectral sweep in the direction you face.',
     texture: 'weapon-bone-scythe',
     iconTexture: 'weapon-bone-scythe',
-    baseStats: stats({ damage: 46, cooldownMs: 1500, range: 150, area: 150 }),
+    baseStats: stats({ damage: 36, cooldownMs: 1500, range: 150, area: 150 }),
     levelGrowth: [
       { stat: 'damage', mode: 'multiply', value: 1.18 },
       { stat: 'area', mode: 'multiply', value: 1.09 },
@@ -228,6 +228,30 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     evolution: {
       name: 'Virulent Mire',
       description: 'Acid pools last longer, bite harder, and poison enemies they burn.',
+    },
+  },
+  'sanguine-needle': {
+    id: 'sanguine-needle',
+    behavior: 'targeted-projectile',
+    name: 'Sanguine Needle',
+    description: 'A blood-forged dart sold only by Limbo\'s wandering market.',
+    texture: 'weapon-sanguine-needle',
+    iconTexture: 'weapon-sanguine-needle',
+    baseStats: stats({
+      damage: 44,
+      cooldownMs: 1050,
+      range: 720,
+      projectileSpeed: 760,
+      projectileSize: 25,
+      pierce: 1,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.19 },
+      { stat: 'pierce', mode: 'add', value: 1 },
+    ],
+    evolution: {
+      name: 'Exsanguination',
+      description: 'The Needle splits into three blood darts with greater penetration.',
     },
   },
 };

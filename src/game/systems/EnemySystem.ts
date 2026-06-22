@@ -271,6 +271,33 @@ export class EnemySystem {
     return runtime ? { current: runtime.health, max: runtime.maxHealth } : undefined;
   }
 
+  getHealth(sprite: Phaser.Physics.Arcade.Image): { current: number; max: number } | undefined {
+    const runtime = this.enemies.get(sprite);
+    return runtime ? { current: runtime.health, max: runtime.maxHealth } : undefined;
+  }
+
+  pullToward(
+    sprite: Phaser.Physics.Arcade.Image,
+    targetX: number,
+    targetY: number,
+    distance: number,
+  ): void {
+    if (distance <= 0 || !this.enemies.has(sprite)) {
+      return;
+    }
+    const offsetX = targetX - sprite.x;
+    const offsetY = targetY - sprite.y;
+    const length = Math.hypot(offsetX, offsetY);
+    if (length <= 1) {
+      return;
+    }
+    const movement = Math.min(distance, length - 1);
+    sprite.setPosition(
+      Phaser.Math.Clamp(sprite.x + (offsetX / length) * movement, 40, ARENA_WIDTH - 40),
+      Phaser.Math.Clamp(sprite.y + (offsetY / length) * movement, 40, ARENA_HEIGHT - 40),
+    );
+  }
+
   spawnAroundPlayer(id: EnemyId, elapsedMs: number, distance = 620): void {
     const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
     this.spawnAroundPlayerAtAngle(id, elapsedMs, distance, angle);
@@ -280,6 +307,43 @@ export class EnemySystem {
     const x = Phaser.Math.Clamp(this.player.x + Math.cos(angle) * distance, 60, ARENA_WIDTH - 60);
     const y = Phaser.Math.Clamp(this.player.y + Math.sin(angle) * distance, 60, ARENA_HEIGHT - 60);
     this.spawn(id, x, y, elapsedMs);
+  }
+
+  spawnDevTargetDummy(elapsedMs: number): void {
+    const baseDefinition = ENEMIES['hollow-knight'];
+    const definition: EnemyDefinition = {
+      ...baseDefinition,
+      name: 'Target Dummy',
+      maxHealth: 999999,
+      speed: 0,
+      contactDamage: 0,
+      xp: 0,
+      soulValue: 0,
+      displaySize: 92,
+      radius: 30,
+    };
+    const x = Phaser.Math.Clamp(this.player.x + 190, 60, ARENA_WIDTH - 60);
+    const y = Phaser.Math.Clamp(this.player.y, 60, ARENA_HEIGHT - 60);
+    const sprite = this.group.create(x, y, definition.texture) as Phaser.Physics.Arcade.Image;
+    sprite
+      .setDisplaySize(definition.displaySize, definition.displaySize)
+      .setDepth(20)
+      .setTint(0xd8c49b)
+      .setCollideWorldBounds(true);
+    const body = sprite.body as Phaser.Physics.Arcade.Body;
+    body.setMaxVelocity(0);
+    this.enemies.set(sprite, {
+      definition,
+      health: definition.maxHealth,
+      maxHealth: definition.maxHealth,
+      contactReadyAt: Number.POSITIVE_INFINITY,
+      wobbleSeed: 0,
+      nextSpecialAt: Number.POSITIVE_INFINITY,
+      specialIndex: 0,
+      spawnedAtElapsedMs: elapsedMs,
+      damageMultiplier: 0,
+      lastBossPhase: 1,
+    });
   }
 
   private bossPhase(runtime: EnemyRuntime): number {

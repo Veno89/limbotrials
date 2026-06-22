@@ -36,6 +36,10 @@ import { TALENT_EFFECT_HANDLERS } from './TalentEffectHandlers';
 import { getAllocatedTalentNodes } from './TalentTreeSystem';
 import { calculateThreat } from './threatRules';
 import { CurseSystem } from './CurseSystem';
+import {
+  DEFAULT_BONE_SCYTHE_TALENT_PROFILE,
+  type BoneScytheTalentProfile,
+} from './scytheRules';
 
 export interface DamageResolution {
   fatal: boolean;
@@ -71,7 +75,11 @@ export class RunState {
   rerolls: number;
   private weaponCap = WEAPON_CAP;
   private upgradeChoiceBonus = 0;
+  private readonly boneScytheTalents: BoneScytheTalentProfile = {
+    ...DEFAULT_BONE_SCYTHE_TALENT_PROFILE,
+  };
   private readonly globalWeaponModifiers: WeaponModifier[] = [];
+  private readonly targetedTalentWeaponModifiers = new Map<WeaponId, WeaponModifier[]>();
   private readonly artifactDefinitions = new Map<ArtifactId, ArtifactDefinition>();
 
   constructor(
@@ -114,6 +122,16 @@ export class RunState {
     this.balance.recordSouls(collected, this.elapsedMs);
   }
 
+  spendBlood(amount: number): boolean {
+    const cost = Math.max(0, Math.round(amount));
+    if (cost <= 0 || this.health - cost < 1) {
+      return false;
+    }
+    this.health -= cost;
+    this.balance.recordTimeline(`shop:blood:-${cost}`, this.elapsedMs);
+    return true;
+  }
+
   addWeapon(id: WeaponId): boolean {
     if (this.weapons.has(id) || this.weapons.size >= this.weaponCap) {
       return false;
@@ -125,7 +143,9 @@ export class RunState {
       level: 1,
       stats: { ...definition.baseStats },
     });
-    this.applyWeaponModifiers(id, this.weaponStates.get(id)!, this.globalWeaponModifiers);
+    const state = this.weaponStates.get(id)!;
+    this.applyWeaponModifiers(id, state, this.globalWeaponModifiers);
+    this.applyWeaponModifiers(id, state, this.targetedTalentWeaponModifiers.get(id) ?? []);
     return true;
   }
 
@@ -360,6 +380,48 @@ export class RunState {
     }
   }
 
+  enableBoneScytheFullCircle(enabled: boolean): void {
+    this.boneScytheTalents.fullCircle = enabled;
+  }
+
+  setBoneScytheHarvestStepsRanks(ranks: number): void {
+    this.boneScytheTalents.harvestStepsChance = Math.max(0, ranks) * 0.05;
+    this.boneScytheTalents.harvestStepsMoveSpeedMultiplier = 1 + Math.max(0, ranks) * 0.05;
+  }
+
+  setBoneScytheCrookedReachRanks(ranks: number): void {
+    this.boneScytheTalents.crookedReachRanks = Math.max(0, ranks);
+  }
+
+  enableBoneScytheGraveProcession(enabled: boolean): void {
+    this.boneScytheTalents.graveProcessionInterval = enabled ? 5 : 0;
+  }
+
+  hasFullCircleBoneScythe(): boolean {
+    return this.boneScytheTalents.fullCircle;
+  }
+
+  enableBoneScytheFirstReaping(ranks: number): void {
+    this.boneScytheTalents.fullHealthDamageMultiplier = ranks > 0 ? 1.6 : 1;
+  }
+
+  enableBoneScytheBleedConsumption(enabled: boolean): void {
+    this.boneScytheTalents.consumeBleed = enabled;
+  }
+
+  setBoneScytheWakeRanks(ranks: number): void {
+    this.boneScytheTalents.wakeDamageScale = Math.max(0, ranks) * 0.12;
+  }
+
+  setBoneScytheExecutionRanks(ranks: number): void {
+    this.boneScytheTalents.executionHealthThreshold = ranks > 0 ? 0.3 : 0;
+    this.boneScytheTalents.executionDamageMultiplier = 1 + Math.max(0, ranks) * 0.15;
+  }
+
+  getBoneScytheTalentProfile(): Readonly<BoneScytheTalentProfile> {
+    return { ...this.boneScytheTalents };
+  }
+
   useReroll(): boolean {
     if (this.rerolls <= 0) {
       return false;
@@ -431,7 +493,13 @@ export class RunState {
           applyStatModifiers(this.stats, node.modifiers);
         }
         if (node.weaponModifiers) {
-          this.globalWeaponModifiers.push(...node.weaponModifiers);
+          if (node.targetWeapon) {
+            const modifiers = this.targetedTalentWeaponModifiers.get(node.targetWeapon) ?? [];
+            modifiers.push(...node.weaponModifiers);
+            this.targetedTalentWeaponModifiers.set(node.targetWeapon, modifiers);
+          } else {
+            this.globalWeaponModifiers.push(...node.weaponModifiers);
+          }
         }
       }
       if (node.effect) {

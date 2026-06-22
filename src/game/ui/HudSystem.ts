@@ -12,6 +12,8 @@ import type { ChestSystem } from '../systems/ChestSystem';
 import { ChestObjectiveHud } from './ChestObjectiveHud';
 import { curseTierProgress } from '../data/curse';
 import { curseVisualFor } from './curseVisualRules';
+import type { ShopSystem } from '../systems/ShopSystem';
+import { ShopObjectiveHud } from './ShopObjectiveHud';
 
 export class HudSystem {
   private readonly healthBar: Phaser.GameObjects.Rectangle;
@@ -29,6 +31,7 @@ export class HudSystem {
   private readonly statsPanel: StatsPanel;
   private readonly artifactBar: ArtifactBar;
   private readonly chestObjective?: ChestObjectiveHud;
+  private readonly shopObjective?: ShopObjectiveHud;
 
   constructor(
     scene: Phaser.Scene,
@@ -37,6 +40,7 @@ export class HudSystem {
     private readonly movement: PlayerMovementSystem,
     private readonly weapons: WeaponSystem,
     chests?: ChestSystem,
+    shop?: ShopSystem,
   ) {
     type FixedGameObject = Phaser.GameObjects.GameObject &
       Phaser.GameObjects.Components.ScrollFactor &
@@ -123,6 +127,7 @@ export class HudSystem {
     this.statsPanel = new StatsPanel(scene, run);
     this.artifactBar = new ArtifactBar(scene, run);
     this.chestObjective = chests ? new ChestObjectiveHud(scene, chests) : undefined;
+    this.shopObjective = shop ? new ShopObjectiveHud(scene, shop) : undefined;
   }
 
   update(time: number): void {
@@ -133,6 +138,7 @@ export class HudSystem {
     this.statsPanel.update(time);
     this.artifactBar.update();
     this.chestObjective?.update(this.run.elapsedMs);
+    this.shopObjective?.update(this.run.elapsedMs);
     this.statsText.setText(
       `HP ${Math.ceil(this.run.health)} / ${Math.round(this.run.stats.maxHealth)}   LVL ${this.run.level}   SOULS ${this.run.souls}`,
     );

@@ -45,7 +45,12 @@ import weaponCinderReliquary from '../../../assets/test/weapons/cinder_reliquary
 import weaponAshenLongbow from '../../../assets/test/weapons/ashen_longbow.png?url';
 import weaponBloodletterAxe from '../../../assets/test/weapons/bloodletter_axe.png?url';
 import weaponDirgeStaff from '../../../assets/test/weapons/dirge_staff.png?url';
-import arenaFloor from '../../../assets/environment/tilesets/limbo_floor_v2.png?url';
+import shopBuilding from '../../../assets/test/buildings/shop.png?url';
+import arenaTile1 from '../../../assets/test/tiles/tile1.png?url';
+import arenaTile2 from '../../../assets/test/tiles/tile2.png?url';
+import arenaTile3 from '../../../assets/test/tiles/tile3.png?url';
+import arenaTile4 from '../../../assets/test/tiles/tile4.png?url';
+import arenaTile5 from '../../../assets/test/tiles/tile5.png?url';
 import propSkeleton from '../../../assets/environment/props/prop_chained_skeleton.png?url';
 import propCage from '../../../assets/environment/props/prop_rusty_cage.png?url';
 import propAltar from '../../../assets/environment/props/prop_dark_altar.png?url';
@@ -113,7 +118,13 @@ export const ASSETS: Array<[string, string]> = [
   ['weapon-ashen-longbow', weaponAshenLongbow],
   ['weapon-bloodletter-axe', weaponBloodletterAxe],
   ['weapon-dirge-staff', weaponDirgeStaff],
-  ['arena-floor', arenaFloor],
+  ['weapon-sanguine-needle', statusBleed],
+  ['shop-building', shopBuilding],
+  ['arena-tile-1', arenaTile1],
+  ['arena-tile-2', arenaTile2],
+  ['arena-tile-3', arenaTile3],
+  ['arena-tile-4', arenaTile4],
+  ['arena-tile-5', arenaTile5],
   ['prop-skeleton', propSkeleton],
   ['prop-cage', propCage],
   ['prop-altar', propAltar],

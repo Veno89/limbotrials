@@ -15,6 +15,7 @@ export class ArtifactEffectSystem {
   private readonly counters = new Map<string, number>();
   private vacuuming = false;
   private giantsLastStandReadyAt = 0;
+  private marketHeartReadyAt = 0;
 
   constructor(
     private readonly run: RunState,
@@ -78,6 +79,13 @@ export class ArtifactEffectSystem {
   }
 
   onEnemyDeath(death: EnemyDeath): void {
+    if (this.run.hasArtifactEffect('red-ledger-tithe')) {
+      if (death.definition.elite || death.definition.boss) {
+        this.heal(death.definition.boss ? 30 : 18, 'artifact:red-ledger-elite');
+      } else if (this.tick('red-ledger-tithe', 16)) {
+        this.heal(7, 'artifact:red-ledger-tithe');
+      }
+    }
     if (this.run.hasArtifactEffect('whetstone-cadence') && this.tick('whetstone-cadence', 18)) {
       this.quicken(450, 'artifact:whetstone-cadence');
     }
@@ -116,6 +124,14 @@ export class ArtifactEffectSystem {
   }
 
   onPlayerDamaged(result: DamageResolution): void {
+    if (
+      this.run.hasArtifactEffect('market-heart-ward') &&
+      result.dealt > 0 &&
+      this.run.elapsedMs >= this.marketHeartReadyAt
+    ) {
+      this.marketHeartReadyAt = this.run.elapsedMs + 8000;
+      this.grantShield(18, 'MARKET HEART');
+    }
     if (this.run.hasArtifactEffect('buckler-break') && result.absorbed > 0 && this.run.shield <= 0) {
       this.quicken(650, 'artifact:buckler-break');
       this.juice.warning('BUCKLER BREAK: WEAPONS QUICKEN', '#d9edf4');
