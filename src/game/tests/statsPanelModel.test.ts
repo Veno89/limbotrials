@@ -10,10 +10,10 @@ describe('stats panel model', () => {
     expect(before.weapons[0]).toMatchObject({ name: 'BONE SCYTHE', levelLabel: 'LEVEL 1' });
     expect(before.general.find((entry) => entry.label === 'CRIT CHANCE')?.value).toBe('5%');
 
-    run.applyUpgrade('stat-crit');
-    run.applyUpgrade('stat-forbidden-tutelage');
-    run.applyUpgrade('bone-scythe-area');
-    run.addWeapon('bloodletter-axe');
+    run.upgrades.apply('stat-crit');
+    run.upgrades.apply('stat-forbidden-tutelage');
+    run.upgrades.apply('bone-scythe-area');
+    run.weapons.add('bloodletter-axe');
     const after = buildStatsPanelModel(run);
 
     expect(after.general.find((entry) => entry.label === 'CRIT CHANCE')?.value).toBe('9%');
@@ -26,11 +26,11 @@ describe('stats panel model', () => {
 
   it('describes evolved Bloodletter Axe as a continuous bounded orbit', () => {
     const run = new RunState(createDefaultSave());
-    run.addWeapon('bloodletter-axe');
+    run.weapons.add('bloodletter-axe');
     for (let index = 0; index < 5; index += 1) {
-      run.applyUpgrade('level-bloodletter-axe');
+      run.upgrades.apply('level-bloodletter-axe');
     }
-    run.applyUpgrade('evolve-bloodletter-axe');
+    run.upgrades.apply('evolve-bloodletter-axe');
 
     const axe = buildStatsPanelModel(run).weapons.find((weapon) => weapon.id === 'bloodletter-axe');
     expect(axe?.primary).toContain('CONTINUOUS');

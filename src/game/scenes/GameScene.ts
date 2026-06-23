@@ -126,8 +126,12 @@ export class GameScene extends Phaser.Scene {
     this.discoverySave = save;
     audio.configure(save.settings);
     audio.startAmbience();
-    this.events.on(Phaser.Scenes.Events.RESUME, () => audio.startAmbience());
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => audio.stopAmbience());
+    const resumeListener = () => audio.startAmbience();
+    this.events.on(Phaser.Scenes.Events.RESUME, resumeListener);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.events.off(Phaser.Scenes.Events.RESUME, resumeListener);
+      audio.stopAmbience();
+    });
     this.run = new RunState(save, this.balancePresetId, this.characterId ?? save.selectedCharacter);
     this.discoverJournalEntry('weapons', CHARACTERS[this.run.characterId].starterWeapon);
     this.createArena();
@@ -173,14 +177,15 @@ export class GameScene extends Phaser.Scene {
     this.statuses = new StatusEffectSystem(this, this.enemies, this.run, (id) =>
       this.discoverJournalEntry('debuffs', id),
     );
-    this.movement = new PlayerMovementSystem(this, this.player, this.run.stats, () => {
+    this.enemies.onEnemyRemoved = (sprite) => this.statuses.cleanupTarget(sprite);
+    this.movement = new PlayerMovementSystem(this, this.player, this.run.stats.current, () => {
       this.run.balance.recordDash();
       audio.play('dash');
       this.juice.ring(this.player.x, this.player.y, 58, COLORS.soul, 180);
       this.conditionalUpgrades.onDash(this.time.now);
       this.artifactEffects.onDash();
     }, () => this.weapons.getMoveSpeedMultiplier());
-    this.pickups = new PickupSystem(this, this.player, this.run.stats, (xp, souls) =>
+    this.pickups = new PickupSystem(this, this.player, this.run.stats.current, (xp, souls) =>
       this.collectPickup(xp, souls),
     );
     this.powerups = new PowerupSystem(this, this.player, this.run, this.pickups, this.juice, (id) =>
@@ -246,11 +251,11 @@ export class GameScene extends Phaser.Scene {
       this,
       this.player,
       this.juice,
-      () => this.run.health > 25,
+      () => this.run.resources.health > 25,
       () => {
         this.run.balance.recordShrineUse(this.run.elapsedMs);
         this.run.balance.recordDamageAttempt('blood-shrine', false, this.run.elapsedMs);
-        this.run.takeDamage(20, 'blood-shrine');
+        this.run.resources.takeDamage(20, 'blood-shrine');
         this.juice.warning('THE SHRINE ACCEPTS YOUR BLOOD', '#b687ed');
         this.offers.request('standard');
       },
@@ -262,9 +267,9 @@ export class GameScene extends Phaser.Scene {
     }
     if (this.balancePresetId === 'standard' && FEATURE_FLAGS.artifacts && FEATURE_FLAGS.chests) {
       this.chests = new ChestSystem(this, this.player, this.juice, (x, y) => {
-        const artifact = rollArtifact(getAvailableArtifacts(save), [...this.run.artifacts]);
+        const artifact = rollArtifact(getAvailableArtifacts(save), [...this.run.artifacts.collected]);
         const reward = artifact ? mutateArtifactReward(artifact, this.run.curse.snapshot()) : null;
-        const result = reward ? this.run.applyArtifactReward(reward) : { applied: false };
+        const result = reward ? this.run.artifacts.applyReward(reward) : { applied: false };
         if (reward && result.applied) {
           this.discoverJournalEntry('artifacts', reward.id);
           this.run.balance.recordTimeline(`artifact:${reward.id}`, this.run.elapsedMs);
@@ -278,7 +283,7 @@ export class GameScene extends Phaser.Scene {
           });
           return;
         }
-        this.run.addSouls(20);
+        this.run.resources.addSouls(20);
         this.lootReveal.reveal(x, y, {
           texture: 'soul',
           label: '+20 Souls',
@@ -340,7 +345,10 @@ export class GameScene extends Phaser.Scene {
       this.time.delayedCall(4300, () => this.juice.warning('PRESS SPACE TO DASH THROUGH DANGER'));
     }
 
-    this.input.keyboard?.on('keydown-ESC', () => this.pauseRun());
+    const pauseListener = () => this.pauseRun();
+    this.input.keyboard?.on('keydown-ESC', pauseListener);
+    
+    let devListener: ((event: KeyboardEvent) => void) | undefined;
     if (import.meta.env.DEV) {
       this.debugControls = new DebugControlsSystem(
         this,
@@ -352,13 +360,22 @@ export class GameScene extends Phaser.Scene {
         () => this.grantShield(),
         () => this.endRun(false),
       );
-      this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
+      devListener = (event: KeyboardEvent) => {
         if (event.code === 'Backquote') {
           event.preventDefault();
           this.openDevMode();
         }
-      });
+      };
+      this.input.keyboard?.on('keydown', devListener);
     }
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.keyboard?.off('keydown-ESC', pauseListener);
+      if (devListener) {
+        this.input.keyboard?.off('keydown', devListener);
+      }
+      this.juice.destroy();
+    });
   }
 
   update(time: number, delta: number): void {
@@ -393,8 +410,8 @@ export class GameScene extends Phaser.Scene {
       this.run.balance.samplePressure(
         this.run.elapsedMs,
         this.enemies.count(),
-        this.run.health,
-        this.run.stats.maxHealth,
+        this.run.resources.health,
+        this.run.stats.current.maxHealth,
       );
       this.run.balance.recordThreat(this.run.getThreatSnapshot(), this.run.elapsedMs);
     }
@@ -460,7 +477,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.juice.playerDamage();
     audio.play('hurt');
-    const result = this.run.takeDamage(damage, source);
+    const result = this.run.resources.takeDamage(damage, source);
     this.artifactEffects.onPlayerDamaged(result);
     if (result.fatal) {
       this.run.balance.recordDeath(source, this.run.elapsedMs);
@@ -476,7 +493,7 @@ export class GameScene extends Phaser.Scene {
     if (death.definition.elite || death.definition.boss) {
       this.run.balance.recordTimeline(`kill:${death.definition.id}`, this.run.elapsedMs);
     }
-    const bonusSoul = Math.random() < this.run.stats.soulShardChance ? 1 : 0;
+    const bonusSoul = Math.random() < this.run.stats.current.soulShardChance ? 1 : 0;
     this.pickups.spawn(death.x, death.y, death.definition.xp, death.definition.soulValue + bonusSoul);
     this.powerups.trySpawn(death.x, death.y, Boolean(death.definition.elite));
     if (death.definition.elite && !death.definition.boss) {
@@ -490,8 +507,8 @@ export class GameScene extends Phaser.Scene {
 
   private collectPickup(xp: number, souls: number): void {
     audio.play('pickup');
-    this.run.addSouls(souls);
-    const levelsGained = this.run.addXp(xp);
+    this.run.resources.addSouls(souls);
+    const levelsGained = this.run.resources.addXp(xp);
     this.artifactEffects.onPickupCollected(xp, souls);
     for (let index = 0; index < levelsGained; index += 1) {
       audio.play('level-up');
@@ -527,16 +544,16 @@ export class GameScene extends Phaser.Scene {
           enabled ? '#d8c49b' : '#9fb8c2',
         );
       },
-      addWeapon: (id: WeaponId) => {
-        const applied = this.run.addWeapon(id);
+      weapons: (id: WeaponId) => {
+        const applied = this.run.weapons.add(id);
         if (applied) {
           this.discoverJournalEntry('weapons', id);
         }
         return applied;
       },
-      applyUpgrade: (id: UpgradeId) => {
+      upgrades: (id: UpgradeId) => {
         const upgrade = UPGRADES[id];
-        const result = this.run.applyUpgradeChoice(upgrade);
+        const result = this.run.upgrades.applyChoice(upgrade);
         if (result.applied) {
           this.handleUpgradeApplied(upgrade, result);
         }
@@ -544,7 +561,7 @@ export class GameScene extends Phaser.Scene {
       },
       applyArtifact: (id: ArtifactId) => {
         const artifact = ARTIFACTS[id];
-        const result = this.run.applyArtifactReward(artifact);
+        const result = this.run.artifacts.applyReward(artifact);
         if (result.applied) {
           this.discoverJournalEntry('artifacts', id);
           this.artifactEffects.onArtifactGained(artifact.effect);
@@ -564,7 +581,7 @@ export class GameScene extends Phaser.Scene {
         });
       },
       healFull: () => {
-        this.run.health = this.run.stats.maxHealth;
+        this.run.resources.health = this.run.stats.current.maxHealth;
       },
       grantShield: () => this.grantShield(),
       resumeGame: () => this.scene.resume(),
@@ -589,17 +606,17 @@ export class GameScene extends Phaser.Scene {
       return false;
     }
     this.shopOffers ??= selectShopOffers({
-      ownedArtifacts: this.run.artifacts,
-      equippedWeapons: this.run.weapons,
-      weaponCount: this.run.weapons.size,
-      weaponCap: this.run.getWeaponCap(),
+      ownedArtifacts: this.run.artifacts.collected,
+      equippedWeapons: this.run.weapons.equipped,
+      weaponCount: this.run.weapons.equipped.size,
+      weaponCap: this.run.weapons.cap,
     });
     this.run.balance.recordTimeline('shop:opened', this.run.elapsedMs);
     this.scene.pause();
     this.scene.launch('ShopScene', {
       offers: [...this.shopOffers],
-      health: this.run.health,
-      maxHealth: this.run.stats.maxHealth,
+      health: this.run.resources.health,
+      maxHealth: this.run.stats.current.maxHealth,
       onPurchase: (offer: ShopOfferDefinition) => this.purchaseShopOffer(offer),
       onClose: () => this.scene.resume(),
     });
@@ -609,23 +626,23 @@ export class GameScene extends Phaser.Scene {
 
   private purchaseShopOffer(offer: ShopOfferDefinition): ShopPurchaseResult {
     if (!this.shopOffers?.some((candidate) => candidate.id === offer.id)) {
-      return { success: false, health: this.run.health, message: 'That item has already been sold.' };
+      return { success: false, health: this.run.resources.health, message: 'That item has already been sold.' };
     }
-    if (!canAffordBlood(this.run.health, offer.healthCost)) {
-      return { success: false, health: this.run.health, message: 'The merchant will not take your final drop.' };
+    if (!canAffordBlood(this.run.resources.health, offer.healthCost)) {
+      return { success: false, health: this.run.resources.health, message: 'The merchant will not take your final drop.' };
     }
 
     let applied = false;
     if (offer.kind === 'weapon') {
       const upgrade = UPGRADES[offer.rewardId];
-      const result = this.run.applyUpgradeChoice(upgrade);
+      const result = this.run.upgrades.applyChoice(upgrade);
       applied = result.applied;
       if (applied) {
         this.handleUpgradeApplied(upgrade, result);
       }
     } else {
       const artifact = ARTIFACTS[offer.rewardId];
-      const result = this.run.applyArtifactReward(artifact);
+      const result = this.run.artifacts.applyReward(artifact);
       applied = result.applied;
       if (applied) {
         this.discoverJournalEntry('artifacts', artifact.id);
@@ -633,9 +650,9 @@ export class GameScene extends Phaser.Scene {
       }
     }
     if (!applied) {
-      return { success: false, health: this.run.health, message: 'You cannot carry that bargain.' };
+      return { success: false, health: this.run.resources.health, message: 'You cannot carry that bargain.' };
     }
-    if (!this.run.spendBlood(offer.healthCost)) {
+    if (!this.run.resources.spendBlood(offer.healthCost)) {
       throw new Error(`Shop purchase ${offer.id} applied without a payable blood cost.`);
     }
     this.shopOffers = this.shopOffers.filter((candidate) => candidate.id !== offer.id);
@@ -643,7 +660,7 @@ export class GameScene extends Phaser.Scene {
     audio.play('level-up');
     return {
       success: true,
-      health: this.run.health,
+      health: this.run.resources.health,
       message: `${offer.name} bought for ${offer.healthCost} HP.`,
     };
   }
@@ -684,20 +701,20 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateShield(elapsedMs: number): void {
-    if (this.run.stats.shieldInterval <= 0) {
+    if (this.run.stats.current.shieldInterval <= 0) {
       return;
     }
     if (!Number.isFinite(this.nextShieldAt)) {
-      this.nextShieldAt = elapsedMs + this.run.stats.shieldInterval;
+      this.nextShieldAt = elapsedMs + this.run.stats.current.shieldInterval;
     }
     if (elapsedMs >= this.nextShieldAt) {
-      this.nextShieldAt = elapsedMs + this.run.stats.shieldInterval;
+      this.nextShieldAt = elapsedMs + this.run.stats.current.shieldInterval;
       this.grantShield();
     }
   }
 
   private grantShield(): void {
-    this.run.shield = 20;
+    this.run.resources.shield = 20;
     audio.play('shield');
     this.juice.ring(this.player.x, this.player.y, 80, COLORS.pale, 500);
   }
@@ -709,7 +726,7 @@ export class GameScene extends Phaser.Scene {
     this.ended = true;
     const summary = this.run.summary(victory);
     if (this.balancePresetId === 'standard') {
-      const recorded = recordRunResult(loadSave(), summary);
+      const recorded = recordRunResult(this.discoverySave, summary);
       summary.newlyUnlockedCharacters = recorded.newlyUnlockedCharacters;
       summary.newlyUnlockedArtifactTiers = recorded.newlyUnlockedArtifactTiers;
       if (!victory) {

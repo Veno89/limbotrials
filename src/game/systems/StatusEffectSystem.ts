@@ -136,7 +136,7 @@ export class StatusEffectSystem {
       }
       const result = this.enemies.damage(sprite, statusTickDamage(entry.status), false);
       if (entry.status.sourceWeaponId) {
-        this.run.recordWeaponHit(
+        this.run.weapons.recordHit(
           entry.status.sourceWeaponId,
           result.dealt,
           result.killed,
@@ -204,7 +204,7 @@ export class StatusEffectSystem {
     statuses.delete(id);
   }
 
-  private cleanupTarget(sprite: Phaser.Physics.Arcade.Image): void {
+  public cleanupTarget(sprite: Phaser.Physics.Arcade.Image): void {
     const statuses = this.enemyStatuses.get(sprite);
     if (!statuses) {
       return;

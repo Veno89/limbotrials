@@ -18,6 +18,8 @@ import { selectBossAttack } from './bossAttackRules';
 import type { DeathEchoProfile } from './deathEchoRules';
 import { cursePressureForEnemy } from './cursePressureRules';
 
+const EMPTY_SPRITE_SET: ReadonlySet<Phaser.Physics.Arcade.Image> = new Set();
+
 interface EnemyRuntime {
   definition: EnemyDefinition;
   health: number;
@@ -54,6 +56,7 @@ export class EnemySystem {
   private bossSprite?: Phaser.Physics.Arcade.Image;
   private updateIndex = 0;
   private elapsedMs = 0;
+  public onEnemyRemoved?: (sprite: Phaser.Physics.Arcade.Image) => void;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -147,6 +150,7 @@ export class EnemySystem {
       if (!sprite.active) {
         this.abilities.unregister(sprite);
         this.enemies.delete(sprite);
+        this.onEnemyRemoved?.(sprite);
         continue;
       }
       const pursuitAngle = Phaser.Math.Angle.Between(sprite.x, sprite.y, this.player.x, this.player.y);
@@ -183,6 +187,13 @@ export class EnemySystem {
         sprite.rotation = Phaser.Math.Linear(sprite.rotation, targetRotation + wobbleRotation, 0.2);
       }
       
+      if (sprite.x < 0 || sprite.x > ARENA_WIDTH || sprite.y < 0 || sprite.y > ARENA_HEIGHT) {
+        sprite.setPosition(
+          Phaser.Math.Clamp(sprite.x, 30, ARENA_WIDTH - 30),
+          Phaser.Math.Clamp(sprite.y, 30, ARENA_HEIGHT - 30)
+        );
+      }
+      
       this.grid.insert(runtime.entity);
       this.separationTargets.push(runtime.entity);
 
@@ -213,7 +224,7 @@ export class EnemySystem {
       return { killed: false, dealt: 0 };
     }
     const dealt = Math.min(runtime.health, amount);
-    runtime.health -= amount;
+    runtime.health = Math.max(0, runtime.health - amount);
     this.juice.damageNumber(sprite.x, sprite.y - runtime.definition.radius, amount, critical);
     this.juice.enemyHit(sprite);
     if (runtime.health > 0) {
@@ -221,6 +232,7 @@ export class EnemySystem {
     }
     this.enemies.delete(sprite);
     this.abilities.unregister(sprite);
+    this.onEnemyRemoved?.(sprite);
     if (sprite === this.bossSprite) {
       this.bossSprite = undefined;
     }
@@ -239,7 +251,7 @@ export class EnemySystem {
     x: number,
     y: number,
     range: number,
-    excluded: ReadonlySet<Phaser.Physics.Arcade.Image> = new Set(),
+    excluded: ReadonlySet<Phaser.Physics.Arcade.Image> = EMPTY_SPRITE_SET,
   ): Phaser.Physics.Arcade.Image | undefined {
     let nearest: Phaser.Physics.Arcade.Image | undefined;
     let nearestDistSq = range * range;

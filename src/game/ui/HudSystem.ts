@@ -171,15 +171,15 @@ export class HudSystem {
   }
 
   update(time: number): void {
-    this.healthBar.displayWidth = 296 * Phaser.Math.Clamp(this.run.health / this.run.stats.maxHealth, 0, 1);
-    this.xpBar.displayWidth = 716 * Phaser.Math.Clamp(this.run.xp / this.run.xpToNext, 0, 1);
+    this.healthBar.displayWidth = 296 * Phaser.Math.Clamp(this.run.resources.health / this.run.stats.current.maxHealth, 0, 1);
+    this.xpBar.displayWidth = 716 * Phaser.Math.Clamp(this.run.resources.xp / this.run.resources.xpToNext, 0, 1);
     this.actionBar.update(time);
     this.statsPanel.update(time);
     this.artifactBar.update();
     this.chestObjective?.update(this.run.elapsedMs);
     this.shopObjective?.update(this.run.elapsedMs);
     this.statsText.setText(
-      `HP ${Math.ceil(this.run.health)} / ${Math.round(this.run.stats.maxHealth)}   LVL ${this.run.level}   SOULS ${this.run.souls}`,
+      `HP ${Math.ceil(this.run.resources.health)} / ${Math.round(this.run.stats.current.maxHealth)}   LVL ${this.run.resources.level}   SOULS ${this.run.resources.souls}`,
     );
     this.timerText.setText(formatTime(this.run.elapsedMs));
     const status = this.weapons.getActiveSynergies();
@@ -194,7 +194,7 @@ export class HudSystem {
         status.length > 0 ? `\n${status.join('\n')}` : ''
       }`,
     );
-    const healthRatio = this.run.health / this.run.stats.maxHealth;
+    const healthRatio = this.run.resources.health / this.run.stats.current.maxHealth;
     this.lowHealthVignette.setAlpha(healthRatio < 0.3 ? 0.2 + Math.sin(time * 0.008) * 0.08 : 0);
 
     const boss = this.enemies.getBossHealth();
@@ -206,7 +206,7 @@ export class HudSystem {
 
   private totalRelics(): number {
     let total = 0;
-    for (const count of this.run.upgradeStacks.values()) {
+    for (const count of this.run.upgrades.stacks.values()) {
       total += count;
     }
     return total;

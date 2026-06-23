@@ -127,14 +127,14 @@ export class PlayerStatusVisualSystem {
   }
 
   private updateShield(time: number): void {
-    const visible = this.run.shield > 0;
+    const visible = this.run.resources.shield > 0;
     this.shieldAura
       .setPosition(this.player.x, this.player.y)
       .setVisible(visible)
       .setAlpha(visible ? 0.72 + Math.sin(time * 0.008) * 0.12 : 0);
     this.shieldLabel
       .setPosition(this.player.x, this.player.y - 53)
-      .setText(`SHIELD ${Math.ceil(this.run.shield)}`)
+      .setText(`SHIELD ${Math.ceil(this.run.resources.shield)}`)
       .setVisible(visible);
 
     if (visible && this.previousShield <= 0) {
@@ -146,7 +146,7 @@ export class PlayerStatusVisualSystem {
         ease: 'Back.Out',
       });
     }
-    this.previousShield = this.run.shield;
+    this.previousShield = this.run.resources.shield;
   }
 
   private readonly activeIdsCache = new Set<string>();

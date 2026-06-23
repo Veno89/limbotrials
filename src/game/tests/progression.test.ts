@@ -22,27 +22,27 @@ describe('run progression', () => {
 
   it('grants every level represented by a consolidated pickup', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addXp(200)).toBe(3);
-    expect(run.level).toBe(4);
-    expect(run.xp).toBe(2);
-    expect(run.xpToNext).toBe(115);
+    expect(run.resources.addXp(200)).toBe(3);
+    expect(run.resources.level).toBe(4);
+    expect(run.resources.xp).toBe(2);
+    expect(run.resources.xpToNext).toBe(115);
   });
 
   it('does not create permanent currency from zero-value fodder drops', () => {
     const run = new RunState(createDefaultSave());
-    run.addSouls(0);
-    expect(run.souls).toBe(0);
+    run.resources.addSouls(0);
+    expect(run.resources.souls).toBe(0);
   });
 
   it('applies Forbidden Tutelage to XP while immediately increasing power threat', () => {
     const run = new RunState(createDefaultSave());
     const threatBefore = run.getThreatSnapshot();
 
-    expect(run.applyUpgrade('stat-forbidden-tutelage')).toBe(true);
-    expect(run.stats.xpGain).toBeCloseTo(1.2);
-    expect(run.stats.threatPowerBonus).toBe(7);
-    expect(run.addXp(10)).toBe(0);
-    expect(run.xp).toBeCloseTo(12);
+    expect(run.upgrades.apply('stat-forbidden-tutelage')).toBe(true);
+    expect(run.stats.current.xpGain).toBeCloseTo(1.2);
+    expect(run.stats.current.threatPowerBonus).toBe(7);
+    expect(run.resources.addXp(10)).toBe(0);
+    expect(run.resources.xp).toBeCloseTo(12);
     expect(run.getThreatSnapshot().powerTier).toBeGreaterThanOrEqual(threatBefore.powerTier);
   });
 });

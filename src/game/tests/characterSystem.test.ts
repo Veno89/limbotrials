@@ -15,14 +15,14 @@ describe('character system', () => {
     save.unlockedCharacters.push('the-penitent', 'ashwalker');
 
     const penitent = new RunState(save, 'standard', 'the-penitent');
-    expect(penitent.stats.maxHealth).toBe(140);
-    expect(penitent.stats.damage).toBeCloseTo(1.1);
-    expect([...penitent.weapons]).toEqual(['bone-scythe']);
+    expect(penitent.stats.current.maxHealth).toBe(140);
+    expect(penitent.stats.current.damage).toBeCloseTo(1.1);
+    expect([...penitent.weapons.equipped]).toEqual(['bone-scythe']);
 
     const ashwalker = new RunState(save, 'standard', 'ashwalker');
-    expect(ashwalker.stats.maxHealth).toBe(75);
-    expect(ashwalker.stats.moveSpeed).toBe(275);
-    expect([...ashwalker.weapons]).toEqual(['soul-bolt']);
+    expect(ashwalker.stats.current.maxHealth).toBe(75);
+    expect(ashwalker.stats.current.moveSpeed).toBe(275);
+    expect([...ashwalker.weapons.equipped]).toEqual(['soul-bolt']);
   });
 
   it('evaluates visible character unlock milestones', () => {

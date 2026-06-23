@@ -8,7 +8,7 @@ describe('weapon synergies', () => {
     const run = new RunState(createDefaultSave());
     const synergies = new WeaponSynergySystem(run);
     expect(synergies.active()).toEqual([]);
-    run.addWeapon('soul-bolt');
+    run.weapons.add('soul-bolt');
     expect(synergies.active().map((synergy) => synergy.id)).toEqual(['reapers-choir']);
     expect(synergies.critChanceBonus('bone-scythe')).toBe(0.08);
   });

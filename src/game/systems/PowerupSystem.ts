@@ -111,7 +111,7 @@ export class PowerupSystem {
     const definition = POWERUPS[id];
     this.onPowerupApplied(id);
     if (id === 'mending-soul') {
-      const healed = Math.round(this.run.heal(25));
+      const healed = Math.round(this.run.resources.heal(25));
       this.juice.warning(`${definition.name.toUpperCase()}: RESTORED ${healed} HP`, '#92e6b1');
     } else if (id === 'soul-vacuum') {
       this.souls.vacuumAll();

@@ -53,16 +53,16 @@ export class UpgradeOfferSystem {
     this.scene.scene.launch('UpgradeScene', {
       run: this.run,
       choices,
-      stacks: this.run.upgradeStacks,
-      weaponLevels: this.run.getWeaponLevels(),
-      weaponCount: this.run.weapons.size,
-      weaponCap: this.run.getWeaponCap(),
+      stacks: this.run.upgrades.stacks,
+      weaponLevels: this.run.weapons.getLevels(),
+      weaponCount: this.run.weapons.equipped.size,
+      weaponCap: this.run.weapons.cap,
       title: copy.title,
       subtitle: copy.subtitle,
-      rerolls: this.run.rerolls,
+      rerolls: this.run.resources.rerolls,
       canSkip: copy.canSkip,
       onChoose: (choice: UpgradeDefinition) => {
-        const result = this.run.applyUpgradeChoice(choice);
+        const result = this.run.upgrades.applyChoice(choice);
         if (result.applied) {
           this.run.balance.recordChoice(kind, 'selected', this.run.elapsedMs, choice.id);
           this.onApplied(choice, result);
@@ -70,7 +70,7 @@ export class UpgradeOfferSystem {
         this.finish();
       },
       onReroll: () => {
-        if (!this.run.useReroll()) {
+        if (!this.run.resources.useReroll()) {
           return undefined;
         }
         this.run.balance.recordChoice(kind, 'rerolled', this.run.elapsedMs);
@@ -80,12 +80,12 @@ export class UpgradeOfferSystem {
           rerolled.map((choice) => choice.id),
           this.run.elapsedMs,
         );
-        return { choices: rerolled, rerolls: this.run.rerolls };
+        return { choices: rerolled, rerolls: this.run.resources.rerolls };
       },
       onSkip: () => {
         if (copy.canSkip) {
           this.run.balance.recordChoice(kind, 'skipped', this.run.elapsedMs);
-          this.onSkipped(this.run.claimSkipReward());
+          this.onSkipped(this.run.resources.claimSkipReward());
         }
         this.finish();
       },
@@ -94,15 +94,15 @@ export class UpgradeOfferSystem {
 
   private select(kind: UpgradeOfferKind): UpgradeDefinition[] {
     const context = {
-      stacks: this.run.upgradeStacks,
-      equippedWeapons: this.run.weapons,
-      weaponLevels: this.run.getWeaponLevels(),
-      playerLevel: this.run.level,
-      shieldSource: this.run.stats.shieldInterval > 0 || this.run.shield > 0,
+      stacks: this.run.upgrades.stacks,
+      equippedWeapons: this.run.weapons.equipped,
+      weaponLevels: this.run.weapons.getLevels(),
+      playerLevel: this.run.resources.level,
+      shieldSource: this.run.stats.current.shieldInterval > 0 || this.run.resources.shield > 0,
       curseLevel: this.run.curse.snapshot().level,
-      weaponCap: this.run.getWeaponCap(),
+      weaponCap: this.run.weapons.cap,
     };
-    const count = kind === 'standard' ? this.run.getUpgradeChoiceCount() : 3;
+    const count = kind === 'standard' ? this.run.upgrades.getChoiceCount() : 3;
     const choices =
       kind === 'curse'
         ? selectCurseChoices(context, Math.random, count)
@@ -114,9 +114,9 @@ export class UpgradeOfferSystem {
     this.scene.scene.stop('UpgradeScene');
     this.active = false;
     const next = this.queued.shift();
-    if (next) {
+    if (next && this.scene.scene.isActive()) {
       this.open(next);
-    } else {
+    } else if (this.scene.scene.isPaused()) {
       this.scene.scene.resume();
     }
   }

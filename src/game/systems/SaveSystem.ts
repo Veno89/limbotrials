@@ -73,7 +73,10 @@ export function loadSave(storage: StorageLike = localStorage): SaveData {
     if (!raw) {
       return createDefaultSave();
     }
-    const parsed = JSON.parse(raw) as Partial<SaveData>;
+    const parsedRaw = JSON.parse(raw);
+    const parsed = (typeof parsedRaw === 'object' && parsedRaw !== null && !Array.isArray(parsedRaw)) 
+      ? (parsedRaw as Partial<SaveData>) 
+      : {};
     const defaults = createDefaultSave();
     const unlockedCharacters: CharacterId[] = Array.isArray(parsed.unlockedCharacters)
       ? parsed.unlockedCharacters.filter(isCharacterId)

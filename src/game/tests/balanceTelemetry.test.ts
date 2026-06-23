@@ -114,9 +114,9 @@ describe('balance telemetry', () => {
 
   it('records actual shield absorption and damage through RunState', () => {
     const run = new RunState(createDefaultSave());
-    run.shield = 10;
+    run.resources.shield = 10;
     run.balance.recordDamageAttempt('lost-soul', false, run.elapsedMs);
-    const result = run.takeDamage(16, 'lost-soul');
+    const result = run.resources.takeDamage(16, 'lost-soul');
     expect(result).toEqual({ fatal: false, dealt: 6, absorbed: 10 });
     expect(run.summary(false).balance.incomingDamage[0]).toMatchObject({
       source: 'lost-soul',

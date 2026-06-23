@@ -87,6 +87,7 @@
 - Reworked Bone Scythe into a directional 180-degree reap and replaced Haunted Reaper's generic pierce capstone with The Final Reaping, which upgrades the entire scythe attack profile to 360 degrees.
 - Redesigned the approved Haunted Reaper talents around Bone Scythe identity: weapon-scoped damage and critical bonuses, full-health opening strikes, a cadence/area tradeoff, full-duration Bleed consumption, spectral wakes, and low-health execution damage. Bone Scythe base damage was reduced to preserve talent and Bleed impact.
 - Completed Haunted Reaper's remaining identity nodes: Harvest Steps now rolls once per successful reap for a visible three-second movement burst, Crooked Reach rewards outer-half hits with damage and inward pull, and Grave Procession launches a travelling crescent every fifth primary reap.
+- Completed a comprehensive production-readiness hardening pass: cleaned up root fix scripts, removed test pollution, hardened GameScene restart listeners and save race conditions, guarded UpgradeOfferSystem against stopped scenes, and enabled stricter ESLint production rules.
 
 ## Current State
 

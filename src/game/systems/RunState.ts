@@ -1,53 +1,29 @@
-import { UPGRADES } from '../data/upgrades';
-import { WEAPONS } from '../data/weapons';
-import { ARTIFACTS } from '../data/artifacts';
 import { CHARACTERS } from '../data/characters';
-import { xpRequiredForNextLevel } from '../data/progression';
-import { EVOLUTION_READY_LEVEL, MAX_WEAPON_LEVEL, WEAPON_CAP } from '../types/gameTypes';
 import type {
-  AppliedRewardResult,
-  ArtifactDefinition,
-  ArtifactEffectId,
   BalancePresetId,
   CharacterId,
-  ConditionalUpgradeEffectId,
-  PlayerStats,
-  PlayerDamageSourceId,
-  RunSummary,
   SaveData,
-  UpgradeDefinition,
-  UpgradeId,
-  WeaponId,
-  WeaponModifier,
-  WeaponUpgradeEffectId,
-  WeaponRuntimeState,
-  ArtifactId,
   ThreatSnapshot,
+  RunSummary,
+  UpgradeDefinition,
+  AppliedRewardResult,
+  UpgradeId,
+  ArtifactId
 } from '../types/gameTypes';
-import {
-  applyStatModifiers,
-  applyWeaponModifiers,
-  BASE_PLAYER_STATS,
-  clampPlayerStats,
-} from '../utils/statModifiers';
 import { BalanceTelemetry } from './BalanceTelemetry';
-import { SPECIAL_EFFECT_HANDLERS } from './SpecialEffectHandlers';
-import { TALENT_EFFECT_HANDLERS } from './TalentEffectHandlers';
-import { getAllocatedTalentNodes } from './TalentTreeSystem';
-import { calculateThreat } from './threatRules';
 import { CurseSystem } from './CurseSystem';
-import {
-  DEFAULT_BONE_SCYTHE_TALENT_PROFILE,
-  type BoneScytheTalentProfile,
-} from './scytheRules';
+import { getAllocatedTalentNodes } from './TalentTreeSystem';
+import { TALENT_EFFECT_HANDLERS } from './TalentEffectHandlers';
+import { calculateThreat } from './threatRules';
+import { ResourceManager } from './run/ResourceManager';
+import { WeaponStateManager } from './run/WeaponStateManager';
+import { UpgradeManager } from './run/UpgradeManager';
+import { ArtifactManager } from './run/ArtifactManager';
+import { BoneScytheTalentManager } from './run/BoneScytheTalentManager';
+import { StatManager } from './run/StatManager';
+import { MAX_WEAPON_LEVEL } from '../types/gameTypes';
 
-export interface DamageResolution {
-  fatal: boolean;
-  dealt: number;
-  absorbed: number;
-}
-
-interface CurseRewardSource {
+export interface CurseRewardSource {
   kind: 'upgrade' | 'artifact';
   id: UpgradeId | ArtifactId;
   baseId: UpgradeId | ArtifactId;
@@ -56,31 +32,17 @@ interface CurseRewardSource {
 }
 
 export class RunState {
-  readonly stats: PlayerStats;
-  readonly weapons = new Set<WeaponId>();
-  readonly weaponStates = new Map<WeaponId, WeaponRuntimeState>();
-  readonly upgradeStacks = new Map<UpgradeId, number>();
-  readonly artifacts = new Set<ArtifactId>();
-  readonly balance: BalanceTelemetry;
-  readonly characterId: CharacterId;
-  readonly curse = new CurseSystem();
-  health: number;
-  shield = 0;
-  level = 1;
-  xp = 0;
-  xpToNext = xpRequiredForNextLevel(1);
-  kills = 0;
-  souls = 0;
-  elapsedMs = 0;
-  rerolls: number;
-  private weaponCap = WEAPON_CAP;
-  private upgradeChoiceBonus = 0;
-  private readonly boneScytheTalents: BoneScytheTalentProfile = {
-    ...DEFAULT_BONE_SCYTHE_TALENT_PROFILE,
-  };
-  private readonly globalWeaponModifiers: WeaponModifier[] = [];
-  private readonly targetedTalentWeaponModifiers = new Map<WeaponId, WeaponModifier[]>();
-  private readonly artifactDefinitions = new Map<ArtifactId, ArtifactDefinition>();
+  public readonly stats: StatManager;
+  public readonly resources: ResourceManager;
+  public readonly weapons: WeaponStateManager;
+  public readonly upgrades: UpgradeManager;
+  public readonly artifacts: ArtifactManager;
+  public readonly boneScythe: BoneScytheTalentManager;
+  public readonly balance: BalanceTelemetry;
+  public readonly curse: CurseSystem;
+  public readonly characterId: CharacterId;
+  public elapsedMs = 0;
+  public kills = 0;
 
   constructor(
     save: SaveData,
@@ -89,372 +51,30 @@ export class RunState {
   ) {
     this.balance = new BalanceTelemetry(presetId);
     this.characterId = save.unlockedCharacters.includes(characterId) ? characterId : 'haunted';
-    const character = CHARACTERS[this.characterId];
-    this.stats = clampPlayerStats({ ...BASE_PLAYER_STATS, ...character.baseStatOverrides });
-    this.rerolls = 1;
+    this.curse = new CurseSystem();
+
+    this.stats = new StatManager(this.characterId);
+    this.resources = new ResourceManager(this, this.stats.current.maxHealth);
+    this.weapons = new WeaponStateManager(this);
+    this.upgrades = new UpgradeManager(this);
+    this.artifacts = new ArtifactManager(this);
+    this.boneScythe = new BoneScytheTalentManager();
+
     this.applyTalentProgress(save);
-    this.health = this.stats.maxHealth;
-    this.addWeapon(character.starterWeapon);
-  }
-
-  addXp(amount: number): number {
-    if (amount <= 0) {
-      return 0;
-    }
-    this.xp += amount * this.stats.xpGain;
-    let levelsGained = 0;
-    while (this.xp >= this.xpToNext) {
-      this.xp -= this.xpToNext;
-      this.level += 1;
-      levelsGained += 1;
-      this.xpToNext = xpRequiredForNextLevel(this.level);
-      this.balance.recordLevel(this.elapsedMs, this.level);
-    }
-    return levelsGained;
-  }
-
-  addSouls(amount: number): void {
-    if (amount <= 0) {
-      return;
-    }
-    const collected = Math.max(1, Math.round(amount * this.stats.soulGain));
-    this.souls += collected;
-    this.balance.recordSouls(collected, this.elapsedMs);
-  }
-
-  spendBlood(amount: number): boolean {
-    const cost = Math.max(0, Math.round(amount));
-    if (cost <= 0 || this.health - cost < 1) {
-      return false;
-    }
-    this.health -= cost;
-    this.balance.recordTimeline(`shop:blood:-${cost}`, this.elapsedMs);
-    return true;
-  }
-
-  addWeapon(id: WeaponId): boolean {
-    if (this.weapons.has(id) || this.weapons.size >= this.weaponCap) {
-      return false;
-    }
-    const definition = WEAPONS[id];
-    this.weapons.add(id);
-    this.balance.recordWeaponEquipped(id, this.elapsedMs);
-    this.weaponStates.set(id, {
-      level: 1,
-      stats: { ...definition.baseStats },
-    });
-    const state = this.weaponStates.get(id)!;
-    this.applyWeaponModifiers(id, state, this.globalWeaponModifiers);
-    this.applyWeaponModifiers(id, state, this.targetedTalentWeaponModifiers.get(id) ?? []);
-    return true;
-  }
-
-  getWeaponState(id: WeaponId): WeaponRuntimeState {
-    const state = this.weaponStates.get(id);
-    if (!state) {
-      throw new Error(`Weapon ${id} is not equipped.`);
-    }
-    return state;
-  }
-
-  getWeaponLevels(): Map<WeaponId, number> {
-    return new Map([...this.weaponStates].map(([id, state]) => [id, state.level]));
+    this.resources.health = this.stats.current.maxHealth;
+    this.weapons.add(CHARACTERS[this.characterId].starterWeapon);
   }
 
   getThreatSnapshot(): ThreatSnapshot {
-    const weaponStates = [...this.weaponStates.values()];
+    const weaponStates = [...this.weapons.states.values()];
     return calculateThreat({
       elapsedMs: this.elapsedMs,
-      playerLevel: this.level,
+      playerLevel: this.resources.level,
       weaponCount: weaponStates.length,
       totalWeaponLevels: weaponStates.reduce((total, state) => total + state.level, 0),
       evolvedWeaponCount: weaponStates.filter((state) => state.level === MAX_WEAPON_LEVEL).length,
-      threatPowerBonus: this.stats.threatPowerBonus + this.curse.snapshot().level / 8,
+      threatPowerBonus: this.stats.current.threatPowerBonus + this.curse.snapshot().level / 8,
     });
-  }
-
-  applyUpgrade(id: UpgradeId): boolean {
-    return this.applyUpgradeChoice(UPGRADES[id]).applied;
-  }
-
-  applyUpgradeChoice(definition: UpgradeDefinition): AppliedRewardResult {
-    const applied = this.applyUpgradeDefinition(definition);
-    return {
-      applied,
-      ...(applied
-        ? {
-            curse: this.applyCurseReward(definition.curse, {
-              kind: 'upgrade',
-              id: definition.id,
-              baseId: definition.id,
-              name: definition.name,
-              generated: Boolean(definition.curse && UPGRADES[definition.id]?.curse !== definition.curse),
-            }),
-          }
-        : {}),
-    };
-  }
-
-  private applyUpgradeDefinition(definition: UpgradeDefinition): boolean {
-    if ((this.upgradeStacks.get(definition.id) ?? 0) >= definition.maxStacks) {
-      return false;
-    }
-    const previousMaxHealth = this.stats.maxHealth;
-    let applied = false;
-
-    if (definition.category === 'weapon' && definition.unlockWeapon) {
-      applied = this.addWeapon(definition.unlockWeapon);
-      if (applied && definition.weaponModifiers) {
-        const state = this.weaponStates.get(definition.unlockWeapon);
-        if (state) {
-          this.applyWeaponModifiers(definition.unlockWeapon, state, definition.weaponModifiers);
-        }
-      }
-    } else if (definition.category === 'weapon-level' && definition.targetWeapon) {
-      const state = this.weaponStates.get(definition.targetWeapon);
-      if (state && state.level < EVOLUTION_READY_LEVEL) {
-        this.advanceWeapon(definition.targetWeapon, state);
-        this.applyWeaponModifiers(definition.targetWeapon, state, definition.weaponModifiers ?? []);
-        applied = true;
-      }
-    } else if (definition.category === 'weapon-upgrade' && definition.targetWeapon) {
-      const state = this.weaponStates.get(definition.targetWeapon);
-      if (state && (state.level < EVOLUTION_READY_LEVEL || state.level === MAX_WEAPON_LEVEL)) {
-        this.applyWeaponModifiers(definition.targetWeapon, state, definition.weaponModifiers ?? []);
-        if (state.level < EVOLUTION_READY_LEVEL) {
-          this.advanceWeapon(definition.targetWeapon, state);
-        }
-        applied = true;
-      }
-    } else if (definition.category === 'weapon-evolution' && definition.targetWeapon) {
-      const state = this.weaponStates.get(definition.targetWeapon);
-      if (state?.level === EVOLUTION_READY_LEVEL) {
-        this.advanceWeapon(definition.targetWeapon, state);
-        this.applyWeaponModifiers(definition.targetWeapon, state, definition.weaponModifiers ?? []);
-        applied = true;
-      }
-    } else if (definition.category === 'stat' || definition.category === 'curse') {
-      applyStatModifiers(this.stats, definition.modifiers ?? []);
-      applied = true;
-    }
-
-    if (!applied) {
-      return false;
-    }
-    this.upgradeStacks.set(definition.id, (this.upgradeStacks.get(definition.id) ?? 0) + 1);
-    if (this.stats.maxHealth > previousMaxHealth) {
-      this.health = Math.min(this.stats.maxHealth, this.health + (this.stats.maxHealth - previousMaxHealth));
-    }
-    this.health = Math.min(this.health, this.stats.maxHealth);
-    return true;
-  }
-
-  applyArtifact(id: ArtifactId): boolean {
-    const definition = ARTIFACTS[id];
-    return definition ? this.applyArtifactReward(definition).applied : false;
-  }
-
-  applyArtifactReward(definition: ArtifactDefinition): AppliedRewardResult {
-    if (this.artifacts.has(definition.id)) {
-      return { applied: false };
-    }
-
-    const previousMaxHealth = this.stats.maxHealth;
-    this.artifacts.add(definition.id);
-    this.artifactDefinitions.set(definition.id, definition);
-
-    if (definition.modifiers) {
-      applyStatModifiers(this.stats, definition.modifiers);
-    }
-    if (definition.weaponModifiers) {
-      this.globalWeaponModifiers.push(...definition.weaponModifiers);
-      for (const [weaponId, state] of this.weaponStates) {
-        this.applyWeaponModifiers(weaponId, state, definition.weaponModifiers);
-      }
-    }
-    if (definition.special) {
-      SPECIAL_EFFECT_HANDLERS[definition.special](this);
-    }
-
-    if (this.stats.maxHealth > previousMaxHealth) {
-      this.health = Math.min(this.stats.maxHealth, this.health + (this.stats.maxHealth - previousMaxHealth));
-    }
-    this.health = Math.min(this.health, this.stats.maxHealth);
-    return {
-      applied: true,
-      curse: this.applyCurseReward(definition.curse, {
-        kind: 'artifact',
-        id: definition.id,
-        baseId: definition.id,
-        name: definition.name,
-        generated: Boolean(definition.curse && ARTIFACTS[definition.id]?.curse !== definition.curse),
-      }),
-    };
-  }
-
-  hasArtifact(id: ArtifactId): boolean {
-    return this.artifacts.has(id);
-  }
-
-  getArtifactDefinition(id: ArtifactId): ArtifactDefinition {
-    return this.artifactDefinitions.get(id) ?? ARTIFACTS[id];
-  }
-
-  hasArtifactEffect(effect: ArtifactEffectId): boolean {
-    return [...this.artifacts].some((id) => this.getArtifactDefinition(id).effect === effect);
-  }
-
-  hasUpgrade(id: UpgradeId): boolean {
-    return (this.upgradeStacks.get(id) ?? 0) > 0;
-  }
-
-  hasWeaponEffect(effect: WeaponUpgradeEffectId): boolean {
-    for (const [id, stacks] of this.upgradeStacks) {
-      if (stacks > 0 && UPGRADES[id].weaponEffect === effect) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  hasConditionalEffect(effect: ConditionalUpgradeEffectId): boolean {
-    for (const [id, stacks] of this.upgradeStacks) {
-      if (stacks > 0 && UPGRADES[id].conditionalEffect === effect) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  getConditionalEffects(): ConditionalUpgradeEffectId[] {
-    const effects: ConditionalUpgradeEffectId[] = [];
-    for (const [id, stacks] of this.upgradeStacks) {
-      const effect = UPGRADES[id].conditionalEffect;
-      if (stacks > 0 && effect) {
-        effects.push(effect);
-      }
-    }
-    return effects;
-  }
-
-  increaseWeaponCap(amount: number): void {
-    this.weaponCap = Math.max(WEAPON_CAP, this.weaponCap + amount);
-  }
-
-  addGlobalWeaponPierce(amount: number): void {
-    const modifier: WeaponModifier = { stat: 'pierce', mode: 'add', value: amount };
-    this.globalWeaponModifiers.push(modifier);
-    for (const [weaponId, state] of this.weaponStates) {
-      this.applyWeaponModifiers(weaponId, state, [modifier]);
-    }
-  }
-
-  getWeaponCap(): number {
-    return this.weaponCap;
-  }
-
-  getUpgradeChoiceCount(): number {
-    return 3 + this.upgradeChoiceBonus;
-  }
-
-  addUpgradeChoiceBonus(amount: number): void {
-    this.upgradeChoiceBonus = Math.max(0, this.upgradeChoiceBonus + amount);
-  }
-
-  addRerolls(amount: number): void {
-    this.rerolls += Math.max(0, amount);
-  }
-
-  addStartingShield(amount: number): void {
-    this.shield += Math.max(0, amount);
-  }
-
-  addStartingCurse(amount: number, reason: string): void {
-    const result = this.curse.gain(amount, reason);
-    if (!result) {
-      return;
-    }
-    this.balance.recordTimeline(`talent:curse:+${result.amount}`, this.elapsedMs);
-    for (const tier of result.crossedTiers) {
-      this.balance.recordTimeline(`curse:tier:${tier.id}`, this.elapsedMs);
-    }
-  }
-
-  enableBoneScytheFullCircle(enabled: boolean): void {
-    this.boneScytheTalents.fullCircle = enabled;
-  }
-
-  setBoneScytheHarvestStepsRanks(ranks: number): void {
-    this.boneScytheTalents.harvestStepsChance = Math.max(0, ranks) * 0.05;
-    this.boneScytheTalents.harvestStepsMoveSpeedMultiplier = 1 + Math.max(0, ranks) * 0.05;
-  }
-
-  setBoneScytheCrookedReachRanks(ranks: number): void {
-    this.boneScytheTalents.crookedReachRanks = Math.max(0, ranks);
-  }
-
-  enableBoneScytheGraveProcession(enabled: boolean): void {
-    this.boneScytheTalents.graveProcessionInterval = enabled ? 5 : 0;
-  }
-
-  hasFullCircleBoneScythe(): boolean {
-    return this.boneScytheTalents.fullCircle;
-  }
-
-  enableBoneScytheFirstReaping(ranks: number): void {
-    this.boneScytheTalents.fullHealthDamageMultiplier = ranks > 0 ? 1.6 : 1;
-  }
-
-  enableBoneScytheBleedConsumption(enabled: boolean): void {
-    this.boneScytheTalents.consumeBleed = enabled;
-  }
-
-  setBoneScytheWakeRanks(ranks: number): void {
-    this.boneScytheTalents.wakeDamageScale = Math.max(0, ranks) * 0.12;
-  }
-
-  setBoneScytheExecutionRanks(ranks: number): void {
-    this.boneScytheTalents.executionHealthThreshold = ranks > 0 ? 0.3 : 0;
-    this.boneScytheTalents.executionDamageMultiplier = 1 + Math.max(0, ranks) * 0.15;
-  }
-
-  getBoneScytheTalentProfile(): Readonly<BoneScytheTalentProfile> {
-    return { ...this.boneScytheTalents };
-  }
-
-  useReroll(): boolean {
-    if (this.rerolls <= 0) {
-      return false;
-    }
-    this.rerolls -= 1;
-    return true;
-  }
-
-  claimSkipReward(): number {
-    const reward = 6 + this.level * 2;
-    this.addSouls(reward);
-    return reward;
-  }
-
-  takeDamage(amount: number, source: PlayerDamageSourceId): DamageResolution {
-    const absorbed = Math.min(this.shield, amount);
-    this.shield -= absorbed;
-    const dealt = amount - absorbed;
-    this.health -= dealt;
-    this.balance.recordDamageTaken(source, dealt, absorbed, this.elapsedMs);
-    return { fatal: this.health <= 0, dealt, absorbed };
-  }
-
-  heal(amount: number): number {
-    const before = this.health;
-    this.health = Math.min(this.stats.maxHealth, this.health + amount);
-    const healed = this.health - before;
-    this.balance.recordHealing(healed, this.elapsedMs);
-    return healed;
-  }
-
-  recordWeaponHit(id: WeaponId, amount: number, killed: boolean, critical: boolean, boss: boolean): void {
-    this.balance.recordWeaponHit(id, amount, killed, critical, boss, this.elapsedMs);
   }
 
   summary(victory: boolean): RunSummary {
@@ -463,12 +83,12 @@ export class RunState {
       victory,
       elapsedMs: this.elapsedMs,
       kills: this.kills,
-      souls: this.souls,
-      level: this.level,
+      souls: this.resources.souls,
+      level: this.resources.level,
       characterId: this.characterId,
-      artifacts: [...this.artifacts],
-      cursedArtifacts: [...this.artifacts].filter((id) => Boolean(this.getArtifactDefinition(id).curse)),
-      upgradeIds: [...this.upgradeStacks.keys()],
+      artifacts: [...this.artifacts.collected],
+      cursedArtifacts: [...this.artifacts.collected].filter((id) => Boolean(this.artifacts.getDefinition(id).curse)),
+      upgradeIds: [...this.upgrades.stacks.keys()],
       curse: this.curse.snapshot(),
       newlyUnlockedCharacters: [],
       newlyUnlockedArtifactTiers: [],
@@ -477,43 +97,7 @@ export class RunState {
     };
   }
 
-  private applyWeaponModifiers(
-    id: WeaponId,
-    state: WeaponRuntimeState,
-    modifiers: readonly WeaponModifier[],
-  ): void {
-    applyWeaponModifiers(state.stats, modifiers, WEAPONS[id].baseStats);
-  }
-
-  private applyTalentProgress(save: SaveData): void {
-    const nodes = getAllocatedTalentNodes(save, this.characterId);
-    for (const { node, ranks } of nodes) {
-      for (let rank = 0; rank < ranks; rank += 1) {
-        if (node.modifiers) {
-          applyStatModifiers(this.stats, node.modifiers);
-        }
-        if (node.weaponModifiers) {
-          if (node.targetWeapon) {
-            const modifiers = this.targetedTalentWeaponModifiers.get(node.targetWeapon) ?? [];
-            modifiers.push(...node.weaponModifiers);
-            this.targetedTalentWeaponModifiers.set(node.targetWeapon, modifiers);
-          } else {
-            this.globalWeaponModifiers.push(...node.weaponModifiers);
-          }
-        }
-      }
-      if (node.effect) {
-        TALENT_EFFECT_HANDLERS[node.effect](this, ranks);
-      }
-    }
-  }
-
-  private advanceWeapon(id: WeaponId, state: WeaponRuntimeState): void {
-    state.level = Math.min(MAX_WEAPON_LEVEL, state.level + 1);
-    this.applyWeaponModifiers(id, state, WEAPONS[id].levelGrowth);
-  }
-
-  private applyCurseReward(
+  applyCurseReward(
     reward: UpgradeDefinition['curse'],
     source: CurseRewardSource,
   ): AppliedRewardResult['curse'] {
@@ -545,5 +129,37 @@ export class RunState {
       }
     }
     return result;
+  }
+
+  addStartingCurse(amount: number, reason: string): void {
+    const result = this.curse.gain(amount, reason);
+    if (!result) return;
+    this.balance.recordTimeline(`talent:curse:+${result.amount}`, this.elapsedMs);
+    for (const tier of result.crossedTiers) {
+      this.balance.recordTimeline(`curse:tier:${tier.id}`, this.elapsedMs);
+    }
+  }
+
+  private applyTalentProgress(save: SaveData): void {
+    const nodes = getAllocatedTalentNodes(save, this.characterId);
+    for (const { node, ranks } of nodes) {
+      for (let rank = 0; rank < ranks; rank += 1) {
+        if (node.modifiers) {
+          this.stats.applyModifiers(node.modifiers);
+        }
+        if (node.weaponModifiers) {
+          if (node.targetWeapon) {
+            const modifiers = this.weapons.targetedTalentModifiers.get(node.targetWeapon) ?? [];
+            modifiers.push(...node.weaponModifiers);
+            this.weapons.targetedTalentModifiers.set(node.targetWeapon, modifiers);
+          } else {
+            this.weapons.globalModifiers.push(...node.weaponModifiers);
+          }
+        }
+      }
+      if (node.effect) {
+        TALENT_EFFECT_HANDLERS[node.effect](this, ranks);
+      }
+    }
   }
 }

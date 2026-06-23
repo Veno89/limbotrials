@@ -129,6 +129,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     rarity: 'rare',
     source: 'shop',
   },
+  'unlock-spectral-chains': weaponUnlock(
+    'unlock-spectral-chains',
+    'spectral-chains',
+    'Forge Spectral Chains',
+    'Add Spectral Chains: sweeps a chained arc toward nearby groups.',
+    'weapon-spectral-chains',
+  ),
 
   'level-bone-scythe': weaponLevel(
     'level-bone-scythe',
@@ -206,6 +213,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Sanguine Needle Level',
     '+19% damage and +1 penetration.',
     'weapon-sanguine-needle',
+  ),
+  'level-spectral-chains': weaponLevel(
+    'level-spectral-chains',
+    'spectral-chains',
+    'Spectral Chains Level',
+    '+15% damage and +8% sweep width.',
+    'weapon-spectral-chains',
   ),
 
   'evolve-bone-scythe': weaponEvolution(
@@ -289,6 +303,13 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
       { stat: 'pierce', mode: 'add', value: 2 },
       { stat: 'damage', mode: 'multiply', value: 1.15 },
     ],
+  ),
+  'evolve-spectral-chains': weaponEvolution(
+    'evolve-spectral-chains',
+    'spectral-chains',
+    'Awaken Procession Bindings',
+    'Evolve Spectral Chains. Chains jump to additional enemies and pull them in.',
+    'weapon-spectral-chains',
   ),
 
   'bone-scythe-area': {
@@ -654,6 +675,39 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     targetWeapon: 'dirge-staff',
     weaponEffect: 'dirge-staff-echoed-rites',
     iconTexture: 'weapon-dirge-staff',
+  },
+  'spectral-chains-length': {
+    id: 'spectral-chains-length',
+    category: 'weapon-upgrade',
+    name: 'Extended Reach',
+    description: 'Spectral Chains gain +18% range.',
+    rarity: 'uncommon',
+    maxStacks: 3,
+    targetWeapon: 'spectral-chains',
+    weaponModifiers: [{ stat: 'range', mode: 'multiply', value: 1.18 }],
+    iconTexture: 'weapon-spectral-chains',
+  },
+  'spectral-chains-haste': {
+    id: 'spectral-chains-haste',
+    category: 'weapon-upgrade',
+    name: 'Frenzied Bindings',
+    description: 'Spectral Chains cooldown is 12% shorter.',
+    rarity: 'uncommon',
+    maxStacks: 3,
+    targetWeapon: 'spectral-chains',
+    weaponModifiers: [{ stat: 'cooldownMs', mode: 'multiply', value: 0.88 }],
+    iconTexture: 'weapon-spectral-chains',
+  },
+  'spectral-chains-cleave': {
+    id: 'spectral-chains-cleave',
+    category: 'weapon-upgrade',
+    name: 'Wider Arc',
+    description: 'Spectral Chains sweep +15% wider.',
+    rarity: 'rare',
+    maxStacks: 2,
+    targetWeapon: 'spectral-chains',
+    weaponModifiers: [{ stat: 'area', mode: 'multiply', value: 1.15 }],
+    iconTexture: 'weapon-spectral-chains',
   },
 
   'stat-vigor': {

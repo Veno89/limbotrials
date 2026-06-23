@@ -52,51 +52,51 @@ describe('artifact system', () => {
 
   it('applies percentage modifiers with the same factor convention as upgrades', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.applyArtifact('winged-sandals')).toBe(true);
-    expect(run.stats.moveSpeed).toBeCloseTo(242);
-    expect(run.applyArtifact('winged-sandals')).toBe(false);
+    expect(run.artifacts.apply('winged-sandals')).toBe(true);
+    expect(run.stats.current.moveSpeed).toBeCloseTo(242);
+    expect(run.artifacts.apply('winged-sandals')).toBe(false);
   });
 
   it('runs typed artifact effects from the central artifact effect system', () => {
     const run = new RunState(createDefaultSave());
     const effect = artifactEffects(run);
-    expect(run.applyArtifact('pendant-of-vigor')).toBe(true);
+    expect(run.artifacts.apply('pendant-of-vigor')).toBe(true);
     effect.onArtifactGained(ARTIFACTS['pendant-of-vigor'].effect);
-    expect(run.shield).toBe(35);
+    expect(run.resources.shield).toBe(35);
 
-    expect(run.applyArtifact('winged-sandals')).toBe(true);
+    expect(run.artifacts.apply('winged-sandals')).toBe(true);
     effect.onDash();
     expect(effect.reducedCooldowns).toBe(220);
 
-    expect(run.applyArtifact('magnet-stone')).toBe(true);
+    expect(run.artifacts.apply('magnet-stone')).toBe(true);
     for (let index = 0; index < 5; index += 1) {
       effect.onPickupCollected(1, 1);
     }
-    expect(run.souls).toBe(3);
+    expect(run.resources.souls).toBe(3);
   });
 
   it('lets blood vial heal through enemy-death hooks', () => {
     const run = new RunState(createDefaultSave());
     const effect = artifactEffects(run);
-    expect(run.applyArtifact('blood-vial')).toBe(true);
-    run.health = 50;
+    expect(run.artifacts.apply('blood-vial')).toBe(true);
+    run.resources.health = 50;
 
     for (let index = 0; index < 10; index += 1) {
       effect.onEnemyDeath({ x: 0, y: 0, lifetimeMs: 1000, definition: ENEMIES['lost-soul'] });
     }
 
-    expect(run.health).toBe(54);
+    expect(run.resources.health).toBe(54);
   });
 
   it('applies typed special effects to current and future weapons', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.applyArtifact('extra-pocket')).toBe(true);
-    expect(run.getWeaponCap()).toBe(6);
+    expect(run.artifacts.apply('extra-pocket')).toBe(true);
+    expect(run.weapons.cap).toBe(6);
 
-    expect(run.applyArtifact('spectral-pass')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').stats.pierce).toBe(1);
-    expect(run.addWeapon('soul-bolt')).toBe(true);
-    expect(run.getWeaponState('soul-bolt').stats.pierce).toBe(1);
+    expect(run.artifacts.apply('spectral-pass')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').stats.pierce).toBe(1);
+    expect(run.weapons.add('soul-bolt')).toBe(true);
+    expect(run.weapons.getState('soul-bolt').stats.pierce).toBe(1);
   });
 
   it('records generated cursed artifact rewards as structured analytics', () => {
@@ -104,7 +104,7 @@ describe('artifact system', () => {
     run.curse.gain(50, 'test');
     const reward = mutateArtifactReward(ARTIFACTS['winged-sandals'], run.curse.snapshot(), () => 0);
 
-    expect(run.applyArtifactReward(reward).applied).toBe(true);
+    expect(run.artifacts.applyReward(reward).applied).toBe(true);
 
     expect(run.summary(false).balance.cursedRewards[0]).toMatchObject({
       sourceKind: 'artifact',

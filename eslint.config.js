@@ -7,4 +7,12 @@ export default tseslint.config(
   {
     ignores: ['dist/**'],
   },
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn',
+      'eqeqeq': ['error', 'always'],
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+      'no-fallthrough': 'error',
+    },
+  },
 );

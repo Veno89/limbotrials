@@ -85,7 +85,7 @@ export class DebugControlsSystem {
       'sanguine-needle',
     ];
     for (const weapon of weapons) {
-      this.run.addWeapon(weapon);
+      this.run.weapons.add(weapon);
     }
   }
 
@@ -102,10 +102,11 @@ export class DebugControlsSystem {
       'dirge-staff': ['level-dirge-staff', 'evolve-dirge-staff'],
       'poison-flask': ['level-poison-flask', 'evolve-poison-flask'],
       'sanguine-needle': ['level-sanguine-needle', 'evolve-sanguine-needle'],
+      'spectral-chains': ['level-spectral-chains', 'evolve-spectral-chains'],
     } as const;
-    for (const weapon of this.run.weapons) {
+    for (const weapon of this.run.weapons.equipped) {
       const [level, evolution] = progression[weapon];
-      this.run.applyUpgrade(this.run.getWeaponState(weapon).level < EVOLUTION_READY_LEVEL ? level : evolution);
+      this.run.upgrades.apply(this.run.weapons.getState(weapon).level < EVOLUTION_READY_LEVEL ? level : evolution);
     }
   }
 

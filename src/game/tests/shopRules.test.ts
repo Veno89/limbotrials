@@ -46,19 +46,19 @@ describe('shop rules', () => {
 
   it('pays blood without allowing a lethal purchase', () => {
     const run = new RunState(createDefaultSave());
-    run.health = 31;
-    expect(run.spendBlood(30)).toBe(true);
-    expect(run.health).toBe(1);
-    expect(run.spendBlood(1)).toBe(false);
+    run.resources.health = 31;
+    expect(run.resources.spendBlood(30)).toBe(true);
+    expect(run.resources.health).toBe(1);
+    expect(run.resources.spendBlood(1)).toBe(false);
   });
 
   it('supports full progression for the shop-exclusive weapon', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.applyUpgrade('unlock-sanguine-needle')).toBe(true);
+    expect(run.upgrades.apply('unlock-sanguine-needle')).toBe(true);
     for (let index = 0; index < 5; index += 1) {
-      expect(run.applyUpgrade('level-sanguine-needle')).toBe(true);
+      expect(run.upgrades.apply('level-sanguine-needle')).toBe(true);
     }
-    expect(run.applyUpgrade('evolve-sanguine-needle')).toBe(true);
-    expect(run.getWeaponState('sanguine-needle').stats.projectileCount).toBe(3);
+    expect(run.upgrades.apply('evolve-sanguine-needle')).toBe(true);
+    expect(run.weapons.getState('sanguine-needle').stats.projectileCount).toBe(3);
   });
 });

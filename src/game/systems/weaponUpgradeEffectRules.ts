@@ -39,3 +39,10 @@ export function getDirgeEchoEffect(x: number, y: number, radius: number): Delaye
     damageScale: 0.42,
   };
 }
+
+export const SPECTRAL_CHAINS_PROCESSION_BINDINGS = {
+  jumpCount: 3,
+  jumpRadius: 360,
+  pullDistance: 90,
+  damageScale: 0.5,
+} as const;

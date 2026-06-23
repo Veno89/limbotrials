@@ -45,7 +45,7 @@ const powerupCounts = (): Record<PowerupId, number> => ({
 });
 
 export class BalanceTelemetry {
-  private readonly weapons = new Map<WeaponId, WeaponAccumulator>();
+  public readonly weapons = new Map<WeaponId, WeaponAccumulator>();
   private readonly incoming = new Map<PlayerDamageSourceId, IncomingAccumulator>();
   private readonly enemies = new Map<EnemyId, EnemyAccumulator>();
   private readonly minuteBuckets = new Map<number, BalanceMinuteResult>();

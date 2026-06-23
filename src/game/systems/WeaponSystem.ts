@@ -1,9 +1,7 @@
 import Phaser from 'phaser';
 import { BALANCE } from '../config/balanceConfig';
-import { COLORS } from '../constants';
 import { WEAPONS } from '../data/weapons';
 import type { EnemyDefinition, WeaponId, WeaponRuntimeState } from '../types/gameTypes';
-import { audio } from './AudioSystem';
 import { calculateDamage } from './DamageSystem';
 import type { EnemySystem } from './EnemySystem';
 import type { JuiceSystem } from './JuiceSystem';
@@ -12,7 +10,7 @@ import { WeaponEvolutionSystem } from './WeaponEvolutionSystem';
 import type { ActiveBuffStatus, PowerupSystem } from './PowerupSystem';
 import { WeaponSynergySystem } from './WeaponSynergySystem';
 import { CrimsonOrbitSystem } from './CrimsonOrbitSystem';
-import { calculateBloodletterThrow, getBloodletterThrowAngles } from './weaponRules';
+import { calculateBloodletterThrow } from './weaponRules';
 import { WeaponUpgradeEffectSystem } from './WeaponUpgradeEffectSystem';
 import type { ConditionalUpgradeSystem } from './ConditionalUpgradeSystem';
 import type { StatusEffectSystem } from './StatusEffectSystem';
@@ -32,6 +30,8 @@ import {
 import { ScytheWakeSystem } from './ScytheWakeSystem';
 import { BoneScytheTalentRuntimeSystem } from './BoneScytheTalentRuntimeSystem';
 import { ScytheProcessionSystem } from './ScytheProcessionSystem';
+import type { WeaponContext } from './weapons/WeaponContext';
+import { WEAPON_BEHAVIORS } from './weapons/WeaponBehaviors';
 
 interface ProjectileRuntime {
   weaponId: WeaponId;
@@ -52,28 +52,28 @@ export interface WeaponCooldownState {
   ready: boolean;
 }
 
-export class WeaponSystem {
-  private readonly projectiles: Phaser.Physics.Arcade.Group;
-  private readonly projectileRuntime = new Map<Phaser.Physics.Arcade.Image, ProjectileRuntime>();
+export class WeaponSystem implements WeaponContext {
+  public readonly projectiles: Phaser.Physics.Arcade.Group;
+  public readonly projectileRuntime = new Map<Phaser.Physics.Arcade.Image, ProjectileRuntime>();
   private readonly nextFire = new Map<WeaponId, number>();
-  private readonly evolutions: WeaponEvolutionSystem;
+  public readonly evolutions: WeaponEvolutionSystem;
   private readonly synergies: WeaponSynergySystem;
   private readonly crimsonOrbit: CrimsonOrbitSystem;
-  private readonly upgradeEffects: WeaponUpgradeEffectSystem;
-  private readonly acidPools: AcidPoolSystem;
-  private readonly scytheWakes: ScytheWakeSystem;
-  private readonly scytheTalents: BoneScytheTalentRuntimeSystem;
-  private readonly scytheProcessions: ScytheProcessionSystem;
-  private readonly nearbyCache: import('./SpatialGrid').SpatialEntity[] = [];
+  public readonly upgradeEffects: WeaponUpgradeEffectSystem;
+  public readonly acidPools: AcidPoolSystem;
+  public readonly scytheWakes: ScytheWakeSystem;
+  public readonly scytheTalents: BoneScytheTalentRuntimeSystem;
+  public readonly scytheProcessions: ScytheProcessionSystem;
+  public readonly nearbyCache: import('./SpatialGrid').SpatialEntity[] = [];
   private crimsonOrbitActive = false;
-  private scytheFacingAngle = Math.PI / 2;
+  public scytheFacingAngle = Math.PI / 2;
 
   constructor(
-    private readonly scene: Phaser.Scene,
-    private readonly player: Phaser.Physics.Arcade.Image,
-    private readonly enemies: EnemySystem,
-    private readonly run: RunState,
-    private readonly juice: JuiceSystem,
+    public readonly scene: Phaser.Scene,
+    public readonly player: Phaser.Physics.Arcade.Image,
+    public readonly enemies: EnemySystem,
+    public readonly run: RunState,
+    public readonly juice: JuiceSystem,
     private readonly powerups: PowerupSystem,
     private readonly conditionalUpgrades: ConditionalUpgradeSystem,
     private readonly statuses: StatusEffectSystem,
@@ -118,7 +118,7 @@ export class WeaponSystem {
     if (playerBody.velocity.lengthSq() > 1) {
       this.scytheFacingAngle = Math.atan2(playerBody.velocity.y, playerBody.velocity.x);
     }
-    const bloodletterState = this.run.weaponStates.get('bloodletter-axe');
+    const bloodletterState = this.run.weapons.states.get('bloodletter-axe');
     const orbitActive = Boolean(bloodletterState && this.evolutions.isEvolved('bloodletter-axe'));
     if (orbitActive && !this.crimsonOrbitActive) {
       this.destroyProjectilesForWeapon('bloodletter-axe');
@@ -132,11 +132,11 @@ export class WeaponSystem {
     );
     this.crimsonOrbitActive = orbitActive;
 
-    for (const weaponId of this.run.weapons) {
+    for (const weaponId of this.run.weapons.equipped) {
       if (weaponId === 'bloodletter-axe' && orbitActive) {
         continue;
       }
-      const state = this.run.getWeaponState(weaponId);
+      const state = this.run.weapons.getState(weaponId);
       if (time >= (this.nextFire.get(weaponId) ?? 0)) {
         this.nextFire.set(weaponId, time + this.effectiveCooldown(state));
         this.fire(weaponId, state, time);
@@ -160,7 +160,7 @@ export class WeaponSystem {
     if (id === 'bloodletter-axe' && this.evolutions.isEvolved(id)) {
       return { durationMs: 0, remainingMs: 0, ratio: 0, ready: true };
     }
-    const durationMs = this.effectiveCooldown(this.run.getWeaponState(id));
+    const durationMs = this.effectiveCooldown(this.run.weapons.getState(id));
     const remainingMs = Math.max(0, (this.nextFire.get(id) ?? 0) - time);
     return {
       durationMs,
@@ -181,132 +181,125 @@ export class WeaponSystem {
   }
 
   private fire(id: WeaponId, state: WeaponRuntimeState, time: number): void {
-    const behavior = WEAPONS[id].behavior;
-    if (behavior === 'scythe') {
-      this.fireBoneScythe(id, state);
-    } else if (behavior === 'sigil') {
-      this.fireHellfire(id, state);
-    } else if (behavior === 'fan-projectile') {
-      this.fireFanProjectiles(id, state, time);
-    } else if (behavior === 'returning-projectile') {
-      this.fireReturningProjectile(id, state, time);
-    } else if (behavior === 'chain-strike') {
-      this.fireChainStrike(id, state);
-    } else if (behavior === 'radial-projectile') {
-      this.fireRadialProjectiles(id, state, time);
-    } else if (behavior === 'lobbed-projectile') {
-      this.firePoisonFlask(id, state, time);
-    } else if (behavior === 'pulse') {
-      this.firePulse(id, state);
+    const behaviorName = WEAPONS[id]?.behavior;
+    if (!behaviorName) return;
+    const behavior = WEAPON_BEHAVIORS[behaviorName];
+    if (behavior) {
+      behavior.fire(this, id, state, time);
     } else {
-      this.fireTargetedProjectiles(id, state, time);
+      WEAPON_BEHAVIORS['targeted-projectile']!.fire(this, id, state, time);
     }
   }
 
-  private fireTargetedProjectiles(id: WeaponId, state: WeaponRuntimeState, time: number): void {
-    const definition = WEAPONS[id];
-    const excluded = new Set<Phaser.Physics.Arcade.Image>();
-    audio.play(id === 'grave-lance' ? 'scythe' : 'soul-bolt');
-
-    for (let targetIndex = 0; targetIndex < Math.floor(state.stats.targetCount); targetIndex += 1) {
-      const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range, excluded);
-      if (!target) {
-        return;
-      }
-      excluded.add(target);
-      const baseAngle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
-      for (let index = 0; index < Math.floor(state.stats.projectileCount); index += 1) {
-        const offset = (index - (state.stats.projectileCount - 1) / 2) * 0.14;
-        this.createProjectile(id, definition.texture, state, baseAngle + offset, time);
-      }
-    }
-  }
-
-  private fireRadialProjectiles(id: WeaponId, state: WeaponRuntimeState, time: number): void {
-    audio.play('soul-bolt');
-    const count = Math.max(1, Math.floor(state.stats.projectileCount));
-    const rotationOffset = Phaser.Math.FloatBetween(0, Math.PI * 2);
-    for (let index = 0; index < count; index += 1) {
-      this.createProjectile(id, WEAPONS[id].texture, state, rotationOffset + (index / count) * Math.PI * 2, time);
-    }
-    this.juice.ring(this.player.x, this.player.y, 54, COLORS.void, 240);
-  }
-
-  private fireFanProjectiles(id: WeaponId, state: WeaponRuntimeState, time: number): void {
-    const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range);
-    if (!target) {
-      return;
-    }
-    audio.play('soul-bolt');
-    const count = Math.max(1, Math.floor(state.stats.projectileCount));
-    const baseAngle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
-    const spread = Math.min(0.78, 0.16 * (count - 1));
-    for (let index = 0; index < count; index += 1) {
-      const ratio = count === 1 ? 0.5 : index / (count - 1);
-      this.createProjectile(id, WEAPONS[id].texture, state, baseAngle - spread / 2 + ratio * spread, time);
-    }
-    this.juice.ring(this.player.x, this.player.y, 46, COLORS.gold, 180);
-  }
-
-  private fireReturningProjectile(id: WeaponId, state: WeaponRuntimeState, time: number): void {
-    const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range);
-    if (!target) {
-      return;
-    }
-    audio.play('scythe');
-    const baseAngle = Phaser.Math.Angle.Between(this.player.x, this.player.y, target.x, target.y);
-    for (const angle of getBloodletterThrowAngles(baseAngle, state.stats.projectileCount)) {
-      this.createProjectile(id, WEAPONS[id].texture, state, angle, time);
-    }
-  }
-
-  private firePoisonFlask(id: WeaponId, state: WeaponRuntimeState, time: number): void {
-    const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range);
-    if (!target) {
-      return;
-    }
-    audio.play('hellfire');
-    const count = Math.max(1, Math.floor(state.stats.projectileCount));
-    for (let index = 0; index < count; index += 1) {
-      const scatterAngle = count === 1 ? 0 : (index / count) * Math.PI * 2;
-      const scatter = count === 1 ? 0 : 42;
-      this.createLobbedProjectile(
-        id,
-        state,
-        target.x + Math.cos(scatterAngle) * scatter,
-        target.y + Math.sin(scatterAngle) * scatter,
-        time,
-      );
-    }
-    this.juice.ring(this.player.x, this.player.y, 46, 0x51d96b, 190);
-  }
-
-  private fireChainStrike(id: WeaponId, state: WeaponRuntimeState): void {
-    const excluded = new Set<Phaser.Physics.Arcade.Image>();
-    const count = Math.max(1, Math.floor(state.stats.targetCount));
-    let struck = false;
-    for (let index = 0; index < count; index += 1) {
-      const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range, excluded);
-      if (!target) {
-        break;
-      }
-      const definition = this.enemies.getDefinition(target);
-      if (!definition) {
+  private updateProjectiles(time: number): void {
+    for (const [projectile, runtime] of this.projectileRuntime) {
+      if (!projectile.active) {
+        this.destroyProjectile(projectile);
         continue;
       }
-      struck = true;
-      excluded.add(target);
-      this.juice.ring(target.x, target.y, 44, COLORS.soul, 180);
-      this.damageEnemy(target, definition, id);
-      this.afterAreaAttack(id, target.x, target.y, state.stats.area);
-    }
-    if (struck) {
-      audio.play('soul-bolt');
-      this.juice.ring(this.player.x, this.player.y, 58, COLORS.void, 220);
+      if (
+        projectile.x < -1000 ||
+        projectile.x > 5000 ||
+        projectile.y < -1000 ||
+        projectile.y > 5000
+      ) {
+        this.destroyProjectile(projectile);
+        continue;
+      }
+      if (time >= runtime.expiresAt) {
+        if (runtime.landingX !== undefined && runtime.landingY !== undefined) {
+          this.landPoisonFlask(runtime, runtime.landingX, runtime.landingY, true);
+        }
+        this.destroyProjectile(projectile);
+        continue;
+      }
+      if (runtime.returnAt !== undefined && time >= runtime.returnAt) {
+        if (!runtime.returning) {
+          runtime.returning = true;
+          runtime.outboundExhausted = false;
+          runtime.pierceRemaining = Math.floor(this.run.weapons.getState(runtime.weaponId).stats.pierce);
+          if (this.evolutions.isEvolved(runtime.weaponId)) {
+            runtime.hit.clear();
+          }
+        }
+        const angle = Phaser.Math.Angle.Between(projectile.x, projectile.y, this.player.x, this.player.y);
+        const speed = this.run.weapons.getState(runtime.weaponId).stats.projectileSpeed;
+        const body = projectile.body as Phaser.Physics.Arcade.Body;
+        body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
+        projectile.rotation += 0.24;
+        if (Phaser.Math.Distance.Between(projectile.x, projectile.y, this.player.x, this.player.y) < 42) {
+          this.destroyProjectile(projectile);
+          continue;
+        }
+      }
+      let shouldDestroy = false;
+      const candidates = this.enemies.grid.getNearby(projectile.x, projectile.y, 100, this.nearbyCache);
+      for (const entity of candidates) {
+        const enemy = entity.sprite;
+        const definition = entity.definition;
+        if (
+          shouldDestroy ||
+          runtime.hit.has(enemy) ||
+          (runtime.outboundExhausted && !runtime.returning) ||
+          Phaser.Math.Distance.Between(projectile.x, projectile.y, enemy.x, enemy.y) >
+            definition.radius + projectile.displayWidth * 0.35
+        ) {
+          continue;
+        }
+        runtime.hit.add(enemy);
+        const result = this.damageEnemy(enemy, definition, runtime.weaponId);
+        this.afterProjectileImpact(runtime.weaponId, enemy, result.killed, runtime.hit);
+        if (runtime.weaponId === 'poison-flask') {
+          this.landPoisonFlask(runtime, enemy.x, enemy.y, false);
+          shouldDestroy = true;
+          continue;
+        }
+        if (runtime.pierceRemaining <= 0) {
+          if (runtime.returnAt !== undefined && !runtime.returning) {
+            runtime.outboundExhausted = true;
+          } else {
+            shouldDestroy = true;
+          }
+        } else {
+          runtime.pierceRemaining -= 1;
+        }
+      }
+      if (shouldDestroy) {
+        this.destroyProjectile(projectile);
+      }
     }
   }
 
-  private createProjectile(
+  public damageEnemy(
+    sprite: Phaser.Physics.Arcade.Image,
+    definition: EnemyDefinition,
+    weaponId: WeaponId,
+    damageScale = 1,
+  ): { killed: boolean } {
+    const state = this.run.weapons.getState(weaponId);
+    const result = calculateDamage({
+      baseDamage: state.stats.damage,
+      damageMultiplier:
+        this.run.stats.current.damage *
+        this.synergies.damageMultiplier(weaponId) *
+        this.conditionalUpgrades.damageMultiplier(definition, this.scene.time.now),
+      critChance: Math.min(
+        BALANCE.maxCritChance,
+        this.run.stats.current.critChance +
+          state.stats.critChance +
+          this.powerups.critChanceBonus() +
+          this.synergies.critChanceBonus(weaponId),
+      ),
+      critMultiplier: this.run.stats.current.critDamage + state.stats.critDamage,
+      bossMultiplier: this.run.stats.current.bossDamage,
+      targetIsBoss: definition.boss,
+    });
+    const applied = this.enemies.damage(sprite, Math.max(1, Math.round(result.amount * damageScale)), result.critical);
+    this.run.weapons.recordHit(weaponId, applied.dealt, applied.killed, result.critical, Boolean(definition.boss));
+    return { killed: applied.killed };
+  }
+
+  public createProjectile(
     id: WeaponId,
     texture: string,
     state: WeaponRuntimeState,
@@ -340,7 +333,7 @@ export class WeaponSystem {
     });
   }
 
-  private createLobbedProjectile(
+  public createLobbedProjectile(
     id: WeaponId,
     state: WeaponRuntimeState,
     landingX: number,
@@ -378,208 +371,7 @@ export class WeaponSystem {
     });
   }
 
-  private fireBoneScythe(id: WeaponId, state: WeaponRuntimeState): void {
-    const radius = state.stats.area;
-    const talents = this.run.getBoneScytheTalentProfile();
-    const profile: ScytheSweepProfile = {
-      facingAngle: this.scytheFacingAngle,
-      fullCircle: talents.fullCircle,
-    };
-    audio.play('scythe');
-    this.juice.ring(this.player.x, this.player.y, 42, COLORS.blood, 220);
-    const sweep = this.scene.add
-      .container(this.player.x, this.player.y)
-      .setDepth(32)
-      .setAlpha(0.95)
-      .setRotation(profile.facingAngle - Math.PI / 2);
-    const bladeOffsets = profile.fullCircle ? [0, Math.PI] : [0, -0.16, -0.32];
-    bladeOffsets.forEach((angle, index) => {
-      const blade = this.scene.add
-        .image(Math.cos(angle) * radius * 0.68, Math.sin(angle) * radius * 0.68, WEAPONS[id].texture)
-        .setDisplaySize(index === 0 || profile.fullCircle ? 96 : 82, index === 0 || profile.fullCircle ? 96 : 82)
-        .setRotation(angle + Math.PI / 2)
-        .setAlpha(index === 0 || profile.fullCircle ? 1 : 0.24 / index);
-      sweep.add(blade);
-    });
-    this.scene.tweens.add({
-      targets: sweep,
-      rotation: sweep.rotation + (profile.fullCircle ? Math.PI * 2 : Math.PI),
-      alpha: 0,
-      duration: profile.fullCircle ? 430 : 320,
-      ease: 'Cubic.Out',
-      onComplete: () => sweep.destroy(),
-    });
-    const hitCount = this.damageScytheSweep(this.player.x, this.player.y, radius, id, 1, profile);
-    const reapOutcome = this.scytheTalents.recordReap(hitCount, talents);
-    if (reapOutcome.graveProcessionTriggered) {
-      this.scytheProcessions.spawn(
-        this.player.x,
-        this.player.y,
-        profile.facingAngle,
-        radius,
-        id,
-        0.75,
-      );
-    }
-    this.upgradeEffects.afterBoneScytheAttack(id, this.player.x, this.player.y, radius, profile);
-    this.scytheWakes.spawn(
-      this.player.x,
-      this.player.y,
-      radius,
-      id,
-      talents.wakeDamageScale,
-      profile,
-    );
-    this.afterAreaAttack(id, this.player.x, this.player.y, radius, profile);
-  }
-
-  private fireHellfire(id: WeaponId, state: WeaponRuntimeState): void {
-    const target = this.enemies.findNearest(this.player.x, this.player.y, state.stats.range);
-    if (!target) {
-      return;
-    }
-    const x = target.x;
-    const y = target.y;
-    const radius = state.stats.area;
-    const sigil = this.scene.add
-      .image(x, y, WEAPONS[id].texture)
-      .setDisplaySize(radius * 0.78, radius * 0.78)
-      .setAlpha(0.35)
-      .setTint(COLORS.hellfire)
-      .setBlendMode(Phaser.BlendModes.ADD)
-      .setDepth(18);
-    this.scene.tweens.add({
-      targets: sigil,
-      angle: 140,
-      scaleX: sigil.scaleX * 1.35,
-      scaleY: sigil.scaleY * 1.35,
-      alpha: 0.72,
-      duration: 620,
-      ease: 'Sine.In',
-    });
-    this.juice.ring(x, y, radius * 0.82, COLORS.hellfire, 650);
-    this.scene.time.delayedCall(620, () => {
-      sigil.destroy();
-      audio.play('hellfire');
-      this.juice.ring(x, y, radius, COLORS.hellfire, 260);
-      this.juice.heavyImpact();
-      this.damageArea(x, y, radius, id);
-      this.afterAreaAttack(id, x, y, radius);
-    });
-  }
-
-  private firePulse(id: WeaponId, state: WeaponRuntimeState): void {
-    audio.play('hellfire');
-    const radius = state.stats.area;
-    const x = this.player.x;
-    const y = this.player.y;
-    this.juice.ring(x, y, radius, COLORS.hellfire, 520);
-    this.scene.time.delayedCall(260, () => {
-      this.damageArea(x, y, radius, id);
-      this.afterAreaAttack(id, x, y, radius);
-    });
-  }
-
-  private updateProjectiles(time: number): void {
-    for (const [projectile, runtime] of this.projectileRuntime) {
-      if (!projectile.active) {
-        this.destroyProjectile(projectile);
-        continue;
-      }
-      if (time >= runtime.expiresAt) {
-        if (runtime.landingX !== undefined && runtime.landingY !== undefined) {
-          this.landPoisonFlask(runtime, runtime.landingX, runtime.landingY, true);
-        }
-        this.destroyProjectile(projectile);
-        continue;
-      }
-      if (runtime.returnAt !== undefined && time >= runtime.returnAt) {
-        if (!runtime.returning) {
-          runtime.returning = true;
-          runtime.outboundExhausted = false;
-          runtime.pierceRemaining = Math.floor(this.run.getWeaponState(runtime.weaponId).stats.pierce);
-          if (this.evolutions.isEvolved(runtime.weaponId)) {
-            runtime.hit.clear();
-          }
-        }
-        const angle = Phaser.Math.Angle.Between(projectile.x, projectile.y, this.player.x, this.player.y);
-        const speed = this.run.getWeaponState(runtime.weaponId).stats.projectileSpeed;
-        const body = projectile.body as Phaser.Physics.Arcade.Body;
-        body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-        projectile.rotation += 0.24;
-        if (Phaser.Math.Distance.Between(projectile.x, projectile.y, this.player.x, this.player.y) < 42) {
-          this.destroyProjectile(projectile);
-          continue;
-        }
-      }
-      let shouldDestroy = false;
-      const candidates = this.enemies.grid.getNearby(projectile.x, projectile.y, 100, this.nearbyCache);
-      for (const entity of candidates) {
-        const enemy = entity.sprite;
-        const definition = entity.definition;
-        if (
-          shouldDestroy ||
-          runtime.hit.has(enemy) ||
-          (runtime.outboundExhausted && !runtime.returning) ||
-          Phaser.Math.Distance.Between(projectile.x, projectile.y, enemy.x, enemy.y) >
-            definition.radius + projectile.displayWidth * 0.35
-        ) {
-          continue;
-        }
-        runtime.hit.add(enemy);
-        const result = this.damageEnemy(enemy, definition, runtime.weaponId);
-        this.afterProjectileImpact(runtime.weaponId, enemy, result.killed, runtime.hit);
-        if (runtime.weaponId === 'poison-flask') {
-          this.landPoisonFlask(runtime, enemy.x, enemy.y, false);
-          shouldDestroy = true;
-          return;
-        }
-        if (runtime.pierceRemaining <= 0) {
-          if (runtime.returnAt !== undefined && !runtime.returning) {
-            runtime.outboundExhausted = true;
-          } else {
-            shouldDestroy = true;
-          }
-        } else {
-          runtime.pierceRemaining -= 1;
-        }
-      }
-      if (shouldDestroy) {
-        this.destroyProjectile(projectile);
-      }
-    }
-  }
-
-  private damageEnemy(
-    sprite: Phaser.Physics.Arcade.Image,
-    definition: EnemyDefinition,
-    weaponId: WeaponId,
-    damageScale = 1,
-  ): { killed: boolean } {
-    const state = this.run.getWeaponState(weaponId);
-    const result = calculateDamage({
-      baseDamage: state.stats.damage,
-      damageMultiplier:
-        this.run.stats.damage *
-        this.synergies.damageMultiplier(weaponId) *
-        this.conditionalUpgrades.damageMultiplier(definition, this.scene.time.now),
-      critChance: Math.min(
-        BALANCE.maxCritChance,
-        this.run.stats.critChance +
-          state.stats.critChance +
-          this.powerups.critChanceBonus() +
-          this.synergies.critChanceBonus(weaponId),
-      ),
-      critMultiplier: this.run.stats.critDamage + state.stats.critDamage,
-      bossMultiplier: this.run.stats.bossDamage,
-      targetIsBoss: definition.boss,
-    });
-    const applied = this.enemies.damage(sprite, Math.max(1, Math.round(result.amount * damageScale)), result.critical);
-    this.run.recordWeaponHit(weaponId, applied.dealt, applied.killed, result.critical, Boolean(definition.boss));
-    return { killed: applied.killed };
-  }
-
-  private damageArea(x: number, y: number, radius: number, weaponId: WeaponId, damageScale = 1): void {
+  public damageArea(x: number, y: number, radius: number, weaponId: WeaponId, damageScale = 1): void {
     const candidates = this.enemies.grid.getNearby(x, y, radius, this.nearbyCache);
     for (const entity of candidates) {
       if (Phaser.Math.Distance.Between(x, y, entity.sprite.x, entity.sprite.y) <= radius) {
@@ -588,7 +380,7 @@ export class WeaponSystem {
     }
   }
 
-  private damageScytheSweep(
+  public damageScytheSweep(
     x: number,
     y: number,
     radius: number,
@@ -596,7 +388,7 @@ export class WeaponSystem {
     damageScale: number,
     profile: ScytheSweepProfile,
   ): number {
-    const talents = this.run.getBoneScytheTalentProfile();
+    const talents = this.run.boneScythe.getProfile();
     let hitCount = 0;
     let pullVisualCount = 0;
     const candidates = this.enemies.grid.getNearby(x, y, radius, this.nearbyCache);
@@ -634,6 +426,40 @@ export class WeaponSystem {
     return hitCount;
   }
 
+  public damageArc(
+    x: number,
+    y: number,
+    radius: number,
+    weaponId: WeaponId,
+    facingAngle: number,
+    sweepAngle: number,
+  ): Set<Phaser.Physics.Arcade.Image> {
+    const struck = new Set<Phaser.Physics.Arcade.Image>();
+    const candidates = this.enemies.grid.getNearby(x, y, radius, this.nearbyCache);
+    for (const entity of candidates) {
+      const enemy = entity.sprite;
+      const definition = entity.definition;
+      
+      const dx = enemy.x - x;
+      const dy = enemy.y - y;
+      const distanceSq = dx * dx + dy * dy;
+      const effectiveRadius = radius + definition.radius * 0.35;
+      
+      if (distanceSq <= effectiveRadius * effectiveRadius) {
+        const angleToPoint = Math.atan2(dy, dx);
+        let angleDiff = angleToPoint - facingAngle;
+        while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+        while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+        if (Math.abs(angleDiff) <= sweepAngle / 2) {
+          struck.add(enemy);
+          this.damageEnemy(enemy, definition, weaponId, 1);
+        }
+      }
+    }
+    return struck;
+  }
+
   private drawCrookedReachPull(
     startX: number,
     startY: number,
@@ -668,7 +494,7 @@ export class WeaponSystem {
       return;
     }
     const result = this.enemies.damage(enemy, consumed.damage, false);
-    this.run.recordWeaponHit(
+    this.run.weapons.recordHit(
       consumed.sourceWeaponId ?? fallbackWeaponId,
       result.dealt,
       result.killed,
@@ -679,7 +505,7 @@ export class WeaponSystem {
   }
 
   private landPoisonFlask(runtime: ProjectileRuntime, x: number, y: number, impactDamage: boolean): void {
-    const state = this.run.getWeaponState(runtime.weaponId);
+    const state = this.run.weapons.getState(runtime.weaponId);
     this.juice.ring(x, y, state.stats.area, 0x51d96b, 260);
     if (impactDamage) {
       this.damageArea(x, y, poisonFlaskImpactRadius(state.stats), runtime.weaponId);
@@ -692,7 +518,7 @@ export class WeaponSystem {
     );
   }
 
-  private afterAreaAttack(
+  public afterAreaAttack(
     id: WeaponId,
     x: number,
     y: number,
@@ -766,7 +592,7 @@ export class WeaponSystem {
   private effectiveAttackSpeed(): number {
     return Math.min(
       BALANCE.maxAttackSpeedMultiplier,
-      this.run.stats.attackSpeed * this.powerups.attackSpeedMultiplier(),
+      this.run.stats.current.attackSpeed * this.powerups.attackSpeedMultiplier(),
     );
   }
 

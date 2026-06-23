@@ -40,7 +40,12 @@ export class PauseScene extends Phaser.Scene {
       gameScene.abandonRun();
     }, 270, undefined, pauseButton);
 
-    this.input.keyboard?.once('keydown-ESC', () => this.resumeRun());
+    const resumeListener = () => this.resumeRun();
+    this.input.keyboard?.once('keydown-ESC', resumeListener);
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.input.keyboard?.off('keydown-ESC', resumeListener);
+    });
   }
 
   private resumeRun(): void {

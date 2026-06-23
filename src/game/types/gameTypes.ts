@@ -13,7 +13,8 @@ export type WeaponId =
   | 'bloodletter-axe'
   | 'dirge-staff'
   | 'poison-flask'
-  | 'sanguine-needle';
+  | 'sanguine-needle'
+  | 'spectral-chains';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -23,7 +24,8 @@ export type WeaponBehavior =
   | 'sigil'
   | 'radial-projectile'
   | 'lobbed-projectile'
-  | 'pulse';
+  | 'pulse'
+  | 'chain-arc';
 export type UpgradeCategory =
   | 'weapon'
   | 'weapon-level'
@@ -42,6 +44,7 @@ export type UpgradeId =
   | 'unlock-dirge-staff'
   | 'unlock-poison-flask'
   | 'unlock-sanguine-needle'
+  | 'unlock-spectral-chains'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -53,6 +56,7 @@ export type UpgradeId =
   | 'level-dirge-staff'
   | 'level-poison-flask'
   | 'level-sanguine-needle'
+  | 'level-spectral-chains'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -64,6 +68,7 @@ export type UpgradeId =
   | 'evolve-dirge-staff'
   | 'evolve-poison-flask'
   | 'evolve-sanguine-needle'
+  | 'evolve-spectral-chains'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -87,6 +92,9 @@ export type UpgradeId =
   | 'poison-flask-area'
   | 'poison-flask-count'
   | 'sanguine-needle-bloodletting'
+  | 'spectral-chains-length'
+  | 'spectral-chains-haste'
+  | 'spectral-chains-cleave'
   | 'bone-scythe-crimson-harvest'
   | 'bone-scythe-committed-reap'
   | 'wailing-shards-fractured-choir'
@@ -242,7 +250,8 @@ export type WeaponUpgradeEffectId =
   | 'bone-scythe-crimson-harvest'
   | 'soul-bolt-splintering-memory'
   | 'hellfire-spreading-sentence'
-  | 'dirge-staff-echoed-rites';
+  | 'dirge-staff-echoed-rites'
+  | 'spectral-chains-procession-bindings';
 export type ConditionalUpgradeEffectId =
   | 'restless-footwork'
   | 'fugitive-wake'

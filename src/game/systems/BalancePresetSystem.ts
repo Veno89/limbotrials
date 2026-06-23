@@ -19,10 +19,10 @@ export function applyBalancePreset(
   run.elapsedMs = preset.elapsedMs;
   run.balance.setMeasurementStart(run.elapsedMs);
   for (const weapon of preset.weapons) {
-    run.addWeapon(weapon);
+    run.weapons.add(weapon);
   }
   for (const upgrade of preset.upgrades) {
-    if (run.applyUpgrade(upgrade)) {
+    if (run.upgrades.apply(upgrade)) {
       run.balance.recordChoice('preset', 'selected', run.elapsedMs, upgrade);
     }
   }

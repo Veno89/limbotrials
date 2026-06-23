@@ -52,7 +52,7 @@ export class WeaponActionBar {
         .setVisible(cooldownLabel.length > 0)
         .setText(cooldownLabel);
       slot.readyGlow.setAlpha(cooldown.ready ? 0.18 + Math.sin(time * 0.006) * 0.06 : 0);
-      const level = this.run.getWeaponState(id).level;
+      const level = this.run.weapons.getState(id).level;
       const evolved = level >= MAX_WEAPON_LEVEL;
       slot.frame.setStrokeStyle(
         evolved ? 3 : 2,
@@ -65,14 +65,14 @@ export class WeaponActionBar {
 
   private syncSlots(): void {
     let changed = false;
-    for (const id of this.run.weapons) {
+    for (const id of this.run.weapons.equipped) {
       if (!this.slots.has(id)) {
         this.slots.set(id, this.createSlot(id));
         changed = true;
       }
     }
     for (const [id, slot] of this.slots) {
-      if (!this.run.weapons.has(id)) {
+      if (!this.run.weapons.equipped.has(id)) {
         slot.container.destroy();
         this.slots.delete(id);
         changed = true;
@@ -118,7 +118,7 @@ export class WeaponActionBar {
       })
       .setOrigin(0.5, 0);
     const levelText = this.scene.add
-      .text(25, -25, `LV ${this.run.getWeaponState(id).level}`, {
+      .text(25, -25, `LV ${this.run.weapons.getState(id).level}`, {
         fontFamily: 'Cinzel, serif',
         fontSize: '9px',
         color: '#d9edf4',
@@ -143,7 +143,7 @@ export class WeaponActionBar {
   }
 
   private layoutSlots(): void {
-    const ordered = [...this.run.weapons].filter((id) => this.slots.has(id));
+    const ordered = [...this.run.weapons.equipped].filter((id) => this.slots.has(id));
     const startX = GAME_WIDTH / 2 - ((ordered.length - 1) * this.spacing) / 2;
     ordered.forEach((id, index) => {
       const slot = this.slots.get(id)!;

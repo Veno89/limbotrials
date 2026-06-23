@@ -15,8 +15,8 @@ export interface DevModeSceneData {
   run: RunState;
   getInvincible: () => boolean;
   setInvincible: (enabled: boolean) => void;
-  addWeapon: (id: WeaponId) => boolean;
-  applyUpgrade: (id: UpgradeId) => boolean;
+  weapons: (id: WeaponId) => boolean;
+  upgrades: (id: UpgradeId) => boolean;
   applyArtifact: (id: ArtifactId) => boolean;
   grantPowerup: (id: PowerupId) => void;
   spawnEnemy: (id: EnemyId) => void;
@@ -138,8 +138,8 @@ export class DevModeScene extends Phaser.Scene {
     });
 
     new DevWeaponPanel(this, this.content!, this.dataRef.run, this.selectedWeapon, {
-      addWeapon: (id) => this.dataRef.addWeapon(id),
-      applyUpgrade: (id) => this.dataRef.applyUpgrade(id),
+      weapons: (id) => this.dataRef.weapons(id),
+      upgrades: (id) => this.dataRef.upgrades(id),
       selectWeapon: (id) => {
         this.selectedWeapon = id;
       },
@@ -203,7 +203,7 @@ export class DevModeScene extends Phaser.Scene {
   }
 
   private applyUpgrade(id: UpgradeId): void {
-    const applied = this.dataRef.applyUpgrade(id);
+    const applied = this.dataRef.upgrades(id);
     this.setStatus(applied ? `${UPGRADES[id].name} applied.` : `${UPGRADES[id].name} could not apply.`);
     this.render();
   }

@@ -178,4 +178,21 @@ export class JuiceSystem {
       duration: 260,
     });
   }
+
+  destroy(): void {
+    if (this.warningLabel) {
+      this.scene.tweens.killTweensOf(this.warningLabel);
+      this.warningLabel.destroy();
+      this.warningLabel = undefined;
+    }
+    for (const text of this.inactiveDamageTexts) {
+      text.destroy();
+    }
+    this.inactiveDamageTexts.length = 0;
+    for (const ring of this.inactiveRings) {
+      ring.destroy();
+    }
+    this.inactiveRings.length = 0;
+    this.deathEmitter.destroy();
+  }
 }

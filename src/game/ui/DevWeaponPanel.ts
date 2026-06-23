@@ -6,8 +6,8 @@ import { devWeaponActionState, getDevWeaponProgression } from '../systems/devWea
 import type { RunState } from '../systems/RunState';
 
 interface DevWeaponPanelCallbacks {
-  addWeapon: (id: WeaponId) => boolean;
-  applyUpgrade: (id: UpgradeId) => boolean;
+  weapons: (id: WeaponId) => boolean;
+  upgrades: (id: UpgradeId) => boolean;
   selectWeapon: (id: WeaponId) => void;
   notify: (message: string) => void;
   rerender: () => void;
@@ -31,12 +31,12 @@ export class DevWeaponPanel {
     Object.values(WEAPONS).forEach((weapon, index) => {
       const x = 205 + (index % 2) * 220;
       const y = 288 + Math.floor(index / 2) * 50;
-      const equipped = this.run.weapons.has(weapon.id);
+      const equipped = this.run.weapons.equipped.has(weapon.id);
       this.addButton(
         x,
         y,
         200,
-        `${equipped ? `LV ${this.run.getWeaponState(weapon.id).level}` : '+'}  ${weapon.name}`,
+        `${equipped ? `LV ${this.run.weapons.getState(weapon.id).level}` : '+'}  ${weapon.name}`,
         () => {
           this.callbacks.selectWeapon(weapon.id);
           this.callbacks.rerender();
@@ -48,9 +48,9 @@ export class DevWeaponPanel {
 
   private renderSelectedWeapon(): void {
     const progression = getDevWeaponProgression(this.selectedWeapon);
-    const equipped = this.run.weapons.has(this.selectedWeapon);
-    const level = equipped ? this.run.getWeaponState(this.selectedWeapon).level : 0;
-    const action = devWeaponActionState(equipped, level, this.run.weapons.size, this.run.getWeaponCap());
+    const equipped = this.run.weapons.equipped.has(this.selectedWeapon);
+    const level = equipped ? this.run.weapons.getState(this.selectedWeapon).level : 0;
+    const action = devWeaponActionState(equipped, level, this.run.weapons.equipped.size, this.run.weapons.cap);
     const panel = this.scene.add
       .rectangle(855, 420, 500, 330, COLORS.panel, 0.96)
       .setStrokeStyle(2, COLORS.border);
@@ -72,7 +72,7 @@ export class DevWeaponPanel {
           ? action.evolved
             ? `LEVEL ${level} / EVOLVED: ${progression.weapon.evolution.name.toUpperCase()}`
             : `LEVEL ${level} / ${level === EVOLUTION_READY_LEVEL ? 'EVOLUTION READY' : 'UNEVOLVED'}`
-          : `NOT EQUIPPED / ${this.run.weapons.size}/${this.run.getWeaponCap()} WEAPONS`,
+          : `NOT EQUIPPED / ${this.run.weapons.equipped.size}/${this.run.weapons.cap} WEAPONS`,
         {
           fontFamily: 'Inter, sans-serif',
           fontSize: '12px',
@@ -83,7 +83,7 @@ export class DevWeaponPanel {
     this.content.add([panel, icon, title, status]);
 
     if (equipped) {
-      const stats = this.run.getWeaponState(this.selectedWeapon).stats;
+      const stats = this.run.weapons.getState(this.selectedWeapon).stats;
       this.content.add(
         this.scene.add
           .text(
@@ -105,7 +105,7 @@ export class DevWeaponPanel {
     }
 
     this.addButton(720, 407, 190, action.canAdd ? 'ADD WEAPON' : equipped ? 'EQUIPPED' : 'WEAPON CAP REACHED', () => {
-      const applied = this.callbacks.addWeapon(this.selectedWeapon);
+      const applied = this.callbacks.weapons(this.selectedWeapon);
       this.callbacks.notify(applied ? `${progression.weapon.name} added.` : `${progression.weapon.name} could not be added.`);
       this.callbacks.rerender();
     }, equipped, action.canAdd);
@@ -122,7 +122,7 @@ export class DevWeaponPanel {
     );
 
     progression.focusedUpgrades.slice(0, 4).forEach((upgrade, index) => {
-      const stacks = this.run.upgradeStacks.get(upgrade.id) ?? 0;
+      const stacks = this.run.upgrades.stacks.get(upgrade.id) ?? 0;
       const canApply = equipped && level !== EVOLUTION_READY_LEVEL && stacks < upgrade.maxStacks;
       this.addButton(
         720 + (index % 2) * 210,
@@ -130,7 +130,7 @@ export class DevWeaponPanel {
         190,
         `${upgrade.name} ${stacks}/${upgrade.maxStacks}`,
         () => {
-          const applied = this.callbacks.applyUpgrade(upgrade.id);
+          const applied = this.callbacks.upgrades(upgrade.id);
           this.callbacks.notify(applied ? `${upgrade.name} applied.` : `${upgrade.name} could not apply.`);
           this.callbacks.rerender();
         },
@@ -142,7 +142,7 @@ export class DevWeaponPanel {
 
   private applyLevel(): void {
     const levelUpgrade = getDevWeaponProgression(this.selectedWeapon).level;
-    const applied = this.callbacks.applyUpgrade(levelUpgrade.id);
+    const applied = this.callbacks.upgrades(levelUpgrade.id);
     this.callbacks.notify(applied ? `${levelUpgrade.name} applied.` : `${levelUpgrade.name} could not apply.`);
     this.callbacks.rerender();
   }
@@ -152,9 +152,9 @@ export class DevWeaponPanel {
     const levelUpgrade = progression.level;
     let applied = 0;
     while (
-      this.run.weapons.has(this.selectedWeapon) &&
-      this.run.getWeaponState(this.selectedWeapon).level < EVOLUTION_READY_LEVEL &&
-      this.callbacks.applyUpgrade(levelUpgrade.id)
+      this.run.weapons.equipped.has(this.selectedWeapon) &&
+      this.run.weapons.getState(this.selectedWeapon).level < EVOLUTION_READY_LEVEL &&
+      this.callbacks.upgrades(levelUpgrade.id)
     ) {
       applied += 1;
     }
@@ -164,7 +164,7 @@ export class DevWeaponPanel {
 
   private applyEvolution(): void {
     const evolution = getDevWeaponProgression(this.selectedWeapon).evolution;
-    const applied = this.callbacks.applyUpgrade(evolution.id);
+    const applied = this.callbacks.upgrades(evolution.id);
     this.callbacks.notify(applied ? `${evolution.name} applied.` : `${evolution.name} could not apply.`);
     this.callbacks.rerender();
   }

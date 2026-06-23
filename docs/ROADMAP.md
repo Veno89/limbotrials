@@ -20,6 +20,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [ ] Use uploaded Supabase run data to tune curse pressure, conditional upgrades, Warden duration, and Cinder containment while expanding the weapon roster in small chunks
 - [x] Add first additional weapon: Poison Flask with lobbed impact, acid pools, and poison-applying evolution
 - [x] Add the first timed Blood Market event with HP purchases and shop-exclusive rewards
+- [x] Complete production-readiness hardening pass: strict ESLint, test structure, scene cleanup, subsystem guards
 - [ ] Add four additional weapons individually, each with a unique evolution
 - [ ] Follow with unique artifact assets, deeper artifact families, NG+ Lite with optional Torments, and later distinct bosses
 

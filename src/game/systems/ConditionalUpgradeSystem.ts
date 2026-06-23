@@ -21,7 +21,7 @@ export class ConditionalUpgradeSystem {
   ) {}
 
   onDash(time: number): void {
-    if (!this.run.hasConditionalEffect('fugitive-wake')) {
+    if (!this.run.upgrades.hasConditionalEffect('fugitive-wake')) {
       return;
     }
     this.fugitiveWakeUntil = time + FUGITIVE_WAKE_DURATION_MS;
@@ -31,26 +31,26 @@ export class ConditionalUpgradeSystem {
 
   damageMultiplier(target: EnemyDefinition, time: number): number {
     return conditionalDamageMultiplier({
-      effects: new Set(this.run.getConditionalEffects()),
+      effects: new Set(this.run.upgrades.getConditionalEffects()),
       moving: this.isMoving(),
       fugitiveWakeActive: time < this.fugitiveWakeUntil,
-      shielded: this.run.shield > 0,
+      shielded: this.run.resources.shield > 0,
       target,
     });
   }
 
   onEnemyDeath(death: EnemyDeath): void {
     let bonusSouls = 0;
-    if (this.run.hasConditionalEffect('oathhunter-tithe') && death.definition.elite && !death.definition.boss) {
+    if (this.run.upgrades.hasConditionalEffect('oathhunter-tithe') && death.definition.elite && !death.definition.boss) {
       bonusSouls += OATHHUNTER_ELITE_SOULS;
     }
-    if (this.run.hasConditionalEffect('echo-mark')) {
+    if (this.run.upgrades.hasConditionalEffect('echo-mark')) {
       bonusSouls += echoMarkSoulReward(death.definition);
     }
     if (bonusSouls <= 0) {
       return;
     }
-    this.run.addSouls(bonusSouls);
+    this.run.resources.addSouls(bonusSouls);
     this.run.balance.recordTimeline(`conditional:souls:${death.definition.id}:+${bonusSouls}`, this.run.elapsedMs);
     if (bonusSouls >= OATHHUNTER_ELITE_SOULS) {
       this.juice.warning(`HUNT REWARDED: +${bonusSouls} SOULS`, '#d7bd82');

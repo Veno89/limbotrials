@@ -254,4 +254,26 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       description: 'The Needle splits into three blood darts with greater penetration.',
     },
   },
+  'spectral-chains': {
+    id: 'spectral-chains',
+    behavior: 'chain-arc',
+    name: 'Spectral Chains',
+    description: 'Sweeps a chained arc toward nearby groups, damaging enemies along the curve.',
+    texture: 'weapon-spectral-chains',
+    iconTexture: 'weapon-spectral-chains',
+    baseStats: stats({
+      damage: 42,
+      cooldownMs: 2200,
+      range: 580,
+      area: 120, // Sweep arc width/angle
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+      { stat: 'area', mode: 'multiply', value: 1.08 },
+    ],
+    evolution: {
+      name: 'Procession Bindings',
+      description: 'Chains jump between several enemies and briefly pull lesser enemies toward the final struck target.',
+    },
+  },
 };

@@ -9,11 +9,11 @@ import { UPGRADES } from '../data/upgrades';
 
 function selectionContext(run: RunState, playerLevel: number) {
   return {
-    stacks: run.upgradeStacks,
-    equippedWeapons: run.weapons,
-    weaponLevels: run.getWeaponLevels(),
+    stacks: run.upgrades.stacks,
+    equippedWeapons: run.weapons.equipped,
+    weaponLevels: run.weapons.getLevels(),
     playerLevel,
-    shieldSource: run.stats.shieldInterval > 0 || run.shield > 0,
+    shieldSource: run.stats.current.shieldInterval > 0 || run.resources.shield > 0,
     curseLevel: run.curse.snapshot().level,
   };
 }
@@ -28,7 +28,7 @@ function seededRandom(seed: number): () => number {
 
 describe('categorized upgrade system', () => {
   it('defines unlock, level, and evolution progression for every weapon', () => {
-    expect(Object.keys(WEAPONS)).toHaveLength(11);
+    expect(Object.keys(WEAPONS)).toHaveLength(12);
     for (const weapon of Object.values(WEAPONS)) {
       const progression = Object.values(UPGRADES).filter((upgrade) => upgrade.targetWeapon === weapon.id);
       expect(Object.values(UPGRADES).some((upgrade) => upgrade.unlockWeapon === weapon.id)).toBe(
@@ -42,46 +42,46 @@ describe('categorized upgrade system', () => {
 
   it('starts with Bone Scythe and enforces the five-weapon cap', () => {
     const run = new RunState(createDefaultSave());
-    expect([...run.weapons]).toEqual(['bone-scythe']);
-    expect(run.addWeapon('soul-bolt')).toBe(true);
-    expect(run.addWeapon('hellfire-sigil')).toBe(true);
-    expect(run.addWeapon('grave-lance')).toBe(true);
-    expect(run.addWeapon('wailing-shards')).toBe(true);
-    expect(run.addWeapon('cinder-reliquary')).toBe(false);
-    expect(run.weapons.size).toBe(5);
+    expect([...run.weapons.equipped]).toEqual(['bone-scythe']);
+    expect(run.weapons.add('soul-bolt')).toBe(true);
+    expect(run.weapons.add('hellfire-sigil')).toBe(true);
+    expect(run.weapons.add('grave-lance')).toBe(true);
+    expect(run.weapons.add('wailing-shards')).toBe(true);
+    expect(run.weapons.add('cinder-reliquary')).toBe(false);
+    expect(run.weapons.equipped.size).toBe(5);
   });
 
   it('applies weapon-specific levels and upgrades', () => {
     const run = new RunState(createDefaultSave());
-    const before = { ...run.getWeaponState('bone-scythe').stats };
+    const before = { ...run.weapons.getState('bone-scythe').stats };
 
-    expect(run.applyUpgrade('level-bone-scythe')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').level).toBe(2);
-    expect(run.getWeaponState('bone-scythe').stats.damage).toBeGreaterThan(before.damage);
+    expect(run.upgrades.apply('level-bone-scythe')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').level).toBe(2);
+    expect(run.weapons.getState('bone-scythe').stats.damage).toBeGreaterThan(before.damage);
 
-    expect(run.applyUpgrade('bone-scythe-area')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').level).toBe(3);
-    expect(run.getWeaponState('bone-scythe').stats.area).toBeGreaterThan(before.area);
+    expect(run.upgrades.apply('bone-scythe-area')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').level).toBe(3);
+    expect(run.weapons.getState('bone-scythe').stats.area).toBeGreaterThan(before.area);
   });
 
   it('adds a longer pre-evolution progression and offers evolution at readiness', () => {
     const run = new RunState(createDefaultSave());
     for (let index = 1; index < EVOLUTION_READY_LEVEL; index += 1) {
-      expect(run.applyUpgrade('level-bone-scythe')).toBe(true);
+      expect(run.upgrades.apply('level-bone-scythe')).toBe(true);
     }
-    expect(run.getWeaponState('bone-scythe').level).toBe(EVOLUTION_READY_LEVEL);
-    expect(run.applyUpgrade('level-bone-scythe')).toBe(false);
-    expect(run.applyUpgrade('bone-scythe-area')).toBe(false);
+    expect(run.weapons.getState('bone-scythe').level).toBe(EVOLUTION_READY_LEVEL);
+    expect(run.upgrades.apply('level-bone-scythe')).toBe(false);
+    expect(run.upgrades.apply('bone-scythe-area')).toBe(false);
 
     const choices = selectUpgradeChoices(selectionContext(run, 10), seededRandom(2), 3);
     expect(choices[0]?.id).toBe('evolve-bone-scythe');
-    expect(run.applyUpgrade('evolve-bone-scythe')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').level).toBe(MAX_WEAPON_LEVEL);
+    expect(run.upgrades.apply('evolve-bone-scythe')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').level).toBe(MAX_WEAPON_LEVEL);
 
-    const evolvedArea = run.getWeaponState('bone-scythe').stats.area;
-    expect(run.applyUpgrade('bone-scythe-area')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').level).toBe(MAX_WEAPON_LEVEL);
-    expect(run.getWeaponState('bone-scythe').stats.area).toBeGreaterThan(evolvedArea);
+    const evolvedArea = run.weapons.getState('bone-scythe').stats.area;
+    expect(run.upgrades.apply('bone-scythe-area')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').level).toBe(MAX_WEAPON_LEVEL);
+    expect(run.weapons.getState('bone-scythe').stats.area).toBeGreaterThan(evolvedArea);
   });
 
   it('keeps Bone Scythe baseline restrained so its character talents stay meaningful', () => {
@@ -92,16 +92,16 @@ describe('categorized upgrade system', () => {
 
   it('advances weapon level when choosing a focused weapon upgrade', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.applyUpgrade('bone-scythe-crit')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').level).toBe(2);
+    expect(run.upgrades.apply('bone-scythe-crit')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').level).toBe(2);
   });
 
   it('offers remaining focused upgrades after evolution without offering more levels', () => {
     const run = new RunState(createDefaultSave());
     for (let index = 1; index < EVOLUTION_READY_LEVEL; index += 1) {
-      expect(run.applyUpgrade('level-bone-scythe')).toBe(true);
+      expect(run.upgrades.apply('level-bone-scythe')).toBe(true);
     }
-    expect(run.applyUpgrade('evolve-bone-scythe')).toBe(true);
+    expect(run.upgrades.apply('evolve-bone-scythe')).toBe(true);
 
     const choices = selectUpgradeChoices(selectionContext(run, 14), seededRandom(8), 100);
     expect(choices.some((choice) => choice.id === 'bone-scythe-area')).toBe(true);
@@ -130,36 +130,36 @@ describe('categorized upgrade system', () => {
 
   it('applies Committed Reaping as a stronger, larger, slower sweep', () => {
     const run = new RunState(createDefaultSave());
-    const before = { ...run.getWeaponState('bone-scythe').stats };
+    const before = { ...run.weapons.getState('bone-scythe').stats };
 
-    expect(run.applyUpgrade('bone-scythe-committed-reap')).toBe(true);
-    const after = run.getWeaponState('bone-scythe');
+    expect(run.upgrades.apply('bone-scythe-committed-reap')).toBe(true);
+    const after = run.weapons.getState('bone-scythe');
     expect(after.level).toBe(2);
     expect(after.stats.damage).toBeGreaterThan(before.damage * 1.5);
     expect(after.stats.area).toBeGreaterThan(before.area * 1.15);
     expect(after.stats.cooldownMs).toBeCloseTo(before.cooldownMs * 1.35);
-    expect(run.applyUpgrade('bone-scythe-committed-reap')).toBe(false);
-    expect(run.upgradeStacks.get('bone-scythe-committed-reap')).toBe(1);
+    expect(run.upgrades.apply('bone-scythe-committed-reap')).toBe(false);
+    expect(run.upgrades.stacks.get('bone-scythe-committed-reap')).toBe(1);
   });
 
   it('preserves Longbow volley count through normal levels and changes it only through volley upgrades', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addWeapon('ashen-longbow')).toBe(true);
-    const baseCount = run.getWeaponState('ashen-longbow').stats.projectileCount;
+    expect(run.weapons.add('ashen-longbow')).toBe(true);
+    const baseCount = run.weapons.getState('ashen-longbow').stats.projectileCount;
 
-    expect(run.applyUpgrade('level-ashen-longbow')).toBe(true);
-    expect(run.getWeaponState('ashen-longbow').stats.projectileCount).toBe(baseCount);
-    expect(run.applyUpgrade('ashen-longbow-volley')).toBe(true);
-    expect(run.getWeaponState('ashen-longbow').stats.projectileCount).toBe(baseCount + 2);
+    expect(run.upgrades.apply('level-ashen-longbow')).toBe(true);
+    expect(run.weapons.getState('ashen-longbow').stats.projectileCount).toBe(baseCount);
+    expect(run.upgrades.apply('ashen-longbow-volley')).toBe(true);
+    expect(run.weapons.getState('ashen-longbow').stats.projectileCount).toBe(baseCount + 2);
   });
 
   it('turns Full Draw into a visibly heavier and slower fixed volley', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addWeapon('ashen-longbow')).toBe(true);
-    const before = { ...run.getWeaponState('ashen-longbow').stats };
+    expect(run.weapons.add('ashen-longbow')).toBe(true);
+    const before = { ...run.weapons.getState('ashen-longbow').stats };
 
-    expect(run.applyUpgrade('ashen-longbow-full-draw')).toBe(true);
-    const after = run.getWeaponState('ashen-longbow');
+    expect(run.upgrades.apply('ashen-longbow-full-draw')).toBe(true);
+    const after = run.weapons.getState('ashen-longbow');
     expect(after.level).toBe(2);
     expect(after.stats.damage).toBeGreaterThan(before.damage * 1.6);
     expect(after.stats.projectileSize).toBeCloseTo(before.projectileSize * 1.25);
@@ -197,44 +197,44 @@ describe('categorized upgrade system', () => {
 
   it('applies a focused runtime effect choice and advances only its equipped weapon', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addWeapon('soul-bolt')).toBe(true);
+    expect(run.weapons.add('soul-bolt')).toBe(true);
 
-    expect(run.applyUpgrade('soul-bolt-splintering-memory')).toBe(true);
-    expect(run.hasUpgrade('soul-bolt-splintering-memory')).toBe(true);
-    expect(run.hasWeaponEffect('soul-bolt-splintering-memory')).toBe(true);
-    expect(run.getWeaponState('soul-bolt').level).toBe(2);
-    expect(run.getWeaponState('bone-scythe').level).toBe(1);
-    expect(run.applyUpgrade('soul-bolt-splintering-memory')).toBe(false);
+    expect(run.upgrades.apply('soul-bolt-splintering-memory')).toBe(true);
+    expect(run.upgrades.has('soul-bolt-splintering-memory')).toBe(true);
+    expect(run.upgrades.hasWeaponEffect('soul-bolt-splintering-memory')).toBe(true);
+    expect(run.weapons.getState('soul-bolt').level).toBe(2);
+    expect(run.weapons.getState('bone-scythe').level).toBe(1);
+    expect(run.upgrades.apply('soul-bolt-splintering-memory')).toBe(false);
   });
 
   it('applies Crimson Harvest as a Bone Scythe status upgrade', () => {
     const run = new RunState(createDefaultSave());
 
-    expect(run.applyUpgrade('bone-scythe-crimson-harvest')).toBe(true);
-    expect(run.hasWeaponEffect('bone-scythe-crimson-harvest')).toBe(true);
-    expect(run.getWeaponState('bone-scythe').level).toBe(2);
-    expect(run.applyUpgrade('bone-scythe-crimson-harvest')).toBe(false);
+    expect(run.upgrades.apply('bone-scythe-crimson-harvest')).toBe(true);
+    expect(run.upgrades.hasWeaponEffect('bone-scythe-crimson-harvest')).toBe(true);
+    expect(run.weapons.getState('bone-scythe').level).toBe(2);
+    expect(run.upgrades.apply('bone-scythe-crimson-harvest')).toBe(false);
   });
 
   it('applies authored focused effects to evolved weapons without advancing beyond level seven', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addWeapon('soul-bolt')).toBe(true);
+    expect(run.weapons.add('soul-bolt')).toBe(true);
     for (let index = 1; index < EVOLUTION_READY_LEVEL; index += 1) {
-      expect(run.applyUpgrade('level-soul-bolt')).toBe(true);
+      expect(run.upgrades.apply('level-soul-bolt')).toBe(true);
     }
-    expect(run.applyUpgrade('evolve-soul-bolt')).toBe(true);
+    expect(run.upgrades.apply('evolve-soul-bolt')).toBe(true);
 
-    expect(run.applyUpgrade('soul-bolt-splintering-memory')).toBe(true);
-    expect(run.getWeaponState('soul-bolt').level).toBe(MAX_WEAPON_LEVEL);
-    expect(run.hasWeaponEffect('soul-bolt-splintering-memory')).toBe(true);
+    expect(run.upgrades.apply('soul-bolt-splintering-memory')).toBe(true);
+    expect(run.weapons.getState('soul-bolt').level).toBe(MAX_WEAPON_LEVEL);
+    expect(run.upgrades.hasWeaponEffect('soul-bolt-splintering-memory')).toBe(true);
   });
 
   it('makes Bloodletter projectile count improve both forms through one typed stat', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addWeapon('bloodletter-axe')).toBe(true);
+    expect(run.weapons.add('bloodletter-axe')).toBe(true);
 
-    expect(run.applyUpgrade('bloodletter-axe-count')).toBe(true);
-    expect(run.getWeaponState('bloodletter-axe').stats.projectileCount).toBe(2);
+    expect(run.upgrades.apply('bloodletter-axe-count')).toBe(true);
+    expect(run.weapons.getState('bloodletter-axe').stats.projectileCount).toBe(2);
     expect(UPGRADES['bloodletter-axe-count']).toMatchObject({
       maxStacks: 2,
       targetWeapon: 'bloodletter-axe',
@@ -244,22 +244,22 @@ describe('categorized upgrade system', () => {
 
   it('lets Poison Flask widen pools and throw extra bottles through focused upgrades', () => {
     const run = new RunState(createDefaultSave());
-    expect(run.addWeapon('poison-flask')).toBe(true);
-    const before = { ...run.getWeaponState('poison-flask').stats };
+    expect(run.weapons.add('poison-flask')).toBe(true);
+    const before = { ...run.weapons.getState('poison-flask').stats };
 
-    expect(run.applyUpgrade('poison-flask-area')).toBe(true);
-    expect(run.getWeaponState('poison-flask').level).toBe(2);
-    expect(run.getWeaponState('poison-flask').stats.area).toBeGreaterThan(before.area);
+    expect(run.upgrades.apply('poison-flask-area')).toBe(true);
+    expect(run.weapons.getState('poison-flask').level).toBe(2);
+    expect(run.weapons.getState('poison-flask').stats.area).toBeGreaterThan(before.area);
 
-    expect(run.applyUpgrade('poison-flask-count')).toBe(true);
-    expect(run.getWeaponState('poison-flask').stats.projectileCount).toBe(before.projectileCount + 1);
-    expect(run.getWeaponState('poison-flask').stats.cooldownMs).toBeCloseTo(before.cooldownMs * 1.12);
+    expect(run.upgrades.apply('poison-flask-count')).toBe(true);
+    expect(run.weapons.getState('poison-flask').stats.projectileCount).toBe(before.projectileCount + 1);
+    expect(run.weapons.getState('poison-flask').stats.cooldownMs).toBeCloseTo(before.cooldownMs * 1.12);
   });
 
   it('tracks per-weapon run results', () => {
     const run = new RunState(createDefaultSave());
-    run.recordWeaponHit('bone-scythe', 42, true, true, false);
-    run.recordWeaponHit('bone-scythe', 18, false, false, false);
+    run.weapons.recordHit('bone-scythe', 42, true, true, false);
+    run.weapons.recordHit('bone-scythe', 18, false, false, false);
     expect(run.summary(false).weaponResults[0]).toEqual({
       id: 'bone-scythe',
       damage: 60,
@@ -314,7 +314,7 @@ describe('categorized upgrade system', () => {
   it('stops offering new weapons at the cap', () => {
     const run = new RunState(createDefaultSave());
     for (const weapon of ['soul-bolt', 'hellfire-sigil', 'grave-lance', 'wailing-shards'] as WeaponId[]) {
-      run.addWeapon(weapon);
+      run.weapons.add(weapon);
     }
     const choices = selectUpgradeChoices(selectionContext(run, 2), seededRandom(7), 100);
     expect(choices.some((choice) => choice.category === 'weapon')).toBe(false);
@@ -335,19 +335,19 @@ describe('categorized upgrade system', () => {
     const save = createDefaultSave();
     save.talentProgress.haunted.allocations['haunted-echo-notable-1'] = 1;
     const run = new RunState(save);
-    expect(run.rerolls).toBe(2);
-    expect(run.applyUpgrade('curse-blood-price')).toBe(true);
-    expect(run.stats.damage).toBeGreaterThan(1);
-    expect(run.stats.maxHealth).toBeLessThan(100);
-    expect(run.useReroll()).toBe(true);
-    expect(run.useReroll()).toBe(true);
-    expect(run.useReroll()).toBe(false);
+    expect(run.resources.rerolls).toBe(2);
+    expect(run.upgrades.apply('curse-blood-price')).toBe(true);
+    expect(run.stats.current.damage).toBeGreaterThan(1);
+    expect(run.stats.current.maxHealth).toBeLessThan(100);
+    expect(run.resources.useReroll()).toBe(true);
+    expect(run.resources.useReroll()).toBe(true);
+    expect(run.resources.useReroll()).toBe(false);
   });
 
   it('records authored cursed upgrades as structured analytics', () => {
     const run = new RunState(createDefaultSave());
 
-    expect(run.applyUpgrade('curse-blood-price')).toBe(true);
+    expect(run.upgrades.apply('curse-blood-price')).toBe(true);
 
     expect(run.summary(false).balance.cursedRewards[0]).toMatchObject({
       sourceKind: 'upgrade',
@@ -367,11 +367,11 @@ describe('categorized upgrade system', () => {
 
   it('records generated cursed upgrade variants as structured analytics', () => {
     const run = new RunState(createDefaultSave());
-    run.applyUpgrade('curse-blood-price');
+    run.upgrades.apply('curse-blood-price');
     const [choice] = mutateUpgradeChoices([UPGRADES['stat-pickup']], run.curse.snapshot(), 'standard', () => 0);
 
     expect(choice?.curse?.pattern).toBe('greed-mark');
-    expect(choice ? run.applyUpgradeChoice(choice).applied : false).toBe(true);
+    expect(choice ? run.upgrades.applyChoice(choice).applied : false).toBe(true);
 
     expect(run.summary(false).balance.cursedRewards.at(-1)).toMatchObject({
       sourceKind: 'upgrade',
@@ -397,7 +397,7 @@ describe('categorized upgrade system', () => {
       ),
     ).toBe(false);
 
-    expect(run.applyArtifact('reinforced-buckler')).toBe(true);
+    expect(run.artifacts.apply('reinforced-buckler')).toBe(true);
     expect(
       selectUpgradeChoices(selectionContext(run, 8), seededRandom(11), 100).some(
         (choice) => choice.id === 'stat-bulwark-pyre',

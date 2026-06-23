@@ -32,7 +32,7 @@ export class WeaponEvolutionSystem {
   ) {}
 
   isEvolved(id: WeaponId): boolean {
-    return this.run.getWeaponState(id).level >= MAX_WEAPON_LEVEL;
+    return this.run.weapons.getState(id).level >= MAX_WEAPON_LEVEL;
   }
 
   afterAreaAttack(

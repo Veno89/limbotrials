@@ -89,7 +89,7 @@ export class ArtifactBar {
 
   private syncIcons(): void {
     let changed = false;
-    for (const id of this.run.artifacts) {
+    for (const id of this.run.artifacts.collected) {
       if (!this.icons.has(id)) {
         this.icons.set(id, this.createIcon(id));
         changed = true;
@@ -102,7 +102,7 @@ export class ArtifactBar {
   }
 
   private createIcon(id: ArtifactId): ArtifactIcon {
-    const definition = this.run.getArtifactDefinition(id);
+    const definition = this.run.artifacts.getDefinition(id);
     const color = RARITY_COLORS[definition.rarity];
 
     const back = this.scene.add.rectangle(0, 0, 34, 34, COLORS.panel, 0.9);
@@ -140,7 +140,7 @@ export class ArtifactBar {
   }
 
   private layoutIcons(): void {
-    const ordered = Array.from(this.run.artifacts).filter(id => this.icons.has(id));
+    const ordered = Array.from(this.run.artifacts.collected).filter(id => this.icons.has(id));
     this.title.setText(`ARTIFACTS: ${ordered.length}`);
     ordered.forEach((id, index) => {
       const icon = this.icons.get(id)!;

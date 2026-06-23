@@ -9,10 +9,10 @@ export class WeaponSynergySystem {
   constructor(private readonly run: RunState) {}
 
   active(): WeaponSynergyDefinition[] {
-    if (this.cachedWeaponCount !== this.run.weapons.size) {
-      this.cachedWeaponCount = this.run.weapons.size;
+    if (this.cachedWeaponCount !== this.run.weapons.equipped.size) {
+      this.cachedWeaponCount = this.run.weapons.equipped.size;
       this.cachedActive = WEAPON_SYNERGIES.filter((synergy) =>
-        synergy.requiredWeapons.every((weapon) => this.run.weapons.has(weapon)),
+        synergy.requiredWeapons.every((weapon) => this.run.weapons.equipped.has(weapon)),
       );
     }
     return this.cachedActive;

@@ -94,11 +94,11 @@ describe('talent tree system', () => {
 
     const run = new RunState(save);
 
-    expect(run.stats.damage).toBe(1);
-    expect(run.getWeaponState('bone-scythe').stats.damage).toBeGreaterThan(36);
-    expect(run.getUpgradeChoiceCount()).toBe(4);
-    expect(run.rerolls).toBe(2);
-    expect(run.shield).toBe(30);
+    expect(run.stats.current.damage).toBe(1);
+    expect(run.weapons.getState('bone-scythe').stats.damage).toBeGreaterThan(36);
+    expect(run.upgrades.getChoiceCount()).toBe(4);
+    expect(run.resources.rerolls).toBe(2);
+    expect(run.resources.shield).toBe(30);
   });
 
   it('builds the approved Reaper combat profile without leaking bonuses to other weapons', () => {
@@ -114,9 +114,9 @@ describe('talent tree system', () => {
     };
 
     const run = new RunState(save);
-    const scythe = run.getWeaponState('bone-scythe').stats;
-    run.addWeapon('soul-bolt');
-    const soulBolt = run.getWeaponState('soul-bolt').stats;
+    const scythe = run.weapons.getState('bone-scythe').stats;
+    run.weapons.add('soul-bolt');
+    const soulBolt = run.weapons.getState('soul-bolt').stats;
 
     expect(scythe.damage).toBeGreaterThan(36);
     expect(scythe.cooldownMs).toBeLessThan(1500);
@@ -124,7 +124,7 @@ describe('talent tree system', () => {
     expect(scythe.critChance).toBeCloseTo(0.06);
     expect(scythe.critDamage).toBeCloseTo(0.36);
     expect(soulBolt).toMatchObject({ damage: 18, cooldownMs: 500, area: 100 });
-    expect(run.getBoneScytheTalentProfile()).toMatchObject({
+    expect(run.boneScythe.getProfile()).toMatchObject({
       fullHealthDamageMultiplier: 1.6,
       consumeBleed: true,
       wakeDamageScale: 0.36,
@@ -143,12 +143,11 @@ describe('talent tree system', () => {
 
     const run = new RunState(save);
 
-    expect(run.getBoneScytheTalentProfile()).toMatchObject({
-      harvestStepsChance: 0.15,
-      harvestStepsMoveSpeedMultiplier: 1.15,
-      crookedReachRanks: 5,
-      graveProcessionInterval: 5,
-    });
+    const profile = run.boneScythe.getProfile();
+    expect(profile.harvestStepsChance).toBeCloseTo(0.15);
+    expect(profile.harvestStepsMoveSpeedMultiplier).toBeCloseTo(1.15);
+    expect(profile.crookedReachRanks).toBe(5);
+    expect(profile.graveProcessionInterval).toBe(5);
   });
 
   it('turns the Haunted Reaper capstone into a full-circle Bone Scythe reap', () => {
@@ -158,6 +157,6 @@ describe('talent tree system', () => {
     const run = new RunState(save);
 
     expect(TALENT_NODES['haunted-reaper-capstone'].effect).toBe('bone-scythe-full-circle');
-    expect(run.hasFullCircleBoneScythe()).toBe(true);
+    expect(run.boneScythe.hasFullCircle()).toBe(true);
   });
 });
