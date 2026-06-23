@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../constants';
-import { ASSETS, HAUNTED_WALK_SHEET } from '../data/assets';
+import { ASSETS } from '../data/assets';
 import { addTitle } from '../ui/uiHelpers';
 
 export class PreloadScene extends Phaser.Scene {
@@ -21,11 +21,7 @@ export class PreloadScene extends Phaser.Scene {
     for (const [key, path] of ASSETS) {
       this.load.image(key, path);
     }
-    this.load.spritesheet('player-haunted-walk', HAUNTED_WALK_SHEET, {
-      frameWidth: 209,
-      frameHeight: 156,
-      endFrame: 11,
-    });
+
   }
 
   create(): void {

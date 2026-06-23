@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_WIDTH } from '../constants';
+import { COLORS, GAME_WIDTH, GAME_HEIGHT } from '../constants';
 import type { RunState } from '../systems/RunState';
 import { formatTime } from './uiHelpers';
 import type { EnemySystem } from '../systems/EnemySystem';
@@ -128,6 +128,50 @@ export class HudSystem {
     this.artifactBar = new ArtifactBar(scene, run);
     this.chestObjective = chests ? new ChestObjectiveHud(scene, chests) : undefined;
     this.shopObjective = shop ? new ShopObjectiveHud(scene, shop) : undefined;
+    
+    this.createMenuBar(scene);
+  }
+
+  private createMenuBar(scene: Phaser.Scene): void {
+    const startX = GAME_WIDTH - 120;
+    const startY = GAME_HEIGHT - 40;
+
+    // Background panel
+    const bg = scene.add.rectangle(startX, startY, 140, 56, 0x0a0c0e, 0.95);
+    bg.setStrokeStyle(2, 0x3a4046);
+    bg.setScrollFactor(0).setDepth(150);
+
+    // Journal icon
+    const journalBg = scene.add.rectangle(startX - 32, startY, 44, 44, 0x14181a, 1);
+    journalBg.setStrokeStyle(1, 0x5a6066);
+    journalBg.setScrollFactor(0).setDepth(151);
+    const journalIcon = scene.add.image(startX - 32, startY, 'icon-journal');
+    journalIcon.setDisplaySize(32, 32).setScrollFactor(0).setDepth(152);
+    
+    // Stats icon
+    const statsBg = scene.add.rectangle(startX + 32, startY, 44, 44, 0x14181a, 1);
+    statsBg.setStrokeStyle(1, 0x5a6066);
+    statsBg.setScrollFactor(0).setDepth(151);
+    const statsIcon = scene.add.image(startX + 32, startY, 'icon-stats');
+    statsIcon.setDisplaySize(32, 32).setScrollFactor(0).setDepth(152);
+
+    // Interactivity
+    statsBg.setInteractive({ useHandCursor: true });
+    statsBg.on('pointerdown', (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+      event.stopPropagation();
+      this.statsPanel.toggle();
+    });
+
+    journalBg.setInteractive({ useHandCursor: true });
+    journalBg.on('pointerdown', (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
+      event.stopPropagation();
+      scene.time.delayedCall(0, () => {
+        scene.scene.pause();
+        scene.scene.launch('JournalScene', {
+          resumeGame: () => scene.scene.resume()
+        });
+      });
+    });
   }
 
   update(time: number): void {

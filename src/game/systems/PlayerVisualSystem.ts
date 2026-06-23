@@ -1,13 +1,12 @@
 import Phaser from 'phaser';
 import type { CharacterId } from '../types/gameTypes';
-import { directionFromVelocity, type PlayerVisualDirection } from './playerVisualRules';
 
 export class PlayerVisualSystem {
   private readonly animated?: Phaser.GameObjects.Sprite;
-  private direction: PlayerVisualDirection = 'front';
+  private lastGhostTime = 0;
 
   constructor(
-    scene: Phaser.Scene,
+    private readonly scene: Phaser.Scene,
     private readonly player: Phaser.Physics.Arcade.Image,
     characterId: CharacterId,
   ) {
@@ -16,8 +15,8 @@ export class PlayerVisualSystem {
     }
     this.player.setAlpha(0);
     this.animated = scene.add
-      .sprite(player.x, player.y, 'test-down-idle')
-      .setDisplaySize(108, 81)
+      .sprite(player.x, player.y, 'haunted_idle_1')
+      .setDisplaySize(96, 96)
       .setDepth(player.depth);
   }
 
@@ -26,27 +25,36 @@ export class PlayerVisualSystem {
       return;
     }
     const body = this.player.body as Phaser.Physics.Arcade.Body;
-    const nextDirection = directionFromVelocity(body.velocity.x, body.velocity.y);
-    if (nextDirection) {
-      this.direction = nextDirection;
-    }
-    const hoverOffset = Math.sin(time / 260) * 1.5;
-
     const isMoving = body.velocity.x !== 0 || body.velocity.y !== 0;
 
-    let base = 'test-down';
-    if (this.direction === 'back') base = 'test-up';
-    else if (this.direction === 'right') base = 'test-right';
-    else if (this.direction === 'left') base = 'test-left';
 
-    if (isMoving) {
-      const frameNum = Math.floor(time / 200) % 2 === 0 ? '1' : '2';
-      this.animated.setTexture(`${base}-${frameNum}`);
-    } else {
-      this.animated.setTexture(`${base}-idle`);
-    }
+    const targetRotation = (body.velocity.x / 300) * 0.18;
+    this.animated.rotation = Phaser.Math.Linear(this.animated.rotation, targetRotation, 0.2);
 
+    const hoverOffset = Math.sin(time / 220) * (isMoving ? 4 : 2);
+    const squash = isMoving ? Math.sin(time / 140) * 0.08 : Math.sin(time / 300) * 0.03;
+
+    this.animated.setDisplaySize(96 * (1 - squash * 0.5), 96 * (1 + squash));
     this.animated.setPosition(this.player.x, this.player.y + hoverOffset);
+
+    if (body.velocity.lengthSq() > 200000 && time > this.lastGhostTime + 50) {
+      this.lastGhostTime = time;
+      const ghost = this.scene.add.sprite(this.animated.x, this.animated.y, this.animated.texture.key);
+      ghost.setDisplaySize(this.animated.displayWidth, this.animated.displayHeight);
+      ghost.setRotation(this.animated.rotation);
+      ghost.setTint(0x88ccff);
+      ghost.setAlpha(0.5);
+      ghost.setDepth(this.animated.depth - 1);
+      
+      this.scene.tweens.add({
+        targets: ghost,
+        alpha: 0,
+        scaleX: ghost.scaleX * 0.8,
+        scaleY: ghost.scaleY * 0.8,
+        duration: 300,
+        onComplete: () => ghost.destroy(),
+      });
+    }
   }
 
   setTint(color: number): void {

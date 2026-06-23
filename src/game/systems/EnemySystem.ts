@@ -94,6 +94,16 @@ export class EnemySystem {
       .setDisplaySize(pressuredDefinition.displaySize, pressuredDefinition.displaySize)
       .setDepth(20)
       .setCollideWorldBounds(true);
+    const targetScaleX = sprite.scaleX;
+    const targetScaleY = sprite.scaleY;
+    sprite.setScale(0);
+    this.scene.tweens.add({
+      targets: sprite,
+      scaleX: targetScaleX,
+      scaleY: targetScaleY,
+      duration: 350,
+      ease: 'Back.Out',
+    });
     sprite.setAlpha((definition.id === 'wraith' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
     if (cursePressure.tint) {
       sprite.setTint(cursePressure.tint);
@@ -154,7 +164,9 @@ export class EnemySystem {
         Math.sin(movement.angle) * speed,
       );
       sprite.setFlipX(body.velocity.x < 0);
-      sprite.setRotation(Math.sin(time * 0.003 + runtime.wobbleSeed) * 0.018);
+      const targetRotation = (body.velocity.x / 400) * 0.22;
+      const wobbleRotation = Math.sin(time * 0.003 + runtime.wobbleSeed) * 0.018;
+      sprite.rotation = Phaser.Math.Linear(sprite.rotation, targetRotation + wobbleRotation, 0.2);
       this.separationTargets.push({ sprite, radius: runtime.definition.radius });
 
       if (distance < runtime.definition.radius + 24 && time >= runtime.contactReadyAt) {

@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { COLORS } from '../constants';
 import type { EnemyDefinition, WeaponId } from '../types/gameTypes';
 import type { EnemySystem } from './EnemySystem';
 import { isPointInScytheSweep, type ScytheSweepProfile } from './scytheRules';
@@ -104,33 +103,22 @@ export class ScytheWakeSystem {
     const container = this.scene.add
       .container(x, y)
       .setDepth(17)
-      .setAlpha(0.48)
+      .setAlpha(0.42)
       .setRotation(profile.fullCircle ? 0 : profile.facingAngle);
-    const wake = this.scene.add.graphics();
-    wake.lineStyle(18, COLORS.void, 0.46);
-    wake.beginPath();
-    wake.arc(
-      0,
-      0,
-      radius * 0.82,
-      profile.fullCircle ? 0 : -Math.PI / 2,
-      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
-    );
-    wake.strokePath();
-    wake.lineStyle(5, COLORS.soul, 0.72);
-    wake.beginPath();
-    wake.arc(
-      0,
-      0,
-      radius * 0.9,
-      profile.fullCircle ? 0 : -Math.PI / 2,
-      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
-    );
-    wake.strokePath();
-    container.add(wake);
+    const bladeAngles = profile.fullCircle
+      ? Array.from({ length: 8 }, (_, index) => (index * Math.PI) / 4)
+      : [-Math.PI / 2, -Math.PI / 4, 0, Math.PI / 4, Math.PI / 2];
+    for (const angle of bladeAngles) {
+      const blade = this.scene.add
+        .image(Math.cos(angle) * radius * 0.82, Math.sin(angle) * radius * 0.82, 'weapon-bone-scythe')
+        .setDisplaySize(58, 58)
+        .setRotation(angle + Math.PI / 2)
+        .setAlpha(0.82);
+      container.add(blade);
+    }
     this.scene.tweens.add({
       targets: container,
-      alpha: 0.12,
+      alpha: 0.06,
       scaleX: 1.08,
       scaleY: 1.08,
       duration: 1050,

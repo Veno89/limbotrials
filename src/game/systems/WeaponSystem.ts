@@ -378,52 +378,26 @@ export class WeaponSystem {
       fullCircle: talents.fullCircle,
     };
     audio.play('scythe');
-    this.juice.ring(this.player.x, this.player.y, profile.fullCircle ? radius : 48, COLORS.soul, 260);
+    this.juice.ring(this.player.x, this.player.y, 42, COLORS.blood, 220);
     const sweep = this.scene.add
       .container(this.player.x, this.player.y)
       .setDepth(32)
       .setAlpha(0.95)
-      .setRotation(profile.fullCircle ? 0 : profile.facingAngle);
-    const crescent = this.scene.add.graphics();
-    crescent.lineStyle(13, COLORS.pale, 0.72);
-    crescent.beginPath();
-    crescent.arc(
-      0,
-      0,
-      radius * 0.88,
-      profile.fullCircle ? 0 : -Math.PI / 2,
-      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
-    );
-    crescent.strokePath();
-    crescent.lineStyle(4, COLORS.soul, 0.95);
-    crescent.beginPath();
-    crescent.arc(
-      0,
-      0,
-      radius * 0.76,
-      profile.fullCircle ? 0 : -Math.PI / 2,
-      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
-    );
-    crescent.strokePath();
-    sweep.add(crescent);
-    const bladeAngles = profile.fullCircle
-      ? [-Math.PI * 0.75, -Math.PI * 0.25, Math.PI * 0.25, Math.PI * 0.75]
-      : [-Math.PI * 0.38, 0, Math.PI * 0.38];
-    bladeAngles.forEach((angle, index) => {
+      .setRotation(profile.facingAngle - Math.PI / 2);
+    const bladeOffsets = profile.fullCircle ? [0, Math.PI] : [0, -0.16, -0.32];
+    bladeOffsets.forEach((angle, index) => {
       const blade = this.scene.add
-        .image(Math.cos(angle) * radius * 0.72, Math.sin(angle) * radius * 0.72, WEAPONS[id].texture)
-        .setDisplaySize(68, 68)
+        .image(Math.cos(angle) * radius * 0.68, Math.sin(angle) * radius * 0.68, WEAPONS[id].texture)
+        .setDisplaySize(index === 0 || profile.fullCircle ? 96 : 82, index === 0 || profile.fullCircle ? 96 : 82)
         .setRotation(angle + Math.PI / 2)
-        .setTint(index === 0 ? COLORS.pale : COLORS.soul)
-        .setAlpha(0.9)
-        .setBlendMode(Phaser.BlendModes.ADD);
+        .setAlpha(index === 0 || profile.fullCircle ? 1 : 0.24 / index);
       sweep.add(blade);
     });
     this.scene.tweens.add({
       targets: sweep,
-      rotation: sweep.rotation + (profile.fullCircle ? Math.PI * 0.65 : 0.42),
+      rotation: sweep.rotation + (profile.fullCircle ? Math.PI * 2 : Math.PI),
       alpha: 0,
-      duration: 380,
+      duration: profile.fullCircle ? 430 : 320,
       ease: 'Cubic.Out',
       onComplete: () => sweep.destroy(),
     });
@@ -612,6 +586,7 @@ export class WeaponSystem {
   ): number {
     const talents = this.run.getBoneScytheTalentProfile();
     let hitCount = 0;
+    let pullVisualCount = 0;
     this.enemies.forEach((enemy, definition) => {
       if (isPointInScytheSweep(x, y, enemy.x, enemy.y, radius, profile, definition.radius * 0.35)) {
         hitCount += 1;
@@ -628,7 +603,13 @@ export class WeaponSystem {
             crookedReachDamageScale(distance, radius, talents.crookedReachRanks),
         );
         if (!result.killed && !definition.boss && pullDistance > 0) {
+          const startX = enemy.x;
+          const startY = enemy.y;
           this.enemies.pullToward(enemy, x, y, pullDistance);
+          if (pullVisualCount < 8) {
+            this.drawCrookedReachPull(startX, startY, enemy.x, enemy.y, weaponId);
+            pullVisualCount += 1;
+          }
         }
         if (!result.killed && talents.consumeBleed) {
           this.consumeBleed(enemy, definition, weaponId);
@@ -636,6 +617,30 @@ export class WeaponSystem {
       }
     });
     return hitCount;
+  }
+
+  private drawCrookedReachPull(
+    startX: number,
+    startY: number,
+    endX: number,
+    endY: number,
+    weaponId: WeaponId,
+  ): void {
+    const blade = this.scene.add
+      .image(startX, startY, WEAPONS[weaponId].texture)
+      .setDisplaySize(46, 46)
+      .setDepth(34)
+      .setRotation(Phaser.Math.Angle.Between(startX, startY, endX, endY) + Math.PI / 2);
+    this.scene.tweens.add({
+      targets: blade,
+      x: endX,
+      y: endY,
+      rotation: blade.rotation + 0.7,
+      alpha: 0,
+      duration: 190,
+      ease: 'Cubic.In',
+      onComplete: () => blade.destroy(),
+    });
   }
 
   private consumeBleed(
@@ -701,30 +706,23 @@ export class WeaponSystem {
     x: number,
     y: number,
     radius: number,
-    color: number,
+    _color: number,
     profile: ScytheSweepProfile,
   ): void {
     const root = this.scene.add
       .container(x, y)
       .setDepth(31)
-      .setRotation(profile.fullCircle ? 0 : profile.facingAngle);
-    const arc = this.scene.add.graphics();
-    arc.lineStyle(9, color, 0.8);
-    arc.beginPath();
-    arc.arc(
-      0,
-      0,
-      radius * 0.9,
-      profile.fullCircle ? 0 : -Math.PI / 2,
-      profile.fullCircle ? Math.PI * 2 : Math.PI / 2,
-    );
-    arc.strokePath();
-    root.add(arc);
+      .setRotation(profile.facingAngle - Math.PI / 2);
+    const blade = this.scene.add
+      .image(radius * 0.7, 0, WEAPONS['bone-scythe'].texture)
+      .setDisplaySize(88, 88)
+      .setRotation(Math.PI / 2);
+    root.add(blade);
     this.scene.tweens.add({
       targets: root,
-      rotation: root.rotation + (profile.fullCircle ? 0.7 : 0.24),
+      rotation: root.rotation + (profile.fullCircle ? Math.PI * 2 : Math.PI),
       alpha: 0,
-      duration: 240,
+      duration: 280,
       onComplete: () => root.destroy(),
     });
   }

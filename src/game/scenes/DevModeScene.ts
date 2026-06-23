@@ -25,6 +25,7 @@ export interface DevModeSceneData {
   openShop: () => void;
   healFull: () => void;
   grantShield: () => void;
+  resumeGame: () => void;
 }
 
 const PAGE_SIZE = 8;
@@ -257,5 +258,6 @@ export class DevModeScene extends Phaser.Scene {
 
   private close(): void {
     this.scene.stop();
+    this.dataRef.resumeGame();
   }
 }

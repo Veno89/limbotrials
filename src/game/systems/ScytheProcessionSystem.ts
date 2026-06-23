@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { COLORS } from '../constants';
 import type { EnemyDefinition, WeaponId } from '../types/gameTypes';
 import type { EnemySystem } from './EnemySystem';
 
@@ -69,7 +68,9 @@ export class ScytheProcessionSystem {
       procession.x += Math.cos(procession.angle) * movement;
       procession.y += Math.sin(procession.angle) * movement;
       procession.travelled += movement;
-      procession.visual.setPosition(procession.x, procession.y);
+      procession.visual
+        .setPosition(procession.x, procession.y)
+        .setRotation(procession.visual.rotation + deltaSeconds * 8.5);
       this.damageNearby(procession);
       if (procession.travelled >= procession.maxDistance) {
         procession.visual.destroy();
@@ -99,17 +100,15 @@ export class ScytheProcessionSystem {
     angle: number,
     radius: number,
   ): Phaser.GameObjects.Container {
-    const root = this.scene.add.container(x, y).setDepth(30).setRotation(angle).setAlpha(0.86);
-    const crescent = this.scene.add.graphics();
-    crescent.lineStyle(12, COLORS.pale, 0.72);
-    crescent.beginPath();
-    crescent.arc(0, 0, radius * 0.56, -Math.PI / 2, Math.PI / 2);
-    crescent.strokePath();
-    crescent.lineStyle(4, COLORS.soul, 0.9);
-    crescent.beginPath();
-    crescent.arc(0, 0, radius * 0.48, -Math.PI / 2, Math.PI / 2);
-    crescent.strokePath();
-    root.add(crescent);
+    const root = this.scene.add.container(x, y).setDepth(30).setRotation(angle).setAlpha(0.96);
+    const blade = this.scene.add
+      .image(0, 0, 'weapon-bone-scythe')
+      .setDisplaySize(Math.max(92, radius * 0.78), Math.max(92, radius * 0.78));
+    const afterimage = this.scene.add
+      .image(-16, 0, 'weapon-bone-scythe')
+      .setDisplaySize(Math.max(80, radius * 0.68), Math.max(80, radius * 0.68))
+      .setAlpha(0.24);
+    root.add([afterimage, blade]);
     this.scene.tweens.add({
       targets: root,
       alpha: 0.42,

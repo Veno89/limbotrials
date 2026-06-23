@@ -235,7 +235,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
   'player-echo': {
     id: 'player-echo',
     name: 'Death Echo',
-    texture: 'player-haunted',
+    texture: 'haunted_idle_1',
     behavior: 'death-echo',
     maxHealth: 1200,
     speed: 62,

@@ -1,7 +1,7 @@
 import menuBackground from '../../../assets/sprites/backgrounds/realmainmenubackground.png?url';
 import legacyBackground from '../../../assets/sprites/backgrounds/characterselectbackground.png?url';
 import playerHaunted from '../../../assets/sprites/playersprites/Haunted.png?url';
-import playerHauntedWalk from '../../../assets/sprites/playersprites/Haunted_walk_sheet.png?url';
+import hauntedIdle1 from '../../../assets/test/haunted/haunted_idle_1.png?url';
 import playerPenitent from '../../../assets/sprites/playersprites/bulwark.png?url';
 import playerAshwalker from '../../../assets/sprites/playersprites/Arcanist.png?url';
 import enemyRunt from '../../../assets/sprites/enemies/enemy_wretched_runt.png?url';
@@ -36,6 +36,8 @@ import pickupXp from '../../../assets/test/misc/xp.png?url';
 import statusBleed from '../../../assets/test/misc/blood_drop.png?url';
 import statusPoison from '../../../assets/test/misc/poison.png?url';
 import statusSkull from '../../../assets/test/misc/skull.png?url';
+import iconJournal from '../../../assets/test/misc/journal.png?url';
+import iconStats from '../../../assets/test/misc/stats.png?url';
 import weaponBoneScythe from '../../../assets/test/weapons/bone_scythe.png?url';
 import weaponSoulBolt from '../../../assets/test/weapons/soul_bolt.png?url';
 import weaponHellfireSigil from '../../../assets/test/weapons/hellfire_sigil.png?url';
@@ -57,23 +59,12 @@ import propAltar from '../../../assets/environment/props/prop_dark_altar.png?url
 import propRubble from '../../../assets/environment/props/prop_rubble_pile.png?url';
 import propBrazier from '../../../assets/environment/light_sources/obsidian_magic_brazier.png?url';
 import propLantern from '../../../assets/environment/light_sources/spectral_soul_lantern.png?url';
-import testDownIdle from '../../../assets/test/haunted/down_idle.png?url';
-import testDown1 from '../../../assets/test/haunted/down_1.png?url';
-import testDown2 from '../../../assets/test/haunted/down_2.png?url';
-import testUpIdle from '../../../assets/test/haunted/up_idle.png?url';
-import testUp1 from '../../../assets/test/haunted/up_1.png?url';
-import testUp2 from '../../../assets/test/haunted/up_2.png?url';
-import testRightIdle from '../../../assets/test/haunted/right_idle.png?url';
-import testRight1 from '../../../assets/test/haunted/right_1.png?url';
-import testRight2 from '../../../assets/test/haunted/right_2.png?url';
-import testLeftIdle from '../../../assets/test/haunted/left_idle.png?url';
-import testLeft1 from '../../../assets/test/haunted/left_1.png?url';
-import testLeft2 from '../../../assets/test/haunted/left_2.png?url';
 
 export const ASSETS: Array<[string, string]> = [
   ['menu-background', menuBackground],
   ['legacy-background', legacyBackground],
   ['player-haunted', playerHaunted],
+  ['haunted_idle_1', hauntedIdle1],
   ['player-penitent', playerPenitent],
   ['player-ashwalker', playerAshwalker],
   ['enemy-runt', enemyRunt],
@@ -108,6 +99,8 @@ export const ASSETS: Array<[string, string]> = [
   ['status-bleed', statusBleed],
   ['status-poison', statusPoison],
   ['status-skull', statusSkull],
+  ['icon-journal', iconJournal],
+  ['icon-stats', iconStats],
   ['weapon-poison-flask', statusPoison],
   ['weapon-bone-scythe', weaponBoneScythe],
   ['weapon-soul-bolt', weaponSoulBolt],
@@ -131,18 +124,6 @@ export const ASSETS: Array<[string, string]> = [
   ['prop-rubble', propRubble],
   ['prop-brazier', propBrazier],
   ['prop-lantern', propLantern],
-  ['test-down-idle', testDownIdle],
-  ['test-down-1', testDown1],
-  ['test-down-2', testDown2],
-  ['test-up-idle', testUpIdle],
-  ['test-up-1', testUp1],
-  ['test-up-2', testUp2],
-  ['test-right-idle', testRightIdle],
-  ['test-right-1', testRight1],
-  ['test-right-2', testRight2],
-  ['test-left-idle', testLeftIdle],
-  ['test-left-1', testLeft1],
-  ['test-left-2', testLeft2],
+
 ];
 
-export const HAUNTED_WALK_SHEET = playerHauntedWalk;

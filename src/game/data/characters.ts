@@ -6,7 +6,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDefinition> = {
     name: 'Haunted',
     title: 'The Unremembered',
     flavorText: 'A condemned soul still stubborn enough to carry a blade.',
-    texture: 'player-haunted',
+    texture: 'haunted_idle_1',
     starterWeapon: 'bone-scythe',
     baseStatOverrides: {},
     unlockCondition: {

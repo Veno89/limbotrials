@@ -35,10 +35,28 @@ export class JuiceSystem {
 
   enemyHit(sprite: Phaser.GameObjects.Image): void {
     sprite.setTint(0xffffff);
+    this.squash(sprite, 0.15);
     this.scene.time.delayedCall(55, () => {
       if (sprite.active) {
         sprite.clearTint();
       }
+    });
+  }
+
+  squash(sprite: Phaser.GameObjects.Image, intensity: number): void {
+    if (!sprite.active) {
+      return;
+    }
+    const originalScaleX = sprite.scaleX;
+    const originalScaleY = sprite.scaleY;
+    this.scene.tweens.killTweensOf(sprite);
+    this.scene.tweens.add({
+      targets: sprite,
+      scaleX: originalScaleX * (1 + intensity),
+      scaleY: originalScaleY * (1 - intensity * 0.5),
+      duration: 60,
+      yoyo: true,
+      ease: 'Sine.Out',
     });
   }
 

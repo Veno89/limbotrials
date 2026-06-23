@@ -514,6 +514,7 @@ export class GameScene extends Phaser.Scene {
     if (!import.meta.env.DEV || this.scene.isActive('DevModeScene')) {
       return;
     }
+    this.scene.pause();
     this.scene.launch('DevModeScene', {
       run: this.run,
       getInvincible: () => this.devInvincible,
@@ -565,6 +566,7 @@ export class GameScene extends Phaser.Scene {
         this.run.health = this.run.stats.maxHealth;
       },
       grantShield: () => this.grantShield(),
+      resumeGame: () => this.scene.resume(),
     });
   }
 

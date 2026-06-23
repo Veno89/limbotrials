@@ -1,8 +1,6 @@
 Has been implemented?
 - Finishing a run unlocks NG+ where the player gets to fight harder enemies and more bosses. FOr increased rewards they may also add from a set of modifiers which makes the game even harder.
-- Make xp globes slightly bigger.
-- Add a "suction" effect to xp globes when using the magnet pick-up (or any similar effect).
--
+
 
 # AI Agent Task: Fully Automated Trailer Creation for Everlasting Oblivion: Limbo Trial
 

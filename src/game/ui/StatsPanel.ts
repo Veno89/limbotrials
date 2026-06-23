@@ -119,7 +119,7 @@ export class StatsPanel {
     return this.scene.add.container(GAME_WIDTH - 128, 100, [background, text]);
   }
 
-  private toggle(): void {
+  public toggle(): void {
     this.open = !this.open;
     this.root.setVisible(this.open);
     this.toggleBackground.setStrokeStyle(2, this.open ? COLORS.soul : COLORS.border);

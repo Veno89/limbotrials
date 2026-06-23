@@ -21,6 +21,7 @@ import { addButton, addTitle } from '../ui/uiHelpers';
 
 interface JournalSceneData {
   returnTarget?: MenuReturnTarget;
+  resumeGame?: () => void;
 }
 
 const PAGE_SIZE = 6;
@@ -32,6 +33,7 @@ export class JournalScene extends Phaser.Scene {
   private page = 0;
   private content?: Phaser.GameObjects.Container;
   private returnTarget: MenuReturnTarget = MAIN_MENU_RETURN_TARGET;
+  private resumeGameCallback?: () => void;
 
   constructor() {
     super('JournalScene');
@@ -39,6 +41,7 @@ export class JournalScene extends Phaser.Scene {
 
   init(data: JournalSceneData = {}): void {
     this.returnTarget = data.returnTarget ?? MAIN_MENU_RETURN_TARGET;
+    this.resumeGameCallback = data.resumeGame;
   }
 
   create(): void {
@@ -268,6 +271,11 @@ export class JournalScene extends Phaser.Scene {
   }
 
   private returnToPreviousScene(): void {
+    if (this.resumeGameCallback) {
+      this.scene.stop();
+      this.resumeGameCallback();
+      return;
+    }
     returnFromMenu(
       {
         start: (sceneKey, data) => {
