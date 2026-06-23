@@ -331,6 +331,7 @@ export class GameScene extends Phaser.Scene {
       this.player,
       this.run,
       this.powerups,
+      this.movement,
       () => this.weapons.getActiveTalentBuffs(),
     );
     if (this.balancePresetId === 'standard') {

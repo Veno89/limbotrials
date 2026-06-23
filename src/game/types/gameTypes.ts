@@ -497,6 +497,7 @@ export interface EnemyDefinition {
   soulValue: number;
   displaySize: number;
   radius: number;
+  facePlayerOffset?: number;
   elite?: boolean;
   boss?: boolean;
   spawnRequirements?: {

@@ -1,40 +1,22 @@
 import Phaser from 'phaser';
-
-export interface SeparationTarget {
-  sprite: Phaser.Physics.Arcade.Image;
-  radius: number;
-}
+import type { SpatialGrid, SpatialEntity } from './SpatialGrid';
 
 export class EnemySeparationSystem {
-  private readonly cells = new Map<string, SeparationTarget[]>();
-  private readonly cellSize = 96;
-
-  apply(targets: readonly SeparationTarget[]): void {
-    this.cells.clear();
+  apply(grid: SpatialGrid, targets: readonly SpatialEntity[]): void {
     for (const target of targets) {
-      const key = this.cellKey(target.sprite.x, target.sprite.y);
-      const cell = this.cells.get(key);
-      if (cell) {
-        cell.push(target);
-      } else {
-        this.cells.set(key, [target]);
-      }
-    }
-
-    for (const target of targets) {
-      this.separateTarget(target);
+      this.separateTarget(target, grid);
     }
   }
 
-  private separateTarget(target: SeparationTarget): void {
-    const cellX = Math.floor(target.sprite.x / this.cellSize);
-    const cellY = Math.floor(target.sprite.y / this.cellSize);
+  private separateTarget(target: SpatialEntity, grid: SpatialGrid): void {
+    const cellX = Math.floor(target.sprite.x / grid.cellSize);
+    const cellY = Math.floor(target.sprite.y / grid.cellSize);
     let pushX = 0;
     let pushY = 0;
 
     for (let offsetY = -1; offsetY <= 1; offsetY += 1) {
       for (let offsetX = -1; offsetX <= 1; offsetX += 1) {
-        const cell = this.cells.get(`${cellX + offsetX},${cellY + offsetY}`);
+        const cell = grid.getCell(cellX + offsetX, cellY + offsetY);
         if (!cell) {
           continue;
         }
@@ -59,9 +41,5 @@ export class EnemySeparationSystem {
 
     const body = target.sprite.body as Phaser.Physics.Arcade.Body;
     body.setVelocity(body.velocity.x + pushX, body.velocity.y + pushY);
-  }
-
-  private cellKey(x: number, y: number): string {
-    return `${Math.floor(x / this.cellSize)},${Math.floor(y / this.cellSize)}`;
   }
 }

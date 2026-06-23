@@ -47,7 +47,10 @@ export class PickupSystem {
         return;
       }
     }
-    const pickup = this.group.create(x, y, 'pickup-xp') as Phaser.Physics.Arcade.Image;
+    const pickup = this.group.get(x, y, 'pickup-xp') as Phaser.Physics.Arcade.Image;
+    pickup.setActive(true).setVisible(true).setAlpha(1);
+    const body = pickup.body as Phaser.Physics.Arcade.Body;
+    body.checkCollision.none = true;
     const displaySize = pickupDisplaySize(xp + souls);
     pickup.setDisplaySize(displaySize, displaySize).setDepth(14).setBlendMode(Phaser.BlendModes.ADD);
     this.pickups.set(pickup, { xp, souls, displaySize });
@@ -140,6 +143,7 @@ export class PickupSystem {
   private collect(pickup: Phaser.Physics.Arcade.Image, runtime: PickupRuntime): void {
     this.onCollect(runtime.xp, runtime.souls);
     this.pickups.delete(pickup);
-    pickup.destroy();
+    this.scene.tweens.killTweensOf(pickup);
+    this.group.killAndHide(pickup);
   }
 }

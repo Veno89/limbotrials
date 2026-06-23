@@ -64,6 +64,7 @@ export class WeaponSystem {
   private readonly scytheWakes: ScytheWakeSystem;
   private readonly scytheTalents: BoneScytheTalentRuntimeSystem;
   private readonly scytheProcessions: ScytheProcessionSystem;
+  private readonly nearbyCache: import('./SpatialGrid').SpatialEntity[] = [];
   private crimsonOrbitActive = false;
   private scytheFacingAngle = Math.PI / 2;
 
@@ -312,13 +313,17 @@ export class WeaponSystem {
     angle: number,
     time: number,
   ): void {
-    const projectile = this.projectiles.create(this.player.x, this.player.y, texture) as Phaser.Physics.Arcade.Image;
+    const projectile = this.projectiles.get(this.player.x, this.player.y) as Phaser.Physics.Arcade.Image;
     projectile
+      .setTexture(texture)
+      .setActive(true)
+      .setVisible(true)
       .setDisplaySize(state.stats.projectileSize, state.stats.projectileSize)
       .setDepth(30)
       .setRotation(angle)
       .setBlendMode(Phaser.BlendModes.ADD);
     const body = projectile.body as Phaser.Physics.Arcade.Body;
+    body.checkCollision.none = true;
     body.setVelocity(
       Math.cos(angle) * state.stats.projectileSpeed,
       Math.sin(angle) * state.stats.projectileSpeed,
@@ -347,17 +352,20 @@ export class WeaponSystem {
       Phaser.Math.Distance.Between(this.player.x, this.player.y, landingX, landingY),
       state.stats.projectileSpeed,
     );
-    const projectile = this.projectiles.create(
+    const projectile = this.projectiles.get(
       this.player.x,
-      this.player.y,
-      WEAPONS[id].texture,
+      this.player.y
     ) as Phaser.Physics.Arcade.Image;
     projectile
+      .setTexture(WEAPONS[id].texture)
+      .setActive(true)
+      .setVisible(true)
       .setDisplaySize(state.stats.projectileSize, state.stats.projectileSize)
       .setDepth(30)
       .setRotation(angle)
       .setBlendMode(Phaser.BlendModes.ADD);
     const body = projectile.body as Phaser.Physics.Arcade.Body;
+    body.checkCollision.none = true;
     const seconds = travelMs / 1000;
     body.setVelocity((landingX - this.player.x) / seconds, (landingY - this.player.y) / seconds);
     this.projectileRuntime.set(projectile, {
@@ -505,7 +513,10 @@ export class WeaponSystem {
         }
       }
       let shouldDestroy = false;
-      this.enemies.forEach((enemy, definition) => {
+      const candidates = this.enemies.grid.getNearby(projectile.x, projectile.y, 100, this.nearbyCache);
+      for (const entity of candidates) {
+        const enemy = entity.sprite;
+        const definition = entity.definition;
         if (
           shouldDestroy ||
           runtime.hit.has(enemy) ||
@@ -513,7 +524,7 @@ export class WeaponSystem {
           Phaser.Math.Distance.Between(projectile.x, projectile.y, enemy.x, enemy.y) >
             definition.radius + projectile.displayWidth * 0.35
         ) {
-          return;
+          continue;
         }
         runtime.hit.add(enemy);
         const result = this.damageEnemy(enemy, definition, runtime.weaponId);
@@ -532,7 +543,7 @@ export class WeaponSystem {
         } else {
           runtime.pierceRemaining -= 1;
         }
-      });
+      }
       if (shouldDestroy) {
         this.destroyProjectile(projectile);
       }
@@ -569,11 +580,12 @@ export class WeaponSystem {
   }
 
   private damageArea(x: number, y: number, radius: number, weaponId: WeaponId, damageScale = 1): void {
-    this.enemies.forEach((enemy, definition) => {
-      if (Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y) <= radius) {
-        this.damageEnemy(enemy, definition, weaponId, damageScale);
+    const candidates = this.enemies.grid.getNearby(x, y, radius, this.nearbyCache);
+    for (const entity of candidates) {
+      if (Phaser.Math.Distance.Between(x, y, entity.sprite.x, entity.sprite.y) <= radius) {
+        this.damageEnemy(entity.sprite, entity.definition, weaponId, damageScale);
       }
-    });
+    }
   }
 
   private damageScytheSweep(
@@ -587,7 +599,10 @@ export class WeaponSystem {
     const talents = this.run.getBoneScytheTalentProfile();
     let hitCount = 0;
     let pullVisualCount = 0;
-    this.enemies.forEach((enemy, definition) => {
+    const candidates = this.enemies.grid.getNearby(x, y, radius, this.nearbyCache);
+    for (const entity of candidates) {
+      const enemy = entity.sprite;
+      const definition = entity.definition;
       if (isPointInScytheSweep(x, y, enemy.x, enemy.y, radius, profile, definition.radius * 0.35)) {
         hitCount += 1;
         const health = this.enemies.getHealth(enemy);
@@ -615,7 +630,7 @@ export class WeaponSystem {
           this.consumeBleed(enemy, definition, weaponId);
         }
       }
-    });
+    }
     return hitCount;
   }
 
@@ -757,7 +772,7 @@ export class WeaponSystem {
 
   private destroyProjectile(projectile: Phaser.Physics.Arcade.Image): void {
     this.projectileRuntime.delete(projectile);
-    projectile.destroy();
+    projectile.setActive(false).setVisible(false);
   }
 
   private destroyProjectilesForWeapon(id: WeaponId): void {

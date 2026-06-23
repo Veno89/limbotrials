@@ -5,7 +5,8 @@ import hauntedIdle1 from '../../../assets/test/haunted/haunted_idle_1.png?url';
 import playerPenitent from '../../../assets/sprites/playersprites/bulwark.png?url';
 import playerAshwalker from '../../../assets/sprites/playersprites/Arcanist.png?url';
 import enemyRunt from '../../../assets/sprites/enemies/enemy_wretched_runt.png?url';
-import enemyCrawler from '../../../assets/test/crawler/crawler_idle.png?url';
+import enemyLostSoul from '../../../assets/test/enemies/lost_soul.png?url';
+import enemyCrawler from '../../../assets/test/enemies/grave_crawler.png?url';
 import enemyKnight from '../../../assets/sprites/enemies/enemy_knight.png?url';
 import enemyWraith from '../../../assets/sprites/enemies/enemy_tormented_shade.png?url';
 import enemyBrute from '../../../assets/sprites/enemies/enemy_limbo_abomination.png?url';
@@ -17,7 +18,7 @@ import enemySentinel from '../../../assets/sprites/enemies/enemy_sentinel_of_woe
 import enemyGraveboundArcher from '../../../assets/sprites/enemies/enemy_gravebound_archer.png?url';
 import enemyVeilStalker from '../../../assets/sprites/enemies/enemy_veil_stalker.png?url';
 import enemyMireCrawler from '../../../assets/sprites/enemies/enemy_mire_crawler.png?url';
-import enemyStalker from '../../../assets/sprites/enemies/enemy_stalker.png?url';
+import enemyStalker from '../../../assets/test/enemies/stalker.png?url';
 import enemyArcher from '../../../assets/sprites/enemies/enemy_archer.png?url';
 import bossWarden from '../../../assets/sprites/bossprites/floor boss 1.png?url';
 import projectileVoid from '../../../assets/sprites/projectiles/proj_void_orb.png?url';
@@ -68,6 +69,7 @@ export const ASSETS: Array<[string, string]> = [
   ['player-penitent', playerPenitent],
   ['player-ashwalker', playerAshwalker],
   ['enemy-runt', enemyRunt],
+  ['enemy-lost-soul', enemyLostSoul],
   ['enemy-crawler', enemyCrawler],
   ['enemy-knight', enemyKnight],
   ['enemy-wraith', enemyWraith],

@@ -2,26 +2,56 @@ import Phaser from 'phaser';
 import { COLORS } from '../constants';
 
 export class JuiceSystem {
-  private activeWarning?: Phaser.GameObjects.Text;
   private lastHeavyImpactAt = Number.NEGATIVE_INFINITY;
+  private readonly deathEmitter: Phaser.GameObjects.Particles.ParticleEmitter;
+  private readonly inactiveDamageTexts: Phaser.GameObjects.Text[] = [];
+  private readonly inactiveRings: Phaser.GameObjects.Arc[] = [];
+  private warningLabel?: Phaser.GameObjects.Text;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly screenShakeEnabled: boolean,
     private readonly particlesEnabled: boolean,
-  ) {}
+  ) {
+    if (!scene.textures.exists('juice-mote')) {
+      const graphics = scene.make.graphics({ x: 0, y: 0 });
+      graphics.fillStyle(0xffffff, 1);
+      graphics.fillCircle(8, 8, 8);
+      graphics.generateTexture('juice-mote', 16, 16);
+      graphics.destroy();
+    }
+    this.deathEmitter = scene.add.particles(0, 0, 'juice-mote', {
+      speed: { min: 60, max: 150 },
+      angle: { min: 0, max: 360 },
+      scale: { start: 0.4, end: 0 },
+      alpha: { start: 0.85, end: 0 },
+      lifespan: { min: 280, max: 520 },
+      emitting: false,
+    }).setDepth(40);
+  }
+
+  private getDamageText(): Phaser.GameObjects.Text {
+    const text = this.inactiveDamageTexts.pop();
+    if (text) {
+      text.setActive(true).setVisible(true).setAlpha(1).setScale(1);
+      return text;
+    }
+    return this.scene.add.text(0, 0, '', {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '15px',
+      color: '#d9edf4',
+      stroke: '#081014',
+      strokeThickness: 4,
+    }).setOrigin(0.5).setDepth(50);
+  }
 
   damageNumber(x: number, y: number, amount: number, critical: boolean): void {
-    const text = this.scene.add
-      .text(x, y, String(amount), {
-        fontFamily: 'Cinzel, serif',
-        fontSize: critical ? '22px' : '15px',
-        color: critical ? '#ffd37c' : '#d9edf4',
-        stroke: '#081014',
-        strokeThickness: 4,
-      })
-      .setOrigin(0.5)
-      .setDepth(50);
+    const text = this.getDamageText();
+    text.setPosition(x, y);
+    text.setText(String(amount));
+    text.setFontSize(critical ? '22px' : '15px');
+    text.setColor(critical ? '#ffd37c' : '#d9edf4');
+
     this.scene.tweens.add({
       targets: text,
       y: y - 42,
@@ -29,7 +59,10 @@ export class JuiceSystem {
       scale: critical ? 1.25 : 1,
       duration: 650,
       ease: 'Cubic.Out',
-      onComplete: () => text.destroy(),
+      onComplete: () => {
+        text.setActive(false).setVisible(false);
+        this.inactiveDamageTexts.push(text);
+      },
     });
   }
 
@@ -44,16 +77,18 @@ export class JuiceSystem {
   }
 
   squash(sprite: Phaser.GameObjects.Image, intensity: number): void {
-    if (!sprite.active) {
+    if (!sprite.active || this.scene.tweens.isTweening(sprite)) {
       return;
     }
-    const originalScaleX = sprite.scaleX;
-    const originalScaleY = sprite.scaleY;
-    this.scene.tweens.killTweensOf(sprite);
+    const baseScaleX = (sprite.getData('baseScaleX') as number | undefined) ?? sprite.scaleX;
+    const baseScaleY = (sprite.getData('baseScaleY') as number | undefined) ?? sprite.scaleY;
+    
+    sprite.setScale(baseScaleX, baseScaleY);
+    
     this.scene.tweens.add({
       targets: sprite,
-      scaleX: originalScaleX * (1 + intensity),
-      scaleY: originalScaleY * (1 - intensity * 0.5),
+      scaleX: baseScaleX * (1 + intensity),
+      scaleY: baseScaleY * (1 - intensity * 0.5),
       duration: 60,
       yoyo: true,
       ease: 'Sine.Out',
@@ -64,26 +99,24 @@ export class JuiceSystem {
     if (!this.particlesEnabled) {
       return;
     }
-    for (let index = 0; index < 7; index += 1) {
-      const mote = this.scene.add.circle(x, y, Phaser.Math.Between(2, 5), color, 0.85).setDepth(40);
-      const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
-      const distance = Phaser.Math.Between(25, 70);
-      this.scene.tweens.add({
-        targets: mote,
-        x: x + Math.cos(angle) * distance,
-        y: y + Math.sin(angle) * distance,
-        alpha: 0,
-        scale: 0,
-        duration: Phaser.Math.Between(280, 520),
-        ease: 'Quad.Out',
-        onComplete: () => mote.destroy(),
-      });
-    }
+    this.deathEmitter.setParticleTint(color);
+    this.deathEmitter.emitParticleAt(x, y, 7);
   }
 
   ring(x: number, y: number, radius: number, color: number, duration = 350): void {
-    const ring = this.scene.add.circle(x, y, radius * 0.25, color, 0.12).setStrokeStyle(4, color, 0.9);
-    ring.setDepth(25);
+    let ring = this.inactiveRings.pop();
+    if (!ring) {
+      ring = this.scene.add.circle(0, 0, 10).setDepth(25);
+    }
+    ring.setPosition(x, y)
+        .setRadius(radius * 0.25)
+        .setFillStyle(color, 0.12)
+        .setStrokeStyle(4, color, 0.9)
+        .setActive(true)
+        .setVisible(true)
+        .setAlpha(1)
+        .setDisplaySize(radius * 0.5, radius * 0.5);
+
     this.scene.tweens.add({
       targets: ring,
       displayWidth: radius * 2,
@@ -91,7 +124,10 @@ export class JuiceSystem {
       alpha: 0,
       duration,
       ease: 'Cubic.Out',
-      onComplete: () => ring.destroy(),
+      onComplete: () => {
+        ring!.setActive(false).setVisible(false);
+        this.inactiveRings.push(ring!);
+      },
     });
   }
 
@@ -113,37 +149,33 @@ export class JuiceSystem {
   }
 
   warning(text: string, color = '#b9dded'): void {
-    if (this.activeWarning?.active) {
-      this.scene.tweens.killTweensOf(this.activeWarning);
-      this.activeWarning.destroy();
+    if (!this.warningLabel) {
+      this.warningLabel = this.scene.add
+        .text(640, 170, '', {
+          fontFamily: 'Cinzel, serif',
+          fontSize: '34px',
+          stroke: '#050708',
+          strokeThickness: 8,
+          align: 'center',
+          wordWrap: { width: 1080 },
+        })
+        .setOrigin(0.5)
+        .setScrollFactor(0)
+        .setDepth(200)
+        .setAlpha(0);
+    } else {
+      this.scene.tweens.killTweensOf(this.warningLabel);
     }
-    const label = this.scene.add
-      .text(640, 170, text, {
-        fontFamily: 'Cinzel, serif',
-        fontSize: '34px',
-        color,
-        stroke: '#050708',
-        strokeThickness: 8,
-        align: 'center',
-        wordWrap: { width: 1080 },
-      })
-      .setOrigin(0.5)
-      .setScrollFactor(0)
-      .setDepth(200)
-      .setAlpha(0);
-    this.activeWarning = label;
+    
+    this.warningLabel.setText(text);
+    this.warningLabel.setColor(color);
+    
     this.scene.tweens.add({
-      targets: label,
+      targets: this.warningLabel,
       alpha: 1,
       yoyo: true,
       hold: 900,
       duration: 260,
-      onComplete: () => {
-        label.destroy();
-        if (this.activeWarning === label) {
-          this.activeWarning = undefined;
-        }
-      },
     });
   }
 }

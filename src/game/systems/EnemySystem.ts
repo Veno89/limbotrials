@@ -11,7 +11,8 @@ import type {
 } from '../types/gameTypes';
 import type { JuiceSystem } from './JuiceSystem';
 import { EnemyAbilitySystem } from './EnemyAbilitySystem';
-import { EnemySeparationSystem, type SeparationTarget } from './EnemySeparationSystem';
+import { EnemySeparationSystem } from './EnemySeparationSystem';
+import { SpatialGrid, type SpatialEntity } from './SpatialGrid';
 import { enemyThreatScaling, scaleThreatDamage } from './threatRules';
 import { selectBossAttack } from './bossAttackRules';
 import type { DeathEchoProfile } from './deathEchoRules';
@@ -28,6 +29,7 @@ interface EnemyRuntime {
   spawnedAtElapsedMs: number;
   damageMultiplier: number;
   lastBossPhase: number;
+  entity: SpatialEntity;
 }
 
 export interface EnemyDeath {
@@ -44,10 +46,11 @@ export interface EnemyDamageResult {
 
 export class EnemySystem {
   readonly group: Phaser.Physics.Arcade.Group;
+  public readonly grid = new SpatialGrid();
   private readonly enemies = new Map<Phaser.Physics.Arcade.Image, EnemyRuntime>();
   private readonly abilities: EnemyAbilitySystem;
   private readonly separation = new EnemySeparationSystem();
-  private readonly separationTargets: SeparationTarget[] = [];
+  private readonly separationTargets: SpatialEntity[] = [];
   private bossSprite?: Phaser.Physics.Arcade.Image;
   private updateIndex = 0;
   private elapsedMs = 0;
@@ -89,13 +92,16 @@ export class EnemySystem {
     const maxHealth = Math.round(
       pressuredDefinition.maxHealth * scaling.healthMultiplier * cursePressure.healthMultiplier,
     );
-    const sprite = this.group.create(x, y, definition.texture) as Phaser.Physics.Arcade.Image;
+    const sprite = this.group.get(x, y, definition.texture) as Phaser.Physics.Arcade.Image;
+    sprite.setActive(true).setVisible(true);
     sprite
       .setDisplaySize(pressuredDefinition.displaySize, pressuredDefinition.displaySize)
       .setDepth(20)
       .setCollideWorldBounds(true);
     const targetScaleX = sprite.scaleX;
     const targetScaleY = sprite.scaleY;
+    sprite.setData('baseScaleX', targetScaleX);
+    sprite.setData('baseScaleY', targetScaleY);
     sprite.setScale(0);
     this.scene.tweens.add({
       targets: sprite,
@@ -109,6 +115,7 @@ export class EnemySystem {
       sprite.setTint(cursePressure.tint);
     }
     const body = sprite.body as Phaser.Physics.Arcade.Body;
+    body.checkCollision.none = true;
     body.setMaxVelocity(Math.max(pressuredDefinition.speed * 1.8, 520));
     this.enemies.set(sprite, {
       definition: pressuredDefinition,
@@ -121,6 +128,7 @@ export class EnemySystem {
       spawnedAtElapsedMs: elapsedMs,
       damageMultiplier: scaling.damageMultiplier * cursePressure.damageMultiplier,
       lastBossPhase: 1,
+      entity: { sprite, radius: pressuredDefinition.radius, definition: pressuredDefinition },
     });
     this.onEnemySpawn(id, elapsedMs);
     this.abilities.register(sprite, pressuredDefinition, scaling.damageMultiplier * cursePressure.damageMultiplier);
@@ -134,6 +142,7 @@ export class EnemySystem {
     this.elapsedMs = elapsedMs;
     this.updateIndex += 1;
     this.separationTargets.length = 0;
+    this.grid.clear();
     for (const [sprite, runtime] of this.enemies) {
       if (!sprite.active) {
         this.abilities.unregister(sprite);
@@ -163,11 +172,19 @@ export class EnemySystem {
         Math.cos(movement.angle) * speed,
         Math.sin(movement.angle) * speed,
       );
-      sprite.setFlipX(body.velocity.x < 0);
-      const targetRotation = (body.velocity.x / 400) * 0.22;
-      const wobbleRotation = Math.sin(time * 0.003 + runtime.wobbleSeed) * 0.018;
-      sprite.rotation = Phaser.Math.Linear(sprite.rotation, targetRotation + wobbleRotation, 0.2);
-      this.separationTargets.push({ sprite, radius: runtime.definition.radius });
+      if (runtime.definition.facePlayerOffset !== undefined) {
+        sprite.setFlipX(false);
+        const targetAngle = pursuitAngle + runtime.definition.facePlayerOffset;
+        sprite.rotation = Phaser.Math.Angle.RotateTo(sprite.rotation, targetAngle, 0.2);
+      } else {
+        sprite.setFlipX(body.velocity.x < 0);
+        const targetRotation = (body.velocity.x / 400) * 0.22;
+        const wobbleRotation = Math.sin(time * 0.003 + runtime.wobbleSeed) * 0.018;
+        sprite.rotation = Phaser.Math.Linear(sprite.rotation, targetRotation + wobbleRotation, 0.2);
+      }
+      
+      this.grid.insert(runtime.entity);
+      this.separationTargets.push(runtime.entity);
 
       if (distance < runtime.definition.radius + 24 && time >= runtime.contactReadyAt) {
         runtime.contactReadyAt = time + 700;
@@ -185,7 +202,7 @@ export class EnemySystem {
       }
     }
     if (this.updateIndex % 3 === 0) {
-      this.separation.apply(this.separationTargets);
+      this.separation.apply(this.grid, this.separationTargets);
     }
     this.abilities.updateProjectiles(time);
   }
@@ -214,7 +231,7 @@ export class EnemySystem {
       definition: runtime.definition,
       lifetimeMs: Math.max(0, this.elapsedMs - runtime.spawnedAtElapsedMs),
     });
-    sprite.destroy();
+    this.group.killAndHide(sprite);
     return { killed: true, dealt };
   }
 
@@ -225,15 +242,16 @@ export class EnemySystem {
     excluded: ReadonlySet<Phaser.Physics.Arcade.Image> = new Set(),
   ): Phaser.Physics.Arcade.Image | undefined {
     let nearest: Phaser.Physics.Arcade.Image | undefined;
-    let nearestDistance = range;
-    for (const sprite of this.enemies.keys()) {
-      if (!sprite.active || excluded.has(sprite)) {
+    let nearestDistSq = range * range;
+    const candidates = this.grid.getNearby(x, y, range);
+    for (const entity of candidates) {
+      if (!entity.sprite.active || excluded.has(entity.sprite)) {
         continue;
       }
-      const distance = Phaser.Math.Distance.Between(x, y, sprite.x, sprite.y);
-      if (distance < nearestDistance) {
-        nearest = sprite;
-        nearestDistance = distance;
+      const distSq = Phaser.Math.Distance.Squared(x, y, entity.sprite.x, entity.sprite.y);
+      if (distSq < nearestDistSq) {
+        nearest = entity.sprite;
+        nearestDistSq = distSq;
       }
     }
     return nearest;
@@ -355,6 +373,7 @@ export class EnemySystem {
       spawnedAtElapsedMs: elapsedMs,
       damageMultiplier: 0,
       lastBossPhase: 1,
+      entity: { sprite, radius: definition.radius, definition },
     });
   }
 

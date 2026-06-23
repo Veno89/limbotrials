@@ -3,6 +3,7 @@ import { COLORS } from '../constants';
 import type { ActiveBuffStatus, PowerupSystem } from '../systems/PowerupSystem';
 import type { RunState } from '../systems/RunState';
 import { curseVisualFor } from './curseVisualRules';
+import type { PlayerMovementSystem } from '../systems/PlayerMovementSystem';
 
 interface BuffRow {
   root: Phaser.GameObjects.Container;
@@ -17,14 +18,18 @@ export class PlayerStatusVisualSystem {
   private readonly shieldLabel: Phaser.GameObjects.Text;
   private readonly buffRows = new Map<string, BuffRow>();
   private previousShield = 0;
+  private lastDashRatio = -1;
+  private readonly dashArc: Phaser.GameObjects.Graphics;
 
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly player: Phaser.Physics.Arcade.Image,
     private readonly run: RunState,
     private readonly powerups: PowerupSystem,
+    private readonly movement: PlayerMovementSystem,
     private readonly getAdditionalBuffs: () => ActiveBuffStatus[] = () => [],
   ) {
+    this.dashArc = scene.add.graphics().setDepth(37);
     this.curseAura = scene.add
       .circle(player.x, player.y, 52, COLORS.blood, 0.08)
       .setStrokeStyle(2, COLORS.blood, 0.7)
@@ -63,6 +68,44 @@ export class PlayerStatusVisualSystem {
     this.updateCurse(time);
     this.updateShield(time);
     this.updateBuffs();
+    this.updateDash(time);
+  }
+
+  private updateDash(time: number): void {
+    const ratio = this.movement.dashCooldownRatio(time);
+    const cx = this.player.x - 48;
+    const cy = this.player.y - 52;
+    this.dashArc.setPosition(cx, cy);
+
+    if (ratio >= 1) {
+      if (this.lastDashRatio !== 1) {
+        this.dashArc.clear();
+        this.lastDashRatio = 1;
+      }
+      return;
+    }
+
+    if (Math.abs(this.lastDashRatio - ratio) < 0.03) {
+      return;
+    }
+    this.lastDashRatio = ratio;
+
+    this.dashArc.clear();
+    const radius = 7;
+
+    // Draw background track
+    this.dashArc.lineStyle(4, 0x0a0c0e, 0.7);
+    this.dashArc.beginPath();
+    this.dashArc.arc(0, 0, radius, 0, Math.PI * 2);
+    this.dashArc.strokePath();
+
+    // Draw active fill
+    this.dashArc.lineStyle(3, COLORS.pale, 0.95);
+    this.dashArc.beginPath();
+    const startAngle = -Math.PI / 2; // -90 degrees
+    const endAngle = startAngle + (Math.PI * 2) * ratio;
+    this.dashArc.arc(0, 0, radius, startAngle, endAngle, false);
+    this.dashArc.strokePath();
   }
 
   private updateCurse(time: number): void {
@@ -106,11 +149,19 @@ export class PlayerStatusVisualSystem {
     this.previousShield = this.run.shield;
   }
 
+  private readonly activeIdsCache = new Set<string>();
+
   private updateBuffs(): void {
-    const active = [...this.powerups.getActiveBuffs(), ...this.getAdditionalBuffs()];
-    const activeIds = new Set(active.map((buff) => buff.id));
+    const active = this.powerups.getActiveBuffs().concat(this.getAdditionalBuffs());
+    this.activeIdsCache.clear();
+    for (const buff of active) {
+      if (buff) {
+        this.activeIdsCache.add(buff.id);
+      }
+    }
+
     for (const [id, row] of this.buffRows) {
-      if (!activeIds.has(id)) {
+      if (!this.activeIdsCache.has(id)) {
         row.root.destroy();
         this.buffRows.delete(id);
       }

@@ -26,7 +26,6 @@ export class HudSystem {
   private readonly curseBar: Phaser.GameObjects.Rectangle;
   private readonly relicsText: Phaser.GameObjects.Text;
   private readonly lowHealthVignette: Phaser.GameObjects.Rectangle;
-  private readonly dashBar: Phaser.GameObjects.Rectangle;
   private readonly actionBar: WeaponActionBar;
   private readonly statsPanel: StatsPanel;
   private readonly artifactBar: ArtifactBar;
@@ -37,7 +36,7 @@ export class HudSystem {
     scene: Phaser.Scene,
     private readonly run: RunState,
     private readonly enemies: EnemySystem,
-    private readonly movement: PlayerMovementSystem,
+    _movement: PlayerMovementSystem,
     private readonly weapons: WeaponSystem,
     chests?: ChestSystem,
     shop?: ShopSystem,
@@ -55,8 +54,6 @@ export class HudSystem {
     this.healthBar = fixed(scene.add.rectangle(42, 30, 296, 16, COLORS.blood).setOrigin(0, 0.5));
     fixed(scene.add.rectangle(640, 692, 720, 14, 0x050809, 0.9).setStrokeStyle(1, COLORS.border));
     this.xpBar = fixed(scene.add.rectangle(281, 692, 716, 10, COLORS.soul).setOrigin(0, 0.5));
-    fixed(scene.add.rectangle(190, 58, 300, 8, 0x050809, 0.9).setStrokeStyle(1, COLORS.border));
-    this.dashBar = fixed(scene.add.rectangle(42, 58, 296, 5, COLORS.pale).setOrigin(0, 0.5));
 
     this.statsText = fixed(
       scene.add.text(42, 75, '', {
@@ -165,19 +162,17 @@ export class HudSystem {
     journalBg.setInteractive({ useHandCursor: true });
     journalBg.on('pointerdown', (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
       event.stopPropagation();
-      scene.time.delayedCall(0, () => {
-        scene.scene.pause();
-        scene.scene.launch('JournalScene', {
-          resumeGame: () => scene.scene.resume()
-        });
+      scene.scene.pause();
+      scene.scene.launch('JournalScene', {
+        resumeGame: () => scene.scene.resume()
       });
+      scene.scene.bringToTop('JournalScene');
     });
   }
 
   update(time: number): void {
     this.healthBar.displayWidth = 296 * Phaser.Math.Clamp(this.run.health / this.run.stats.maxHealth, 0, 1);
     this.xpBar.displayWidth = 716 * Phaser.Math.Clamp(this.run.xp / this.run.xpToNext, 0, 1);
-    this.dashBar.displayWidth = 296 * this.movement.dashCooldownRatio(time);
     this.actionBar.update(time);
     this.statsPanel.update(time);
     this.artifactBar.update();

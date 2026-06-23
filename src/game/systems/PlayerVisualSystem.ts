@@ -43,7 +43,7 @@ export class PlayerVisualSystem {
       ghost.setDisplaySize(this.animated.displayWidth, this.animated.displayHeight);
       ghost.setRotation(this.animated.rotation);
       ghost.setTint(0x88ccff);
-      ghost.setAlpha(0.5);
+      ghost.setAlpha(0.8);
       ghost.setDepth(this.animated.depth - 1);
       
       this.scene.tweens.add({

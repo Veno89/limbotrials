@@ -16,8 +16,6 @@ export interface StatsPanelOptions {
 
 export class StatsPanel {
   private readonly root: Phaser.GameObjects.Container;
-  private readonly toggleBackground: Phaser.GameObjects.Rectangle;
-  private readonly toggleText: Phaser.GameObjects.Text;
   private readonly generalText: Phaser.GameObjects.Text;
   private readonly synergyText: Phaser.GameObjects.Text;
   private readonly weaponRoot: Phaser.GameObjects.Container;
@@ -31,10 +29,6 @@ export class StatsPanel {
     options: StatsPanelOptions = {},
   ) {
     const depth = options.depth ?? 220;
-    const toggle = this.createToggle();
-    toggle.setScrollFactor(0).setDepth(depth + 1);
-    this.toggleBackground = toggle.getAt(0) as Phaser.GameObjects.Rectangle;
-    this.toggleText = toggle.getAt(1) as Phaser.GameObjects.Text;
 
     const background = scene.add
       .rectangle(0, 0, 660, 596, 0x05090c, 0.98)
@@ -101,29 +95,9 @@ export class StatsPanel {
     this.refresh();
   }
 
-  private createToggle(): Phaser.GameObjects.Container {
-    const background = this.scene.add
-      .rectangle(0, 0, 176, 38, COLORS.panel, 0.96)
-      .setStrokeStyle(2, COLORS.border)
-      .setInteractive({ useHandCursor: true });
-    const text = this.scene.add
-      .text(0, 0, 'STATS [TAB]', {
-        fontFamily: 'Cinzel, serif',
-        fontSize: '13px',
-        color: '#dce8ed',
-      })
-      .setOrigin(0.5);
-    background.on('pointerover', () => background.setStrokeStyle(2, COLORS.soul));
-    background.on('pointerout', () => background.setStrokeStyle(2, COLORS.border));
-    background.on('pointerdown', () => this.toggle());
-    return this.scene.add.container(GAME_WIDTH - 128, 100, [background, text]);
-  }
-
   public toggle(): void {
     this.open = !this.open;
     this.root.setVisible(this.open);
-    this.toggleBackground.setStrokeStyle(2, this.open ? COLORS.soul : COLORS.border);
-    this.toggleText.setText(this.open ? 'CLOSE STATS [TAB]' : 'STATS [TAB]');
     if (this.open) {
       this.refresh();
     }

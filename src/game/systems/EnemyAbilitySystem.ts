@@ -293,8 +293,8 @@ export class EnemyAbilitySystem {
         return;
       }
       const angle = Phaser.Math.Angle.Between(sprite.x, sprite.y, this.player.x, this.player.y);
-      const projectile = this.projectiles.create(sprite.x, sprite.y, 'projectile-void') as Phaser.Physics.Arcade.Image;
-      projectile.setDisplaySize(34, 34).setDepth(28).setTint(COLORS.enemyProjectile).setBlendMode(Phaser.BlendModes.ADD);
+      const projectile = this.projectiles.get(sprite.x, sprite.y, 'projectile-void') as Phaser.Physics.Arcade.Image;
+      projectile.setActive(true).setVisible(true).setDisplaySize(34, 34).setDepth(28).setTint(COLORS.enemyProjectile).setBlendMode(Phaser.BlendModes.ADD);
       const body = projectile.body as Phaser.Physics.Arcade.Body;
       body.setVelocity(Math.cos(angle) * 250, Math.sin(angle) * 250);
       this.projectileRuntime.set(projectile, {
@@ -326,12 +326,14 @@ export class EnemyAbilitySystem {
         return;
       }
       const shotAngle = Phaser.Math.Angle.Between(sprite.x, sprite.y, this.player.x, this.player.y);
-      const projectile = this.projectiles.create(
+      const projectile = this.projectiles.get(
         sprite.x,
         sprite.y,
         'projectile-laser',
       ) as Phaser.Physics.Arcade.Image;
       projectile
+        .setActive(true)
+        .setVisible(true)
         .setDisplaySize(42, 16)
         .setDepth(28)
         .setRotation(shotAngle)
@@ -469,7 +471,7 @@ export class EnemyAbilitySystem {
     });
 
     const flask = this.scene.physics.add.image(sprite.x, sprite.y, 'projectile-void');
-    flask.setDisplaySize(20, 20)
+    flask.setActive(true).setVisible(true).setDisplaySize(20, 20)
       .setTint(COLORS.hellfire)
       .setDepth(28);
 
@@ -508,7 +510,7 @@ export class EnemyAbilitySystem {
 
   private destroyProjectile(projectile: Phaser.Physics.Arcade.Image): void {
     this.projectileRuntime.delete(projectile);
-    projectile.destroy();
+    projectile.setActive(false).setVisible(false);
   }
 
   private updateDeathEcho(
@@ -586,8 +588,8 @@ export class EnemyAbilitySystem {
       const count = Math.max(1, Math.min(3, profile.projectileCount));
       for (let index = 0; index < count; index += 1) {
         const offset = (index - (count - 1) / 2) * 0.18;
-        const projectile = this.projectiles.create(sprite.x, sprite.y, 'projectile-void') as Phaser.Physics.Arcade.Image;
-        projectile.setDisplaySize(32, 32).setDepth(28).setTint(COLORS.void).setBlendMode(Phaser.BlendModes.ADD);
+        const projectile = this.projectiles.get(sprite.x, sprite.y, 'projectile-void') as Phaser.Physics.Arcade.Image;
+        projectile.setActive(true).setVisible(true).setDisplaySize(32, 32).setDepth(28).setTint(COLORS.void).setBlendMode(Phaser.BlendModes.ADD);
         const angle = baseAngle + offset;
         const body = projectile.body as Phaser.Physics.Arcade.Body;
         body.setVelocity(Math.cos(angle) * 230, Math.sin(angle) * 230);

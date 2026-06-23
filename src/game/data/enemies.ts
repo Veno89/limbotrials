@@ -4,7 +4,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
   'lost-soul': {
     id: 'lost-soul',
     name: 'Lost Soul',
-    texture: 'enemy-runt',
+    texture: 'enemy-lost-soul',
     behavior: 'pursuit',
     maxHealth: 32,
     speed: 72,
@@ -26,6 +26,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     soulValue: 0,
     displaySize: 50,
     radius: 16,
+    facePlayerOffset: -Math.PI * 0.75,
   },
   'hollow-knight': {
     id: 'hollow-knight',
