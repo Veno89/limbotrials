@@ -136,6 +136,56 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Add Spectral Chains: sweeps a chained arc toward nearby groups.',
     'weapon-spectral-chains',
   ),
+  'unlock-gravetide-repeater': {
+    ...weaponUnlock(
+      'unlock-gravetide-repeater',
+      'gravetide-repeater',
+      'Unearth Gravetide Repeater',
+      'Add Gravetide Repeater: rhythmic bursts of piercing bolts.',
+      'icon-staff',
+    ),
+    isNgPlus: true,
+  },
+  'unlock-saintbreaker-pike': {
+    ...weaponUnlock(
+      'unlock-saintbreaker-pike',
+      'saintbreaker-pike',
+      'Lift Saintbreaker Pike',
+      'Add Saintbreaker Pike: a brutal forward thrust.',
+      'icon-sword',
+    ),
+    isNgPlus: true,
+  },
+  'unlock-ashen-orbit': {
+    ...weaponUnlock(
+      'unlock-ashen-orbit',
+      'ashen-orbit',
+      'Ignite Ashen Orbit',
+      'Add Ashen Orbit: burning fragments that circle you.',
+      'icon-void-sword',
+    ),
+    isNgPlus: true,
+  },
+  'unlock-choir-of-teeth': {
+    ...weaponUnlock(
+      'unlock-choir-of-teeth',
+      'choir-of-teeth',
+      'Unleash Choir of Teeth',
+      'Add Choir of Teeth: a massive fan of jagged bone shards.',
+      'icon-chest',
+    ),
+    isNgPlus: true,
+  },
+  'unlock-eclipse-brand': {
+    ...weaponUnlock(
+      'unlock-eclipse-brand',
+      'eclipse-brand',
+      'Invoke Eclipse Brand',
+      'Add Eclipse Brand: marks enemies for delayed dark eruptions.',
+      'icon-staff',
+    ),
+    isNgPlus: true,
+  },
 
   'level-bone-scythe': weaponLevel(
     'level-bone-scythe',
@@ -221,6 +271,56 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     '+15% damage and +8% sweep width.',
     'weapon-spectral-chains',
   ),
+  'level-gravetide-repeater': {
+    ...weaponLevel(
+      'level-gravetide-repeater',
+      'gravetide-repeater',
+      'Gravetide Repeater Level',
+      '+15% damage and +1 projectile.',
+      'icon-staff',
+    ),
+    isNgPlus: true,
+  },
+  'level-saintbreaker-pike': {
+    ...weaponLevel(
+      'level-saintbreaker-pike',
+      'saintbreaker-pike',
+      'Saintbreaker Pike Level',
+      '+25% damage and 10% shorter cooldown.',
+      'icon-sword',
+    ),
+    isNgPlus: true,
+  },
+  'level-ashen-orbit': {
+    ...weaponLevel(
+      'level-ashen-orbit',
+      'ashen-orbit',
+      'Ashen Orbit Level',
+      '+18% damage and +1 orbiting fragment.',
+      'icon-void-sword',
+    ),
+    isNgPlus: true,
+  },
+  'level-choir-of-teeth': {
+    ...weaponLevel(
+      'level-choir-of-teeth',
+      'choir-of-teeth',
+      'Choir of Teeth Level',
+      '+20% damage and +2 shards.',
+      'icon-chest',
+    ),
+    isNgPlus: true,
+  },
+  'level-eclipse-brand': {
+    ...weaponLevel(
+      'level-eclipse-brand',
+      'eclipse-brand',
+      'Eclipse Brand Level',
+      '+25% damage and +1 target marked.',
+      'icon-staff',
+    ),
+    isNgPlus: true,
+  },
 
   'evolve-bone-scythe': weaponEvolution(
     'evolve-bone-scythe',
@@ -311,6 +411,56 @@ export const UPGRADES: Record<UpgradeId, UpgradeDefinition> = {
     'Evolve Spectral Chains. Chains jump to additional enemies and pull them in.',
     'weapon-spectral-chains',
   ),
+  'evolve-gravetide-repeater': {
+    ...weaponEvolution(
+      'evolve-gravetide-repeater',
+      'gravetide-repeater',
+      'Awaken Abyssal Volley',
+      'Evolve Gravetide Repeater. Bolts pierce further and travel much faster.',
+      'icon-staff',
+    ),
+    isNgPlus: true,
+  },
+  'evolve-saintbreaker-pike': {
+    ...weaponEvolution(
+      'evolve-saintbreaker-pike',
+      'saintbreaker-pike',
+      'Awaken Martyr’s End',
+      'Evolve Saintbreaker Pike. The thrust is wider, reaches further, and deals immense damage.',
+      'icon-sword',
+    ),
+    isNgPlus: true,
+  },
+  'evolve-ashen-orbit': {
+    ...weaponEvolution(
+      'evolve-ashen-orbit',
+      'ashen-orbit',
+      'Awaken Corona of Ash',
+      'Evolve Ashen Orbit. Adds more fragments and increases the orbit speed significantly.',
+      'icon-void-sword',
+    ),
+    isNgPlus: true,
+  },
+  'evolve-choir-of-teeth': {
+    ...weaponEvolution(
+      'evolve-choir-of-teeth',
+      'choir-of-teeth',
+      'Awaken Maw of the Abyss',
+      'Evolve Choir of Teeth. Fires a massive spread of teeth that shred everything in front of you.',
+      'icon-chest',
+    ),
+    isNgPlus: true,
+  },
+  'evolve-eclipse-brand': {
+    ...weaponEvolution(
+      'evolve-eclipse-brand',
+      'eclipse-brand',
+      'Awaken Total Eclipse',
+      'Evolve Eclipse Brand. Marks chain to additional enemies and the eruptions are much larger.',
+      'icon-staff',
+    ),
+    isNgPlus: true,
+  },
 
   'bone-scythe-area': {
     id: 'bone-scythe-area',

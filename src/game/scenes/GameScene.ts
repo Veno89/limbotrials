@@ -20,6 +20,7 @@ import type {
   CharacterId,
   CurseGainResult,
   EnemyId,
+  EdictId,
   JournalDiscoveryKind,
   PlayerDamageSourceId,
   PowerupId,
@@ -62,6 +63,8 @@ import { ArenaFloorSystem } from '../systems/ArenaFloorSystem';
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
   characterId?: CharacterId;
+  isNgPlus?: boolean;
+  edicts?: EdictId[];
 }
 
 export class GameScene extends Phaser.Scene {
@@ -98,6 +101,8 @@ export class GameScene extends Phaser.Scene {
   private statuses!: StatusEffectSystem;
   private curseEvents?: CurseEventSystem;
   private characterId?: CharacterId;
+  private isNgPlus = false;
+  private edicts: EdictId[] = [];
   private discoverySave!: SaveData;
   private devInvincible = false;
 
@@ -108,6 +113,8 @@ export class GameScene extends Phaser.Scene {
   init(data: GameSceneData): void {
     this.balancePresetId = data.balancePresetId ?? 'standard';
     this.characterId = data.characterId;
+    this.isNgPlus = data.isNgPlus ?? false;
+    this.edicts = data.edicts ?? [];
   }
 
   create(): void {
@@ -132,7 +139,13 @@ export class GameScene extends Phaser.Scene {
       this.events.off(Phaser.Scenes.Events.RESUME, resumeListener);
       audio.stopAmbience();
     });
-    this.run = new RunState(save, this.balancePresetId, this.characterId ?? save.selectedCharacter);
+    this.run = new RunState(
+      save,
+      this.balancePresetId,
+      this.characterId ?? save.selectedCharacter,
+      this.isNgPlus,
+      this.edicts
+    );
     this.discoverJournalEntry('weapons', CHARACTERS[this.run.characterId].starterWeapon);
     this.createArena();
     this.physics.world.setBounds(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
@@ -226,6 +239,7 @@ export class GameScene extends Phaser.Scene {
         this.juice.warning('THE LIMBO WARDEN HAS COME', '#d7bd82');
       },
       () => this.run.curse.snapshot(),
+      () => this.run.edicts
     );
     this.offers = new UpgradeOfferSystem(
       this,

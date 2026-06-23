@@ -8,6 +8,7 @@ import type {
   EnemyDefinition,
   EnemyId,
   ThreatSnapshot,
+  EdictId,
 } from '../types/gameTypes';
 import type { JuiceSystem } from './JuiceSystem';
 import { EnemyAbilitySystem } from './EnemyAbilitySystem';
@@ -70,6 +71,7 @@ export class EnemySystem {
     private readonly getThreat: () => ThreatSnapshot,
     private readonly getCurse: () => CurseSnapshot,
     private readonly getDeathEchoProfile: () => DeathEchoProfile | undefined = () => undefined,
+    private readonly getEdicts: () => readonly EdictId[] = () => [],
   ) {
     this.group = scene.physics.add.group();
     this.abilities = new EnemyAbilitySystem(scene, player, juice, onPlayerHit, getDeathEchoProfile);
@@ -88,12 +90,17 @@ export class EnemySystem {
       : baseDefinition;
     const scaling = enemyThreatScaling(this.getThreat(), Boolean(definition.boss));
     const cursePressure = cursePressureForEnemy(definition, this.getCurse());
+    const edicts = this.getEdicts();
+    const hasteSpeed = edicts.includes('haste') ? 1.15 : 1;
+    const ruinHealth = definition.boss && edicts.includes('ruin') ? 1.2 : 1;
+    const ruinDamage = definition.boss && edicts.includes('ruin') ? 1.1 : 1;
+
     const pressuredDefinition: EnemyDefinition = {
       ...definition,
-      speed: Math.round(definition.speed * cursePressure.speedMultiplier),
+      speed: Math.round(definition.speed * cursePressure.speedMultiplier * hasteSpeed),
     };
     const maxHealth = Math.round(
-      pressuredDefinition.maxHealth * scaling.healthMultiplier * cursePressure.healthMultiplier,
+      pressuredDefinition.maxHealth * scaling.healthMultiplier * cursePressure.healthMultiplier * ruinHealth,
     );
     const sprite = this.group.get(x, y, definition.texture) as Phaser.Physics.Arcade.Image;
     sprite.setActive(true).setVisible(true);
@@ -129,7 +136,7 @@ export class EnemySystem {
       nextSpecialAt: this.scene.time.now + 4200,
       specialIndex: 0,
       spawnedAtElapsedMs: elapsedMs,
-      damageMultiplier: scaling.damageMultiplier * cursePressure.damageMultiplier,
+      damageMultiplier: scaling.damageMultiplier * cursePressure.damageMultiplier * ruinDamage,
       lastBossPhase: 1,
       entity: { sprite, radius: pressuredDefinition.radius, definition: pressuredDefinition },
     });
@@ -156,9 +163,10 @@ export class EnemySystem {
       const pursuitAngle = Phaser.Math.Angle.Between(sprite.x, sprite.y, this.player.x, this.player.y);
       const wobble = runtime.definition.behavior === 'wobble' ? Math.sin(time * 0.004 + runtime.wobbleSeed) * 0.6 : 0;
       const bossPhase = runtime.definition.boss ? this.bossPhase(runtime) : 1;
+      const attackHaste = this.getEdicts().includes('haste') ? 0.9 : 1;
       if (runtime.definition.boss && bossPhase > runtime.lastBossPhase) {
         runtime.lastBossPhase = bossPhase;
-        runtime.nextSpecialAt = Math.max(runtime.nextSpecialAt, time + 1800);
+        runtime.nextSpecialAt = Math.max(runtime.nextSpecialAt, time + 1800 * attackHaste);
         this.onBossPhaseChange(bossPhase);
       }
       const distance = Phaser.Math.Distance.Between(sprite.x, sprite.y, this.player.x, this.player.y);
@@ -198,7 +206,7 @@ export class EnemySystem {
       this.separationTargets.push(runtime.entity);
 
       if (distance < runtime.definition.radius + 24 && time >= runtime.contactReadyAt) {
-        runtime.contactReadyAt = time + 700;
+        runtime.contactReadyAt = time + 700 * attackHaste;
         this.onPlayerHit(
           scaleThreatDamage(runtime.definition.contactDamage, runtime.damageMultiplier),
           runtime.definition.id,
@@ -208,7 +216,7 @@ export class EnemySystem {
       if (runtime.definition.boss && time >= runtime.nextSpecialAt) {
         const attack = selectBossAttack(runtime.specialIndex, bossPhase);
         runtime.specialIndex += 1;
-        runtime.nextSpecialAt = time + 6200 - bossPhase * 650;
+        runtime.nextSpecialAt = time + (6200 - bossPhase * 650) * attackHaste;
         this.onBossSpecial(attack, sprite.x, sprite.y, bossPhase);
       }
     }

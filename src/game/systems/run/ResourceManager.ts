@@ -38,7 +38,8 @@ export class ResourceManager {
 
   addSouls(amount: number): void {
     if (amount <= 0) return;
-    const collected = Math.max(1, Math.round(amount * this.run.stats.current.soulGain));
+    const totalMultiplier = this.run.stats.current.soulGain + this.run.soulMultiplierBonus;
+    const collected = Math.max(1, Math.round(amount * totalMultiplier));
     this.souls += collected;
     this.run.balance.recordSouls(collected, this.run.elapsedMs);
   }

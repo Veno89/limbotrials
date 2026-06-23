@@ -2,8 +2,9 @@ import Phaser from 'phaser';
 import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../constants';
 import { CHARACTERS } from '../data/characters';
 import { WEAPONS } from '../data/weapons';
+import { EDICTS } from '../data/edicts';
 import { loadSave, writeSave } from '../systems/SaveSystem';
-import type { CharacterId } from '../types/gameTypes';
+import type { CharacterId, EdictId } from '../types/gameTypes';
 import { addButton, addTitle } from '../ui/uiHelpers';
 
 export class CharacterSelectScene extends Phaser.Scene {
@@ -17,6 +18,9 @@ export class CharacterSelectScene extends Phaser.Scene {
       ? save.selectedCharacter
       : 'haunted';
     const frames = new Map<CharacterId, Phaser.GameObjects.Rectangle>();
+
+    let isNgPlus = false;
+    const selectedEdicts = new Set<EdictId>(save.ngPlusEdicts);
 
     this.add
       .image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'legacy-background')
@@ -90,12 +94,73 @@ export class CharacterSelectScene extends Phaser.Scene {
       }
     });
 
-    addButton(this, GAME_WIDTH / 2, 585, 'ENTER THE TRIAL', () => {
+    const edictContainer = this.add.container(0, 0).setVisible(false);
+    edictContainer.add(this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070a, 0.95));
+    const titleText = addTitle(this, GAME_WIDTH / 2, 120, 'NEW GAME PLUS', 32);
+    edictContainer.add(titleText);
+    
+    let multiplierText = this.add.text(GAME_WIDTH / 2, 170, '', {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '18px',
+      color: '#d7bd82',
+    }).setOrigin(0.5);
+    edictContainer.add(multiplierText);
+
+    const updateMultiplier = () => {
+      let bonus = 0;
+      selectedEdicts.forEach((id) => { bonus += EDICTS[id].soulMultiplierBonus; });
+      multiplierText.setText(`SOUL MULTIPLIER: ${(100 + bonus * 100).toFixed(0)}%`);
+    };
+    updateMultiplier();
+
+    Object.values(EDICTS).forEach((edict, i) => {
+      const y = 250 + i * 50;
+      const text = this.add.text(GAME_WIDTH / 2, y, `[${selectedEdicts.has(edict.id) ? 'X' : ' '}] ${edict.name}`, {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '18px',
+        color: '#8edfff',
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      text.on('pointerdown', () => {
+        if (selectedEdicts.has(edict.id)) selectedEdicts.delete(edict.id);
+        else selectedEdicts.add(edict.id);
+        text.setText(`[${selectedEdicts.has(edict.id) ? 'X' : ' '}] ${edict.name}`);
+        updateMultiplier();
+      });
+      edictContainer.add(text);
+      
+      edictContainer.add(this.add.text(GAME_WIDTH / 2, y + 22, edict.description, {
+        fontFamily: 'Inter, sans-serif',
+        fontSize: '12px',
+        color: '#aebfc6',
+      }).setOrigin(0.5));
+    });
+
+    const enterButton = addButton(this, GAME_WIDTH / 2, 585, 'ENTER THE TRIAL', () => {
       save.selectedCharacter = selected;
+      save.ngPlusEdicts = [...selectedEdicts];
       writeSave(save);
-      this.scene.start('GameScene', { characterId: selected });
+      this.scene.start('GameScene', { characterId: selected, isNgPlus, edicts: save.ngPlusEdicts });
     }, 330);
-    addButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 55, 'RETURN', () => this.scene.start('MainMenuScene'), 250);
+
+    const returnButton = addButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 55, 'RETURN', () => this.scene.start('MainMenuScene'), 250);
+
+    if (save.hasCompletedGame) {
+      const ngToggle = addButton(this, GAME_WIDTH / 2 + 350, 585, 'NG+: OFF', () => {
+        isNgPlus = !isNgPlus;
+        (ngToggle.getAt(1) as Phaser.GameObjects.Text).setText(isNgPlus ? 'NG+: ON' : 'NG+: OFF');
+        edictContainer.setVisible(isNgPlus);
+        (enterButton.getAt(1) as Phaser.GameObjects.Text).setText(isNgPlus ? 'BEGIN NG+ TRIAL' : 'ENTER THE TRIAL');
+      }, 200);
+      
+      const ngPlusInfo = this.add.text(GAME_WIDTH / 2 + 350, 625, 'Unlocks new rewards', {
+         fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#c7a76a'
+      }).setOrigin(0.5);
+      
+      enterButton.setDepth(100);
+      returnButton.setDepth(100);
+      ngToggle.setDepth(100);
+      ngPlusInfo.setDepth(100);
+    }
   }
 }
 

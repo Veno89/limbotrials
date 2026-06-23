@@ -1,4 +1,5 @@
 import { CHARACTERS } from '../data/characters';
+import { EDICTS } from '../data/edicts';
 import type {
   BalancePresetId,
   CharacterId,
@@ -8,7 +9,8 @@ import type {
   UpgradeDefinition,
   AppliedRewardResult,
   UpgradeId,
-  ArtifactId
+  ArtifactId,
+  EdictId
 } from '../types/gameTypes';
 import { BalanceTelemetry } from './BalanceTelemetry';
 import { CurseSystem } from './CurseSystem';
@@ -41,6 +43,9 @@ export class RunState {
   public readonly balance: BalanceTelemetry;
   public readonly curse: CurseSystem;
   public readonly characterId: CharacterId;
+  public readonly isNgPlus: boolean;
+  public readonly edicts: EdictId[];
+  public soulMultiplierBonus = 0;
   public elapsedMs = 0;
   public kills = 0;
 
@@ -48,10 +53,18 @@ export class RunState {
     save: SaveData,
     presetId: BalancePresetId = 'standard',
     characterId: CharacterId = save.selectedCharacter,
+    isNgPlus = false,
+    edicts: EdictId[] = [],
   ) {
     this.balance = new BalanceTelemetry(presetId);
     this.characterId = save.unlockedCharacters.includes(characterId) ? characterId : 'haunted';
+    this.isNgPlus = isNgPlus;
+    this.edicts = edicts;
     this.curse = new CurseSystem();
+
+    this.edicts.forEach((edictId) => {
+      this.soulMultiplierBonus += EDICTS[edictId].soulMultiplierBonus;
+    });
 
     this.stats = new StatManager(this.characterId);
     this.resources = new ResourceManager(this, this.stats.current.maxHealth);

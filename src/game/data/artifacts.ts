@@ -276,13 +276,66 @@ export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
     modifiers: [{ stat: 'attackSpeed', mode: 'multiply', value: 1.25 }],
     effect: 'market-heart-ward',
   },
+  'crown-of-the-second-damnation': {
+    id: 'crown-of-the-second-damnation',
+    name: 'Crown of Second Damnation',
+    description: 'Increases soul multiplier by 20%, but taking damage has a 5% chance to reduce max HP by 1.',
+    flavorText: '"Wear the sin a second time."',
+    iconTexture: 'boss-crown',
+    poolTier: 'ng-plus',
+    rarity: 'rare',
+    effect: 'crown-second-damnation',
+  },
+  'martyrs-ledger': {
+    id: 'martyrs-ledger',
+    name: 'Martyr’s Ledger',
+    description: 'Taking damage permanently grants +1% damage (max 50%).',
+    flavorText: '"Count every drop of blood paid."',
+    iconTexture: 'icon-book',
+    poolTier: 'ng-plus',
+    rarity: 'rare',
+    effect: 'martyrs-ledger-payback',
+  },
+  'black-reliquary': {
+    id: 'black-reliquary',
+    name: 'Black Reliquary',
+    description: '+15% Threat Power Bonus. Gain +20% damage against Elites and Bosses.',
+    flavorText: '"It hums with a destructive frequency."',
+    iconTexture: 'icon-chest',
+    poolTier: 'ng-plus',
+    rarity: 'rare',
+    effect: 'black-reliquary-odds',
+    modifiers: [{ stat: 'threatPowerBonus', mode: 'add', value: 15 }],
+  },
+  'bell-of-the-hollow-host': {
+    id: 'bell-of-the-hollow-host',
+    name: 'Bell of the Hollow Host',
+    description: 'Rings periodically, drawing enemies towards you but causing them to take 10% more damage.',
+    flavorText: '"They hear it in the deep."',
+    iconTexture: 'boss-key',
+    poolTier: 'ng-plus',
+    rarity: 'legendary',
+    effect: 'bell-hollow-host-pulse',
+  },
+  'unlit-halo': {
+    id: 'unlit-halo',
+    name: 'Unlit Halo',
+    description: 'Set your max HP to 1. Gain +100% damage and +50% movement speed.',
+    flavorText: '"Perfect frailty. Perfect power."',
+    iconTexture: 'icon-ring',
+    poolTier: 'ng-plus',
+    rarity: 'legendary',
+    effect: 'unlit-halo-tradeoff',
+  },
 };
 
-export function getAvailableArtifacts(save: SaveData): ArtifactDefinition[] {
-  const unlockedTiers = save.unlockedArtifactTiers || ['base'];
-  return Object.values(ARTIFACTS).filter(
-    (art) => art.source !== 'shop' && unlockedTiers.includes(art.poolTier),
-  );
+export function getAvailableArtifacts(save: SaveData, isNgPlus = false): ArtifactDefinition[] {
+  return Object.values(ARTIFACTS).filter((artifact) => {
+    if (artifact.poolTier === 'ng-plus') {
+      return isNgPlus;
+    }
+    return (save.unlockedArtifactTiers || ['base']).includes(artifact.poolTier);
+  });
 }
 
 export function rollArtifact(

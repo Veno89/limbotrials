@@ -57,6 +57,8 @@ export function createDefaultSave(): SaveData {
     },
     unlockedArtifactTiers: ['base'],
     journal: createDefaultJournalDiscovery(),
+    hasCompletedGame: false,
+    ngPlusEdicts: [],
     settings: {
       screenShake: true,
       particles: true,
@@ -118,6 +120,8 @@ export function loadSave(storage: StorageLike = localStorage): SaveData {
       },
       unlockedArtifactTiers: [...new Set(unlockedArtifactTiers)],
       journal: sanitizeJournalDiscovery(parsed.journal),
+      hasCompletedGame: parsed.hasCompletedGame ?? ((parsed.totalWardenKills ?? 0) > 0 || (parsed.highestBossDefeated ?? 0) > 0),
+      ngPlusEdicts: Array.isArray(parsed.ngPlusEdicts) ? parsed.ngPlusEdicts : [],
       deathEcho: parseDeathEchoSnapshot(parsed.deathEcho),
       settings: { ...defaults.settings, ...parsed.settings },
     };
@@ -193,6 +197,7 @@ export function recordRunResult(save: SaveData, summary: RunSummary): RecordedRu
   if (summary.victory) {
     next.highestBossDefeated = Math.max(next.highestBossDefeated, 1);
     next.totalWardenKills += 1;
+    next.hasCompletedGame = true;
   } else {
     next.deathEcho = createDeathEchoSnapshot(summary);
   }

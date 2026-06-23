@@ -101,6 +101,7 @@ export class UpgradeOfferSystem {
       shieldSource: this.run.stats.current.shieldInterval > 0 || this.run.resources.shield > 0,
       curseLevel: this.run.curse.snapshot().level,
       weaponCap: this.run.weapons.cap,
+      isNgPlus: this.run.isNgPlus,
     };
     const count = kind === 'standard' ? this.run.upgrades.getChoiceCount() : 3;
     const choices =

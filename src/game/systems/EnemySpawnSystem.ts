@@ -2,7 +2,7 @@ import { FEATURE_FLAGS } from '../config/featureFlags';
 import { getCurseTier, enemyAllowedByCurse } from '../data/curse';
 import { ENEMIES } from '../data/enemies';
 import { getSessionSpawnCount, getWaveTier, selectEnemyFromPool, shouldSpawnBoss } from '../data/waves';
-import type { CurseSnapshot, EnemyId } from '../types/gameTypes';
+import type { CurseSnapshot, EnemyId, EdictId } from '../types/gameTypes';
 import type { EnemySystem } from './EnemySystem';
 
 const NEW_ENEMY_IDS = new Set<EnemyId>(['plague-crawler', 'ember-imp', 'grave-defiler']);
@@ -17,6 +17,7 @@ export class EnemySpawnSystem {
     private readonly onEliteWarning: () => void,
     private readonly onBossWarning: () => void,
     private readonly getCurse: () => CurseSnapshot,
+    private readonly getEdicts: () => readonly EdictId[] = () => [],
   ) {}
 
   update(elapsedMs: number): void {
@@ -48,7 +49,8 @@ export class EnemySpawnSystem {
 
     if (tier.eliteEveryMs && tier.elitePool && elapsedMs >= this.nextEliteAt) {
       const curseTier = getCurseTier(this.getCurse().level);
-      this.nextEliteAt = elapsedMs + tier.eliteEveryMs / curseTier.eliteSpawnModifier;
+      const hollowHostMultiplier = this.getEdicts().includes('hollow-host') ? 1.6 : 1;
+      this.nextEliteAt = elapsedMs + tier.eliteEveryMs / (curseTier.eliteSpawnModifier * hollowHostMultiplier);
       this.onEliteWarning();
       const elitePool = tier.elitePool.filter((id) => enemyAllowedByCurse(ENEMIES[id], this.getCurse()));
       if (elitePool.length > 0) {

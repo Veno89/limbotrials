@@ -21,6 +21,7 @@ export interface UpgradeSelectionContext {
   shieldSource?: boolean;
   curseLevel?: number;
   weaponCap?: number;
+  isNgPlus?: boolean;
 }
 
 export function selectUpgradeChoices(
@@ -100,6 +101,9 @@ function isEligible(
   context: UpgradeSelectionContext,
   weaponCap: number,
 ): boolean {
+  if (upgrade.isNgPlus && !context.isNgPlus) {
+    return false;
+  }
   if ((context.stacks.get(upgrade.id) ?? 0) >= upgrade.maxStacks) {
     return false;
   }

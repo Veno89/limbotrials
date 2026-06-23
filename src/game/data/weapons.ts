@@ -276,4 +276,125 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       description: 'Chains jump between several enemies and briefly pull lesser enemies toward the final struck target.',
     },
   },
+  'gravetide-repeater': {
+    id: 'gravetide-repeater',
+    behavior: 'targeted-projectile',
+    name: 'Gravetide Repeater',
+    description: 'A cursed rapid-fire weapon that fires rhythmic bursts of piercing bolts.',
+    texture: 'projectile-laser', // placeholder
+    iconTexture: 'icon-staff', // placeholder
+    baseStats: stats({
+      damage: 14,
+      cooldownMs: 800,
+      range: 600,
+      projectileSpeed: 600,
+      projectileSize: 18,
+      projectileCount: 3,
+      pierce: 1,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+      { stat: 'projectileCount', mode: 'add', value: 1 },
+    ],
+    evolution: {
+      name: 'Abyssal Volley',
+      description: 'Bolts pierce further and travel much faster.',
+    },
+  },
+  'saintbreaker-pike': {
+    id: 'saintbreaker-pike',
+    behavior: 'targeted-projectile',
+    name: 'Saintbreaker Pike',
+    description: 'A brutal forward thrust that punishes everything in a long line.',
+    texture: 'weapon-grave-lance', // placeholder
+    iconTexture: 'icon-sword', // placeholder
+    baseStats: stats({
+      damage: 140,
+      cooldownMs: 3200,
+      range: 400,
+      projectileSpeed: 1200,
+      projectileSize: 64,
+      pierce: 10,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.25 },
+      { stat: 'cooldownMs', mode: 'multiply', value: 0.9 },
+    ],
+    evolution: {
+      name: 'Martyr’s End',
+      description: 'The thrust is wider, reaches further, and deals immense damage.',
+    },
+  },
+  'ashen-orbit': {
+    id: 'ashen-orbit',
+    behavior: 'returning-projectile', // Can act as orbit if we give it the Crimson Orbit behavior
+    name: 'Ashen Orbit',
+    description: 'Burning relic fragments constantly orbit you, damaging enemies on contact.',
+    texture: 'weapon-cinder-reliquary', // placeholder
+    iconTexture: 'icon-void-sword', // placeholder
+    baseStats: stats({
+      damage: 28,
+      cooldownMs: 1500, // Speed of rotation/hits can be tied to this or hardcoded in logic
+      range: 150, // Orbit radius
+      projectileSpeed: 200, // Orbit speed
+      projectileSize: 32,
+      projectileCount: 2,
+      pierce: 999, // Infinite pierce for orbit
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.18 },
+      { stat: 'projectileCount', mode: 'add', value: 1 },
+    ],
+    evolution: {
+      name: 'Corona of Ash',
+      description: 'Adds more fragments and increases the orbit speed significantly.',
+    },
+  },
+  'choir-of-teeth': {
+    id: 'choir-of-teeth',
+    behavior: 'fan-projectile',
+    name: 'Choir of Teeth',
+    description: 'Fires a grotesque fan of jagged bone shards at very close range.',
+    texture: 'weapon-wailing-shards', // placeholder
+    iconTexture: 'icon-chest', // placeholder
+    baseStats: stats({
+      damage: 42,
+      cooldownMs: 1200,
+      range: 300,
+      projectileSpeed: 800,
+      projectileSize: 20,
+      projectileCount: 5,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.2 },
+      { stat: 'projectileCount', mode: 'add', value: 2 },
+    ],
+    evolution: {
+      name: 'Maw of the Abyss',
+      description: 'Fires a massive spread of teeth that shred everything in front of you.',
+    },
+  },
+  'eclipse-brand': {
+    id: 'eclipse-brand',
+    behavior: 'chain-strike', // Can act as a mark if we use chain-strike
+    name: 'Eclipse Brand',
+    description: 'Marks a targeted enemy with dark magic that erupts after a brief delay.',
+    texture: 'weapon-dirge-staff', // placeholder
+    iconTexture: 'icon-staff', // placeholder
+    baseStats: stats({
+      damage: 65,
+      cooldownMs: 2000,
+      range: 800,
+      area: 120, // Blast radius
+      targetCount: 1,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.25 },
+      { stat: 'targetCount', mode: 'add', value: 1 },
+    ],
+    evolution: {
+      name: 'Total Eclipse',
+      description: 'Marks chain to additional enemies and the eruptions are much larger.',
+    },
+  },
 };

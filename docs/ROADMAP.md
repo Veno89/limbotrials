@@ -113,7 +113,7 @@ The next combat direction is specified in `docs/NEXT_COMBAT_EXPANSION.md`.
 - [ ] Phase 4 dual-evolution prototype; Crimson Orbit exists as Bloodletter Axe's current capstone, but alternate evolution paths and selection are still pending
 - [ ] Phase 5 arena buildings V1
 - [x] Phase 6 talent tree V1 foundation: large character trees, legacy-soul point track, save wipe, allocation rules, and first playable UI
-- [ ] Phase 7 New Game+ Lite
+- [x] Phase 7 New Game+ Lite
 
 ## Explicitly Later
 

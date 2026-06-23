@@ -42,6 +42,9 @@ export class PowerupSystem {
     }
     const ids: readonly PowerupId[] = ['mending-soul', 'soul-vacuum', 'grave-frenzy'];
     const id = ids[Math.floor(Math.random() * ids.length)]!;
+    if (id === 'mending-soul' && this.run.edicts.includes('scarcity') && Math.random() < 0.5) {
+      return;
+    }
     const definition = POWERUPS[id];
     this.run.balance.recordPowerupSpawn(id);
     const pickup = this.scene.add

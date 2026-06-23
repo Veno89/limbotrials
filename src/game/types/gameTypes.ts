@@ -14,7 +14,12 @@ export type WeaponId =
   | 'dirge-staff'
   | 'poison-flask'
   | 'sanguine-needle'
-  | 'spectral-chains';
+  | 'spectral-chains'
+  | 'gravetide-repeater'
+  | 'saintbreaker-pike'
+  | 'ashen-orbit'
+  | 'choir-of-teeth'
+  | 'eclipse-brand';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -33,6 +38,15 @@ export type UpgradeCategory =
   | 'weapon-evolution'
   | 'stat'
   | 'curse';
+
+export type EdictId = 'frailty' | 'haste' | 'scarcity' | 'ruin' | 'hollow-host';
+
+export interface EdictDefinition {
+  id: EdictId;
+  name: string;
+  description: string;
+  soulMultiplierBonus: number;
+}
 export type UpgradeId =
   | 'unlock-soul-bolt'
   | 'unlock-hellfire-sigil'
@@ -45,6 +59,11 @@ export type UpgradeId =
   | 'unlock-poison-flask'
   | 'unlock-sanguine-needle'
   | 'unlock-spectral-chains'
+  | 'unlock-gravetide-repeater'
+  | 'unlock-saintbreaker-pike'
+  | 'unlock-ashen-orbit'
+  | 'unlock-choir-of-teeth'
+  | 'unlock-eclipse-brand'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -57,6 +76,11 @@ export type UpgradeId =
   | 'level-poison-flask'
   | 'level-sanguine-needle'
   | 'level-spectral-chains'
+  | 'level-gravetide-repeater'
+  | 'level-saintbreaker-pike'
+  | 'level-ashen-orbit'
+  | 'level-choir-of-teeth'
+  | 'level-eclipse-brand'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -69,6 +93,11 @@ export type UpgradeId =
   | 'evolve-poison-flask'
   | 'evolve-sanguine-needle'
   | 'evolve-spectral-chains'
+  | 'evolve-gravetide-repeater'
+  | 'evolve-saintbreaker-pike'
+  | 'evolve-ashen-orbit'
+  | 'evolve-choir-of-teeth'
+  | 'evolve-eclipse-brand'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -206,7 +235,12 @@ export type ArtifactEffectId =
   | 'soul-furnace-stoke'
   | 'ascended-choice'
   | 'red-ledger-tithe'
-  | 'market-heart-ward';
+  | 'market-heart-ward'
+  | 'crown-second-damnation'
+  | 'martyrs-ledger-payback'
+  | 'black-reliquary-odds'
+  | 'bell-hollow-host-pulse'
+  | 'unlit-halo-tradeoff';
 export type TalentPathId =
   | 'haunted-reaper'
   | 'haunted-echo'
@@ -410,6 +444,7 @@ export interface UpgradeDefinition {
   iconTexture: string;
   source?: 'standard' | 'shop';
   curse?: CurseRewardDefinition;
+  isNgPlus?: boolean;
 }
 
 export type ArtifactId =
@@ -436,7 +471,12 @@ export type ArtifactId =
   | 'spectral-pass'
   | 'ascended-crown'
   | 'red-ledger'
-  | 'heart-of-the-market';
+  | 'heart-of-the-market'
+  | 'crown-of-the-second-damnation'
+  | 'martyrs-ledger'
+  | 'black-reliquary'
+  | 'bell-of-the-hollow-host'
+  | 'unlit-halo';
 
 export type ArtifactRarity = 'common' | 'uncommon' | 'rare' | 'legendary';
 export type ArtifactPoolTier = 'base' | 'tier-2' | 'tier-3' | 'tier-4' | 'ng-plus';
@@ -445,6 +485,7 @@ export interface ArtifactDefinition {
   id: ArtifactId;
   name: string;
   description: string;
+  flavorText?: string;
   rarity: ArtifactRarity;
   poolTier: ArtifactPoolTier;
   iconTexture: string;
@@ -586,6 +627,8 @@ export interface SaveData {
   characterStats: Record<CharacterId, CharacterRunStats>;
   unlockedArtifactTiers: ArtifactPoolTier[];
   journal: JournalDiscoveryState;
+  hasCompletedGame: boolean;
+  ngPlusEdicts: EdictId[];
   deathEcho?: DeathEchoSnapshot;
   settings: {
     screenShake: boolean;
