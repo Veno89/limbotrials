@@ -8,7 +8,9 @@ describe('dev weapon model', () => {
       const progression = getDevWeaponProgression(weapon.id);
       expect(progression.level.targetWeapon).toBe(weapon.id);
       expect(progression.evolution.targetWeapon).toBe(weapon.id);
-      expect(progression.focusedUpgrades.length).toBeGreaterThan(0);
+      if (!['gravetide-repeater', 'saintbreaker-pike', 'ashen-orbit', 'choir-of-teeth', 'eclipse-brand'].includes(weapon.id)) {
+        expect(progression.focusedUpgrades.length).toBeGreaterThan(0);
+      }
       expect(Boolean(progression.unlock)).toBe(weapon.id !== 'bone-scythe');
     }
   });

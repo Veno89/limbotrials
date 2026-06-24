@@ -11,17 +11,18 @@ const MOCK_SAVE: SaveData = {
   unlockedArtifactTiers: ['base', 'tier-2'],
   ngPlusEdicts: [],
   hasCompletedGame: true,
+  talentProgress: { 'the-penitent': { allocations: {} } },
 } as unknown as SaveData;
 
 describe('NG+ System', () => {
   it('RunState calculates soulMultiplierBonus based on edicts', () => {
     const run1 = new RunState(MOCK_SAVE, 'standard', 'the-penitent', true, ['frailty', 'haste']);
-    // frailty is 0.25, haste is 0.15
-    expect(run1.soulMultiplierBonus).toBe(0.4);
+    // frailty is 0.25, haste is 0.3
+    expect(run1.soulMultiplierBonus).toBe(0.55);
 
     const run2 = new RunState(MOCK_SAVE, 'standard', 'the-penitent', true, ['scarcity', 'ruin', 'hollow-host']);
-    // scarcity 0.2, ruin 0.3, hollow-host 0.25
-    expect(run2.soulMultiplierBonus).toBe(0.75);
+    // scarcity 0.25, ruin 0.35, hollow-host 0.4
+    expect(run2.soulMultiplierBonus).toBe(1.0);
   });
 
   it('getAvailableArtifacts includes ng-plus tier only if isNgPlus is true', () => {
@@ -35,8 +36,8 @@ describe('NG+ System', () => {
   it('selectUpgradeChoices filters isNgPlus upgrades based on context', () => {
     const baseContext: UpgradeSelectionContext = {
       stacks: new Map(),
-      equippedWeapons: new Set<WeaponId>(['the-gravetide' as WeaponId]), // Equip something to pass requirements
-      weaponLevels: new Map<WeaponId, number>([['the-gravetide' as WeaponId, 1]]),
+      equippedWeapons: new Set<WeaponId>(['gravetide-repeater']),
+      weaponLevels: new Map<WeaponId, number>([['gravetide-repeater', 1]]),
       playerLevel: 5,
       isNgPlus: false,
     };

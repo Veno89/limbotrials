@@ -7,6 +7,7 @@ const RARITY_COLORS = {
   common: 0x637985,
   uncommon: 0x228b22,
   rare: 0x1f75fe,
+  epic: 0xb687ed,
   legendary: COLORS.gold,
 } as const;
 

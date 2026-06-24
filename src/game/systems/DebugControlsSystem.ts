@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { BalancePresetId, WeaponId } from '../types/gameTypes';
+import type { BalancePresetId, WeaponId, UpgradeId } from '../types/gameTypes';
 import { BalanceDebugOverlay } from '../ui/BalanceDebugOverlay';
 import type { EnemySystem } from './EnemySystem';
 import type { RunState } from './RunState';
@@ -90,23 +90,10 @@ export class DebugControlsSystem {
   }
 
   private levelWeapons(): void {
-    const progression = {
-      'bone-scythe': ['level-bone-scythe', 'evolve-bone-scythe'],
-      'soul-bolt': ['level-soul-bolt', 'evolve-soul-bolt'],
-      'hellfire-sigil': ['level-hellfire-sigil', 'evolve-hellfire-sigil'],
-      'grave-lance': ['level-grave-lance', 'evolve-grave-lance'],
-      'wailing-shards': ['level-wailing-shards', 'evolve-wailing-shards'],
-      'cinder-reliquary': ['level-cinder-reliquary', 'evolve-cinder-reliquary'],
-      'ashen-longbow': ['level-ashen-longbow', 'evolve-ashen-longbow'],
-      'bloodletter-axe': ['level-bloodletter-axe', 'evolve-bloodletter-axe'],
-      'dirge-staff': ['level-dirge-staff', 'evolve-dirge-staff'],
-      'poison-flask': ['level-poison-flask', 'evolve-poison-flask'],
-      'sanguine-needle': ['level-sanguine-needle', 'evolve-sanguine-needle'],
-      'spectral-chains': ['level-spectral-chains', 'evolve-spectral-chains'],
-    } as const;
     for (const weapon of this.run.weapons.equipped) {
-      const [level, evolution] = progression[weapon];
-      this.run.upgrades.apply(this.run.weapons.getState(weapon).level < EVOLUTION_READY_LEVEL ? level : evolution);
+      const levelId = `level-${weapon}` as UpgradeId;
+      const evolveId = `evolve-${weapon}` as UpgradeId;
+      this.run.upgrades.apply(this.run.weapons.getState(weapon).level < EVOLUTION_READY_LEVEL ? levelId : evolveId);
     }
   }
 

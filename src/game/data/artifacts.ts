@@ -327,10 +327,269 @@ export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
     rarity: 'legendary',
     effect: 'unlit-halo-tradeoff',
   },
+
+  // ─── Expansion: Common (base tier) ───
+
+  'cracked-prayer-bead': {
+    id: 'cracked-prayer-bead',
+    name: 'Cracked Prayer Bead',
+    description: 'Increases pickup radius by 30%. Every 8 pickups, heal 5.',
+    flavorText: '"The prayer was never answered, but the habit remains."',
+    rarity: 'common',
+    poolTier: 'base',
+    iconTexture: 'icon-chest',
+    modifiers: [{ stat: 'pickupRadius', mode: 'multiply', value: 1.3 }],
+    effect: 'prayer-bead-heal',
+  },
+  'soot-stained-bandage': {
+    id: 'soot-stained-bandage',
+    name: 'Soot-Stained Bandage',
+    description: 'Increases maximum health by 25. Every 20 kills, heal 8.',
+    flavorText: '"It smells like the end of a church."',
+    rarity: 'common',
+    poolTier: 'base',
+    iconTexture: 'icon-chest',
+    modifiers: [{ stat: 'maxHealth', mode: 'add', value: 25 }],
+    effect: 'bandage-regen',
+  },
+  'iron-nail-charm': {
+    id: 'iron-nail-charm',
+    name: 'Iron Nail Charm',
+    description: 'Increases global damage by 10%. Every 22 kills, briefly quicken all weapons.',
+    flavorText: '"Hammered through a saint\'s palm and kept as a trophy."',
+    rarity: 'common',
+    poolTier: 'base',
+    iconTexture: 'icon-sword',
+    modifiers: [{ stat: 'damage', mode: 'multiply', value: 1.1 }],
+    effect: 'nail-whetstone',
+  },
+  'grave-soil-pouch': {
+    id: 'grave-soil-pouch',
+    name: 'Grave Soil Pouch',
+    description: 'Increases soul gain by 15%. Every 14 kills, gain +5 bonus souls.',
+    flavorText: '"Dirt from a grave that refused to stay closed."',
+    rarity: 'common',
+    poolTier: 'base',
+    iconTexture: 'soul',
+    modifiers: [{ stat: 'soulGain', mode: 'multiply', value: 1.15 }],
+    effect: 'grave-soil-souls',
+  },
+  'pilgrims-step': {
+    id: 'pilgrims-step',
+    name: "Pilgrim's Step",
+    description: 'Increases movement speed by 8%. Dashing briefly grants +8% damage for 2 seconds.',
+    flavorText: '"Walk far enough and the road teaches you violence."',
+    rarity: 'common',
+    poolTier: 'base',
+    iconTexture: 'icon-boots',
+    modifiers: [{ stat: 'moveSpeed', mode: 'multiply', value: 1.08 }],
+    effect: 'pilgrim-dash-boost',
+  },
+  'wax-seal-of-mercy': {
+    id: 'wax-seal-of-mercy',
+    name: 'Wax Seal of Mercy',
+    description: 'Increases maximum health by 30. Taking HP damage grants a 12-point shield (6s cooldown).',
+    flavorText: '"Mercy is given once. After that, only wax remains."',
+    rarity: 'common',
+    poolTier: 'base',
+    iconTexture: 'icon-chest',
+    modifiers: [{ stat: 'maxHealth', mode: 'add', value: 30 }],
+    effect: 'mercy-seal-ward',
+  },
+
+  // ─── Expansion: Uncommon (base tier) ───
+
+  'martyrs-splinter': {
+    id: 'martyrs-splinter',
+    name: "Martyr's Splinter",
+    description: 'Increases damage by 8%. Taking HP damage grants +12% weapon damage for 4 seconds.',
+    flavorText: '"Pain is the only teacher that never lies."',
+    rarity: 'uncommon',
+    poolTier: 'base',
+    iconTexture: 'icon-sword',
+    modifiers: [{ stat: 'damage', mode: 'multiply', value: 1.08 }],
+    effect: 'splinter-empower',
+  },
+  'black-candle-stub': {
+    id: 'black-candle-stub',
+    name: 'Black Candle Stub',
+    description: 'Increases attack speed by 12%. Every 30 kills triggers Grave Frenzy.',
+    flavorText: '"It was lit at the funeral of something that should not have died."',
+    rarity: 'uncommon',
+    poolTier: 'base',
+    iconTexture: 'icon-staff',
+    modifiers: [{ stat: 'attackSpeed', mode: 'multiply', value: 1.12 }],
+    effect: 'candle-pulse',
+  },
+  'chain-of-lent': {
+    id: 'chain-of-lent',
+    name: 'Chain of Lent',
+    description: 'Reduces attack speed by 12%, but increases damage by 22%. Every 18 kills, quicken all weapons.',
+    flavorText: '"Restraint sharpens the blade."',
+    rarity: 'uncommon',
+    poolTier: 'base',
+    iconTexture: 'icon-void-sword',
+    modifiers: [
+      { stat: 'attackSpeed', mode: 'multiply', value: 0.88 },
+      { stat: 'damage', mode: 'multiply', value: 1.22 },
+    ],
+    effect: 'lent-temperance',
+  },
+  'crowbone-dice': {
+    id: 'crowbone-dice',
+    name: 'Crowbone Dice',
+    description: 'Increases critical chance by 8%. Elite and boss kills grant +15 bonus souls.',
+    flavorText: '"Roll the bones. Something always pays."',
+    rarity: 'uncommon',
+    poolTier: 'base',
+    iconTexture: 'icon-void-sword',
+    modifiers: [{ stat: 'critChance', mode: 'add', value: 0.08 }],
+    effect: 'crowbone-bounty',
+  },
+  'ember-rosary': {
+    id: 'ember-rosary',
+    name: 'Ember Rosary',
+    description: 'Increases damage by 10% and attack speed by 5%. Every 25 kills, quicken all weapons.',
+    flavorText: '"Each bead is a prayer that caught fire."',
+    rarity: 'uncommon',
+    poolTier: 'base',
+    iconTexture: 'icon-staff',
+    modifiers: [
+      { stat: 'damage', mode: 'multiply', value: 1.1 },
+      { stat: 'attackSpeed', mode: 'multiply', value: 1.05 },
+    ],
+    effect: 'rosary-quicken',
+  },
+  'hollow-coin': {
+    id: 'hollow-coin',
+    name: 'Hollow Coin',
+    description: 'Increases soul gain by 40%, but reduces maximum health by 15%. Elite kills grant +10 souls.',
+    flavorText: '"Spend your health. Earn your passage."',
+    rarity: 'uncommon',
+    poolTier: 'base',
+    iconTexture: 'soul',
+    modifiers: [
+      { stat: 'soulGain', mode: 'multiply', value: 1.4 },
+      { stat: 'maxHealth', mode: 'multiply', value: 0.85 },
+    ],
+    effect: 'hollow-coin-greed',
+  },
+
+  // ─── Expansion: Rare (tier-2 and tier-3) ───
+
+  'saintless-mirror': {
+    id: 'saintless-mirror',
+    name: 'Saintless Mirror',
+    description: 'Increases attack speed by 12% and damage by 10%. Dashing triggers a strong weapon quicken.',
+    flavorText: '"It reflects nothing holy."',
+    rarity: 'rare',
+    poolTier: 'tier-2',
+    iconTexture: 'icon-void-sword',
+    modifiers: [
+      { stat: 'attackSpeed', mode: 'multiply', value: 1.12 },
+      { stat: 'damage', mode: 'multiply', value: 1.1 },
+    ],
+    effect: 'mirror-quicken',
+  },
+  'blood-tithe-chalice': {
+    id: 'blood-tithe-chalice',
+    name: 'Blood-Tithe Chalice',
+    description: 'Increases critical damage by 15%. Elite kills heal 20 and quicken weapons; boss kills heal 40.',
+    flavorText: '"The chalice is always full. You just can\'t see what fills it."',
+    rarity: 'rare',
+    poolTier: 'tier-2',
+    iconTexture: 'icon-void-sword',
+    modifiers: [{ stat: 'critDamage', mode: 'add', value: 0.15 }],
+    effect: 'blood-tithe-feast',
+  },
+  'funeral-bell-clapper': {
+    id: 'funeral-bell-clapper',
+    name: 'Funeral Bell Clapper',
+    description: 'Increases damage by 8%. Every 12 kills, quicken all weapons and release a brief shockwave.',
+    flavorText: '"The dead do not leave quietly."',
+    rarity: 'rare',
+    poolTier: 'tier-3',
+    iconTexture: 'icon-chest',
+    modifiers: [{ stat: 'damage', mode: 'multiply', value: 1.08 }],
+    effect: 'bell-clapper-shockwave',
+  },
+  'thornscript-vellum': {
+    id: 'thornscript-vellum',
+    name: 'Thornscript Vellum',
+    description: 'Increases maximum health by 40. Taking HP damage quickens weapons and grants a 10-point shield (5s cooldown).',
+    flavorText: '"Written in pain. Read in defiance."',
+    rarity: 'rare',
+    poolTier: 'tier-3',
+    iconTexture: 'icon-chest',
+    modifiers: [{ stat: 'maxHealth', mode: 'add', value: 40 }],
+    effect: 'thornscript-ward',
+  },
+  'reliquary-key': {
+    id: 'reliquary-key',
+    name: 'Reliquary Key',
+    description: 'Increases soul gain by 20% and critical chance by 6%. Elite kills grant +25 bonus souls.',
+    flavorText: '"Opens something you should have left sealed."',
+    rarity: 'rare',
+    poolTier: 'tier-2',
+    iconTexture: 'boss-key',
+    modifiers: [
+      { stat: 'soulGain', mode: 'multiply', value: 1.2 },
+      { stat: 'critChance', mode: 'add', value: 0.06 },
+    ],
+    effect: 'reliquary-key-bounty',
+  },
+
+  // ─── Expansion: Epic (tier-4) ───
+
+  'crown-of-ash': {
+    id: 'crown-of-ash',
+    name: 'Crown of Ash',
+    description: 'Increases damage by 20% and critical chance by 12%. Every 15 kills without taking damage, heavily quicken all weapons.',
+    flavorText: '"The crown was not given. It was earned through perfect slaughter."',
+    rarity: 'epic',
+    poolTier: 'tier-4',
+    iconTexture: 'icon-void-sword',
+    modifiers: [
+      { stat: 'damage', mode: 'multiply', value: 1.2 },
+      { stat: 'critChance', mode: 'add', value: 0.12 },
+    ],
+    effect: 'crown-ash-fury',
+  },
+  'the-red-testament': {
+    id: 'the-red-testament',
+    name: 'The Red Testament',
+    description: 'Reduces maximum health by 30%, but increases damage by 35% and attack speed by 20%. On claim, gain a 40-point shield.',
+    flavorText: '"Every page is a wound. Every word is a weapon."',
+    rarity: 'epic',
+    poolTier: 'tier-4',
+    iconTexture: 'status-bleed',
+    modifiers: [
+      { stat: 'maxHealth', mode: 'multiply', value: 0.7 },
+      { stat: 'damage', mode: 'multiply', value: 1.35 },
+      { stat: 'attackSpeed', mode: 'multiply', value: 1.2 },
+    ],
+    effect: 'red-testament-embrace',
+  },
+
+  // ─── Expansion: Legendary (tier-4) ───
+  'halo-of-flies': {
+    id: 'halo-of-flies',
+    name: 'Halo of Flies',
+    description: 'Increases damage by 15%. Every 8 kills, briefly trigger Grave Frenzy.',
+    flavorText: '"They circle the holy. They feast on the damned."',
+    rarity: 'legendary',
+    poolTier: 'tier-4',
+    iconTexture: 'icon-void-sword',
+    modifiers: [{ stat: 'damage', mode: 'multiply', value: 1.15 }],
+    effect: 'halo-flies-frenzy',
+  },
 };
 
 export function getAvailableArtifacts(save: SaveData, isNgPlus = false): ArtifactDefinition[] {
   return Object.values(ARTIFACTS).filter((artifact) => {
+    if (artifact.source === 'shop') {
+      return false;
+    }
     if (artifact.poolTier === 'ng-plus') {
       return isNgPlus;
     }
@@ -365,3 +624,4 @@ export function rollArtifact(
   }
   return rarities.at(-1)?.candidates.at(-1) ?? null;
 }
+

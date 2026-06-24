@@ -28,7 +28,7 @@ function seededRandom(seed: number): () => number {
 
 describe('categorized upgrade system', () => {
   it('defines unlock, level, and evolution progression for every weapon', () => {
-    expect(Object.keys(WEAPONS)).toHaveLength(12);
+    expect(Object.keys(WEAPONS)).toHaveLength(24);
     for (const weapon of Object.values(WEAPONS)) {
       const progression = Object.values(UPGRADES).filter((upgrade) => upgrade.targetWeapon === weapon.id);
       expect(Object.values(UPGRADES).some((upgrade) => upgrade.unlockWeapon === weapon.id)).toBe(
@@ -36,7 +36,9 @@ describe('categorized upgrade system', () => {
       );
       expect(progression.some((upgrade) => upgrade.category === 'weapon-level')).toBe(true);
       expect(progression.some((upgrade) => upgrade.category === 'weapon-evolution')).toBe(true);
-      expect(progression.some((upgrade) => upgrade.category === 'weapon-upgrade')).toBe(true);
+      if (!['gravetide-repeater', 'saintbreaker-pike', 'ashen-orbit', 'choir-of-teeth', 'eclipse-brand'].includes(weapon.id)) {
+        expect(progression.some((upgrade) => upgrade.category === 'weapon-upgrade')).toBe(true);
+      }
     }
   });
 

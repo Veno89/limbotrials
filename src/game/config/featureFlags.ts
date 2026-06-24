@@ -8,5 +8,5 @@ export const FEATURE_FLAGS = {
   dualEvolutions: false,
   buildings: false,
   talentTree: true,
-  newGamePlus: false,
+  newGamePlus: true,
 } as const;

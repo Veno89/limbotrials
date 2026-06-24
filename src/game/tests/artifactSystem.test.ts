@@ -39,7 +39,7 @@ describe('artifact system', () => {
   });
 
   it('keeps the configured rarity ordering across repeated rolls', () => {
-    const counts = { common: 0, uncommon: 0, rare: 0, legendary: 0 };
+    const counts = { common: 0, uncommon: 0, rare: 0, epic: 0, legendary: 0 };
     const random = seededRandom(19);
     for (let index = 0; index < 4000; index += 1) {
       const artifact = rollArtifact(Object.values(ARTIFACTS), [], random);
@@ -47,7 +47,8 @@ describe('artifact system', () => {
     }
     expect(counts.common).toBeGreaterThan(counts.uncommon);
     expect(counts.uncommon).toBeGreaterThan(counts.rare);
-    expect(counts.rare).toBeGreaterThan(counts.legendary);
+    expect(counts.rare).toBeGreaterThan(counts.epic);
+    expect(counts.epic).toBeGreaterThan(counts.legendary);
   });
 
   it('applies percentage modifiers with the same factor convention as upgrades', () => {
