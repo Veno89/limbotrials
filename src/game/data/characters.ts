@@ -6,7 +6,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDefinition> = {
     name: 'Haunted',
     title: 'The Unremembered',
     flavorText: 'A condemned soul still stubborn enough to carry a blade.',
-    texture: 'haunted_idle_1',
+    texture: 'scythe_char',
     starterWeapon: 'bone-scythe',
     baseStatOverrides: {},
     unlockCondition: {
@@ -19,7 +19,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDefinition> = {
     name: 'The Penitent',
     title: 'Bearer of the Last Burden',
     flavorText: 'Slow beneath the weight of old vows, but terribly difficult to end.',
-    texture: 'player-penitent',
+    texture: 'thepenitent_idle_1',
     starterWeapon: 'bone-scythe',
     baseStatOverrides: {
       maxHealth: 140,

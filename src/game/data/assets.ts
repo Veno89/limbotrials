@@ -1,8 +1,8 @@
 import menuBackground from '../../../assets/sprites/backgrounds/realmainmenubackground.png?url';
 import legacyBackground from '../../../assets/sprites/backgrounds/characterselectbackground.png?url';
 import playerHaunted from '../../../assets/sprites/playersprites/Haunted.png?url';
-import hauntedIdle1 from '../../../assets/test/haunted/haunted_idle_1.png?url';
-import playerPenitent from '../../../assets/sprites/playersprites/bulwark.png?url';
+import scytheChar from '../../../assets/test/scythe_char/scythe_char.png?url';
+import penitentIdle1 from '../../../assets/test/haunted/thepenitent_idle_1.png?url';
 import playerAshwalker from '../../../assets/sprites/playersprites/Arcanist.png?url';
 import enemyRunt from '../../../assets/sprites/enemies/enemy_wretched_runt.png?url';
 import enemyLostSoul from '../../../assets/test/enemies/lost_soul.png?url';
@@ -66,8 +66,8 @@ export const ASSETS: Array<[string, string]> = [
   ['menu-background', menuBackground],
   ['legacy-background', legacyBackground],
   ['player-haunted', playerHaunted],
-  ['haunted_idle_1', hauntedIdle1],
-  ['player-penitent', playerPenitent],
+  ['scythe_char', scytheChar],
+  ['thepenitent_idle_1', penitentIdle1],
   ['player-ashwalker', playerAshwalker],
   ['enemy-runt', enemyRunt],
   ['enemy-lost-soul', enemyLostSoul],

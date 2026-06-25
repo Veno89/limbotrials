@@ -43,9 +43,10 @@ export class CharacterSelectScene extends Phaser.Scene {
         .rectangle(x, 335, 340, 390, COLORS.panel, 0.94)
         .setStrokeStyle(2, character.id === selected ? COLORS.gold : COLORS.border);
       frames.set(character.id, frame);
+      const isHaunted = character.id === 'haunted';
       this.add
         .image(x, 235, character.texture)
-        .setDisplaySize(125, 125)
+        .setDisplaySize(isHaunted ? 114 : 125, isHaunted ? 135 : 125)
         .setAlpha(unlocked ? 1 : 0.25);
       this.add
         .text(x, 320, unlocked ? character.name.toUpperCase() : 'LOCKED SOUL', {

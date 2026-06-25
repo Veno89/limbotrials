@@ -15,8 +15,8 @@ export class PlayerVisualSystem {
     }
     this.player.setAlpha(0);
     this.animated = scene.add
-      .sprite(player.x, player.y, 'haunted_idle_1')
-      .setDisplaySize(96, 96)
+      .sprite(player.x, player.y, 'scythe_char')
+      .setDisplaySize(88, 104)
       .setDepth(player.depth);
   }
 
@@ -34,7 +34,7 @@ export class PlayerVisualSystem {
     const hoverOffset = Math.sin(time / 220) * (isMoving ? 4 : 2);
     const squash = isMoving ? Math.sin(time / 140) * 0.08 : Math.sin(time / 300) * 0.03;
 
-    this.animated.setDisplaySize(96 * (1 - squash * 0.5), 96 * (1 + squash));
+    this.animated.setDisplaySize(88 * (1 - squash * 0.5), 104 * (1 + squash));
     this.animated.setPosition(this.player.x, this.player.y + hoverOffset);
 
     if (body.velocity.lengthSq() > 200000 && time > this.lastGhostTime + 50) {

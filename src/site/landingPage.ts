@@ -1,7 +1,7 @@
 import heroBackground from '../../assets/sprites/backgrounds/realmainmenubackground.png?url';
 import wardenImage from '../../assets/sprites/bossprites/floor boss 1.png?url';
-import hauntedImage from '../../assets/test/haunted/haunted_idle_1.png?url';
-import penitentImage from '../../assets/sprites/playersprites/bulwark.png?url';
+import hauntedImage from '../../assets/test/scythe_char/scythe_char.png?url';
+import penitentImage from '../../assets/test/haunted/thepenitent_idle_1.png?url';
 import ashwalkerImage from '../../assets/sprites/playersprites/Arcanist.png?url';
 import reliquaryImage from '../../assets/sprites/items/reliquary_chest.png?url';
 import voidSwordImage from '../../assets/sprites/items/icon_sword_void.png?url';
