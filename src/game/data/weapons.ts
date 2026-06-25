@@ -542,4 +542,28 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       description: 'Bolts deal increased damage to isolated targets and always crit the last enemy pierced.',
     },
   },
+  'gravecleaver': {
+    id: 'gravecleaver',
+    behavior: 'gravecleaver-slash',
+    name: 'Gravecleaver',
+    description: 'A fast, close-range sword for aggressive melee combat.',
+    texture: 'weapon-gravecleaver',
+    iconTexture: 'weapon-gravecleaver',
+    baseStats: stats({
+      damage: 42,
+      cooldownMs: 800,
+      range: 100, // Short range
+      area: 90, // Sweep angle in degrees
+      critChance: 0.1,
+      critDamage: 1.5,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+      { stat: 'cooldownMs', mode: 'multiply', value: 0.92 },
+    ],
+    evolution: {
+      name: 'Reaper\'s Oath',
+      description: 'Strikes twice per cycle. The second strike has increased reach.',
+    },
+  },
 };

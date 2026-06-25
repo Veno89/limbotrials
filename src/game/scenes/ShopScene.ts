@@ -38,12 +38,12 @@ export class ShopScene extends Phaser.Scene {
   create(): void {
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.88).setOrigin(0).setInteractive();
     this.add
-      .image(170, 116, 'shop-building')
+      .image(GAME_WIDTH / 2 - 470, GAME_HEIGHT / 2 - 244, 'shop-building')
       .setDisplaySize(172, 158)
       .setAlpha(0.9);
-    addTitle(this, GAME_WIDTH / 2, 66, 'THE BLOOD MARKET', 36).setColor('#e1b1a5');
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 294, 'THE BLOOD MARKET', 36).setColor('#e1b1a5');
     this.add
-      .text(GAME_WIDTH / 2, 108, 'POWER FOR BLOOD. THE STRONGER THE RELIC, THE DEEPER THE CUT.', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 252, 'POWER FOR BLOOD. THE STRONGER THE RELIC, THE DEEPER THE CUT.', {
         fontFamily: 'Cinzel, serif',
         fontSize: '13px',
         color: '#aebdc3',
@@ -58,12 +58,12 @@ export class ShopScene extends Phaser.Scene {
     this.content?.destroy(true);
     this.content = this.add.container(0, 0);
     const ratio = Phaser.Math.Clamp(this.health / this.dataRef.maxHealth, 0, 1);
-    const healthBack = this.add.rectangle(GAME_WIDTH / 2, 143, 320, 18, 0x050809, 0.95).setStrokeStyle(2, COLORS.border);
+    const healthBack = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 217, 320, 18, 0x050809, 0.95).setStrokeStyle(2, COLORS.border);
     const healthBar = this.add
-      .rectangle(GAME_WIDTH / 2 - 158, 143, 316 * ratio, 12, COLORS.blood)
+      .rectangle(GAME_WIDTH / 2 - 158, GAME_HEIGHT / 2 - 217, 316 * ratio, 12, COLORS.blood)
       .setOrigin(0, 0.5);
     const healthText = this.add
-      .text(GAME_WIDTH / 2, 143, `YOUR BLOOD  ${Math.ceil(this.health)} / ${Math.round(this.dataRef.maxHealth)}`, {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 217, `YOUR BLOOD  ${Math.ceil(this.health)} / ${Math.round(this.dataRef.maxHealth)}`, {
         fontFamily: 'Cinzel, serif',
         fontSize: '12px',
         color: '#f0d4ce',
@@ -76,7 +76,7 @@ export class ShopScene extends Phaser.Scene {
     if (this.dataRef.offers.length === 0) {
       this.content.add(
         this.add
-          .text(GAME_WIDTH / 2, 380, 'THE STALL HOLDS NOTHING YOU DO NOT ALREADY OWN.', {
+          .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 20, 'THE STALL HOLDS NOTHING YOU DO NOT ALREADY OWN.', {
             fontFamily: 'Cinzel, serif',
             fontSize: '18px',
             color: '#95a7ae',
@@ -84,10 +84,10 @@ export class ShopScene extends Phaser.Scene {
           .setOrigin(0.5),
       );
     }
-    this.dataRef.offers.forEach((offer, index) => this.createOfferCard(offer, 260 + index * 380, 390));
+    this.dataRef.offers.forEach((offer, index) => this.createOfferCard(offer, GAME_WIDTH / 2 - 380 + index * 380, GAME_HEIGHT / 2 + 30));
     this.content.add(
       this.add
-        .text(GAME_WIDTH / 2, 602, this.status, {
+        .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 242, this.status, {
           fontFamily: 'Inter, sans-serif',
           fontSize: '13px',
           color: '#c9a49c',

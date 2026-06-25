@@ -27,9 +27,9 @@ export class CharacterSelectScene extends Phaser.Scene {
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
       .setAlpha(0.42);
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.62).setOrigin(0);
-    addTitle(this, GAME_WIDTH / 2, 62, 'CHOOSE THE CONDEMNED', 36);
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 298, 'CHOOSE THE CONDEMNED', 36);
     this.add
-      .text(GAME_WIDTH / 2, 108, 'Each soul enters Limbo with a different burden.', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 252, 'Each soul enters Limbo with a different burden.', {
         fontFamily: 'Cinzel, serif',
         fontSize: '14px',
         color: '#9fb1b8',
@@ -37,33 +37,33 @@ export class CharacterSelectScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     Object.values(CHARACTERS).forEach((character, index) => {
-      const x = 250 + index * 390;
+      const x = GAME_WIDTH / 2 - 390 + index * 390;
       const unlocked = save.unlockedCharacters.includes(character.id);
       const frame = this.add
-        .rectangle(x, 335, 340, 390, COLORS.panel, 0.94)
+        .rectangle(x, GAME_HEIGHT / 2 - 25, 340, 390, COLORS.panel, 0.94)
         .setStrokeStyle(2, character.id === selected ? COLORS.gold : COLORS.border);
       frames.set(character.id, frame);
       const isHaunted = character.id === 'haunted';
       this.add
-        .image(x, 235, character.texture)
+        .image(x, GAME_HEIGHT / 2 - 125, character.texture)
         .setDisplaySize(isHaunted ? 114 : 125, isHaunted ? 135 : 125)
         .setAlpha(unlocked ? 1 : 0.25);
       this.add
-        .text(x, 320, unlocked ? character.name.toUpperCase() : 'LOCKED SOUL', {
+        .text(x, GAME_HEIGHT / 2 - 40, unlocked ? character.name.toUpperCase() : 'LOCKED SOUL', {
           fontFamily: 'Cinzel, serif',
           fontSize: '20px',
           color: unlocked ? '#dce8ed' : '#8d7376',
         })
         .setOrigin(0.5);
       this.add
-        .text(x, 348, character.title, {
+        .text(x, GAME_HEIGHT / 2 - 12, character.title, {
           fontFamily: 'Cinzel, serif',
           fontSize: '12px',
           color: '#c7a76a',
         })
         .setOrigin(0.5);
       this.add
-        .text(x, 392, unlocked ? character.flavorText : 'This soul remains beyond reach.', {
+        .text(x, GAME_HEIGHT / 2 + 32, unlocked ? character.flavorText : 'This soul remains beyond reach.', {
           fontFamily: 'Inter, sans-serif',
           fontSize: '13px',
           color: '#aebfc6',
@@ -74,7 +74,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       const starter = WEAPONS[character.starterWeapon].name;
       const stats = describeStats(character.id);
       this.add
-        .text(x, 475, unlocked ? `STARTER: ${starter}\n${stats}` : character.unlockCondition.description, {
+        .text(x, GAME_HEIGHT / 2 + 115, unlocked ? `STARTER: ${starter}\n${stats}` : character.unlockCondition.description, {
           fontFamily: 'Cinzel, serif',
           fontSize: '12px',
           color: unlocked ? '#8edfff' : '#c98a8f',
@@ -97,10 +97,10 @@ export class CharacterSelectScene extends Phaser.Scene {
 
     const edictContainer = this.add.container(0, 0).setVisible(false);
     edictContainer.add(this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x05070a, 0.95));
-    const titleText = addTitle(this, GAME_WIDTH / 2, 120, 'NEW GAME PLUS', 32);
+    const titleText = addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 240, 'NEW GAME PLUS', 32);
     edictContainer.add(titleText);
     
-    let multiplierText = this.add.text(GAME_WIDTH / 2, 170, '', {
+    let multiplierText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 190, '', {
       fontFamily: 'Cinzel, serif',
       fontSize: '18px',
       color: '#d7bd82',
@@ -115,7 +115,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     updateMultiplier();
 
     Object.values(EDICTS).forEach((edict, i) => {
-      const y = 250 + i * 50;
+      const y = GAME_HEIGHT / 2 - 110 + i * 50;
       const text = this.add.text(GAME_WIDTH / 2, y, `[${selectedEdicts.has(edict.id) ? 'X' : ' '}] ${edict.name}`, {
         fontFamily: 'Inter, sans-serif',
         fontSize: '18px',
@@ -136,7 +136,7 @@ export class CharacterSelectScene extends Phaser.Scene {
       }).setOrigin(0.5));
     });
 
-    const enterButton = addButton(this, GAME_WIDTH / 2, 585, 'ENTER THE TRIAL', () => {
+    const enterButton = addButton(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 225, 'ENTER THE TRIAL', () => {
       save.selectedCharacter = selected;
       save.ngPlusEdicts = [...selectedEdicts];
       writeSave(save);
@@ -146,14 +146,14 @@ export class CharacterSelectScene extends Phaser.Scene {
     const returnButton = addButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 55, 'RETURN', () => this.scene.start('MainMenuScene'), 250);
 
     if (save.hasCompletedGame) {
-      const ngToggle = addButton(this, GAME_WIDTH / 2 + 350, 585, 'NG+: OFF', () => {
+      const ngToggle = addButton(this, GAME_WIDTH / 2 + 350, GAME_HEIGHT / 2 + 225, 'NG+: OFF', () => {
         isNgPlus = !isNgPlus;
         (ngToggle.getAt(1) as Phaser.GameObjects.Text).setText(isNgPlus ? 'NG+: ON' : 'NG+: OFF');
         edictContainer.setVisible(isNgPlus);
         (enterButton.getAt(1) as Phaser.GameObjects.Text).setText(isNgPlus ? 'BEGIN NG+ TRIAL' : 'ENTER THE TRIAL');
       }, 200);
       
-      const ngPlusInfo = this.add.text(GAME_WIDTH / 2 + 350, 625, 'Unlocks new rewards', {
+      const ngPlusInfo = this.add.text(GAME_WIDTH / 2 + 350, GAME_HEIGHT / 2 + 265, 'Unlocks new rewards', {
          fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#c7a76a'
       }).setOrigin(0.5);
       

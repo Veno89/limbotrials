@@ -23,7 +23,6 @@ export class ArtifactBar {
   private readonly tooltipRarity: Phaser.GameObjects.Text;
   private readonly tooltipDesc: Phaser.GameObjects.Text;
   private readonly tooltipBack: Phaser.GameObjects.Rectangle;
-  private readonly title: Phaser.GameObjects.Text;
 
   private readonly startX = 48;
   private readonly y = 132;
@@ -34,16 +33,7 @@ export class ArtifactBar {
     private readonly scene: Phaser.Scene,
     private readonly run: RunState,
   ) {
-    this.title = scene.add
-      .text(this.startX, 105, 'ARTIFACTS: NONE', {
-        fontFamily: 'Cinzel, serif',
-        fontSize: '11px',
-        color: '#9fb1b8',
-        stroke: '#020405',
-        strokeThickness: 3,
-      })
-      .setScrollFactor(0)
-      .setDepth(155);
+
 
     this.tooltipBack = scene.add.rectangle(0, 0, 260, 80, COLORS.panel, 0.95)
       .setStrokeStyle(2, COLORS.border)
@@ -142,7 +132,6 @@ export class ArtifactBar {
 
   private layoutIcons(): void {
     const ordered = Array.from(this.run.artifacts.collected).filter(id => this.icons.has(id));
-    this.title.setText(`ARTIFACTS: ${ordered.length}`);
     ordered.forEach((id, index) => {
       const icon = this.icons.get(id)!;
       this.scene.tweens.add({
@@ -191,6 +180,6 @@ export class ArtifactBar {
     }
     this.icons.clear();
     this.tooltip.destroy();
-    this.title.destroy();
+
   }
 }

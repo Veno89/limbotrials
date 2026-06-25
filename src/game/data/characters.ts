@@ -20,7 +20,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDefinition> = {
     title: 'Bearer of the Last Burden',
     flavorText: 'Slow beneath the weight of old vows, but terribly difficult to end.',
     texture: 'thepenitent_idle_1',
-    starterWeapon: 'bone-scythe',
+    starterWeapon: 'gravecleaver',
     baseStatOverrides: {
       maxHealth: 140,
       moveSpeed: 187,

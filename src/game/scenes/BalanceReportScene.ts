@@ -52,11 +52,13 @@ export class BalanceReportScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const active = this.reportData.tab ?? 'overview';
+    const xOffset = (GAME_WIDTH - 1280) / 2;
+    const yOffset = (GAME_HEIGHT - 720) / 2;
     TABS.forEach((tab, index) => {
       addButton(
         this,
-        235 + index * 270,
-        125,
+        235 + index * 270 + xOffset,
+        125 + yOffset,
         tab.toUpperCase(),
         () => this.scene.restart({ ...this.reportData, tab }),
         235,
@@ -72,12 +74,12 @@ export class BalanceReportScene extends Phaser.Scene {
       this.renderOverview();
     }
 
-    addButton(this, 370, GAME_HEIGHT - 38, 'BACK', () => {
+    addButton(this, GAME_WIDTH / 2 - 270, GAME_HEIGHT - 38, 'BACK', () => {
       this.scene.stop();
       this.scene.resume(this.reportData.returnScene);
     }, 260);
-    addButton(this, 640, GAME_HEIGHT - 38, 'COPY JSON', () => this.copyReport(), 260);
-    addButton(this, 910, GAME_HEIGHT - 38, 'RETRY RUN', () => {
+    addButton(this, GAME_WIDTH / 2, GAME_HEIGHT - 38, 'COPY JSON', () => this.copyReport(), 260);
+    addButton(this, GAME_WIDTH / 2 + 270, GAME_HEIGHT - 38, 'RETRY RUN', () => {
       this.scene.stop(this.reportData.returnScene);
       this.scene.start('GameScene', { balancePresetId: this.reportData.summary.balance.presetId });
     }, 260);
@@ -207,12 +209,14 @@ export class BalanceReportScene extends Phaser.Scene {
   }
 
   private panel(x: number, y: number, width: number, height: number, title: string): void {
+    const xOffset = (GAME_WIDTH - 1280) / 2;
+    const yOffset = (GAME_HEIGHT - 720) / 2;
     this.add
-      .rectangle(x, y, width, height, COLORS.panel, 0.94)
+      .rectangle(x + xOffset, y + yOffset, width, height, COLORS.panel, 0.94)
       .setOrigin(0)
       .setStrokeStyle(2, COLORS.border);
     this.add
-      .text(x + 20, y + 18, title, {
+      .text(x + xOffset + 20, y + yOffset + 18, title, {
         fontFamily: 'Cinzel, serif',
         fontSize: '16px',
         color: '#d9edf4',
@@ -221,7 +225,9 @@ export class BalanceReportScene extends Phaser.Scene {
   }
 
   private text(x: number, y: number, value: string, size = 13): void {
-    this.add.text(x, y, value, {
+    const xOffset = (GAME_WIDTH - 1280) / 2;
+    const yOffset = (GAME_HEIGHT - 720) / 2;
+    this.add.text(x + xOffset, y + yOffset, value, {
       fontFamily: 'Consolas, monospace',
       fontSize: `${size}px`,
       color: '#b8cbd3',

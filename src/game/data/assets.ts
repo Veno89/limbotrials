@@ -49,6 +49,7 @@ import weaponAshenLongbow from '../../../assets/test/weapons/ashen_longbow.png?u
 import weaponBloodletterAxe from '../../../assets/test/weapons/bloodletter_axe.png?url';
 import weaponDirgeStaff from '../../../assets/test/weapons/dirge_staff.png?url';
 import weaponSpectralChains from '../../../assets/sprites/items/weapon-spectral-chains.png?url';
+import weaponGravecleaver from '../../../assets/test/weapons/sword1.png?url';
 import shopBuilding from '../../../assets/test/buildings/shop.png?url';
 import arenaTile1 from '../../../assets/test/tiles/tile1.png?url';
 import arenaTile2 from '../../../assets/test/tiles/tile2.png?url';
@@ -116,6 +117,7 @@ export const ASSETS: Array<[string, string]> = [
   ['weapon-dirge-staff', weaponDirgeStaff],
   ['weapon-sanguine-needle', statusBleed],
   ['weapon-spectral-chains', weaponSpectralChains],
+  ['weapon-gravecleaver', weaponGravecleaver],
   ['shop-building', shopBuilding],
   ['arena-tile-1', arenaTile1],
   ['arena-tile-2', arenaTile2],

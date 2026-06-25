@@ -29,13 +29,14 @@ export class DevWeaponPanel {
 
   private renderWeaponSelectors(): void {
     Object.values(WEAPONS).forEach((weapon, index) => {
-      const x = 205 + (index % 2) * 220;
-      const y = 288 + Math.floor(index / 2) * 50;
+      // 5 columns on the left
+      const x = 120 + (index % 5) * 205;
+      const y = 300 + Math.floor(index / 5) * 48;
       const equipped = this.run.weapons.equipped.has(weapon.id);
       this.addButton(
         x,
         y,
-        200,
+        195,
         `${equipped ? `LV ${this.run.weapons.getState(weapon.id).level}` : '+'}  ${weapon.name}`,
         () => {
           this.callbacks.selectWeapon(weapon.id);
@@ -51,23 +52,35 @@ export class DevWeaponPanel {
     const equipped = this.run.weapons.equipped.has(this.selectedWeapon);
     const level = equipped ? this.run.weapons.getState(this.selectedWeapon).level : 0;
     const action = devWeaponActionState(equipped, level, this.run.weapons.equipped.size, this.run.weapons.cap);
+    
+    // Right panel coords
+    const panelX = 1380;
+    const panelY = 540;
+    const panelWidth = 580;
+    
     const panel = this.scene.add
-      .rectangle(855, 420, 500, 330, COLORS.panel, 0.96)
+      .rectangle(panelX, panelY, panelWidth, 520, COLORS.panel, 0.96)
       .setStrokeStyle(2, COLORS.border);
+      
+    const iconX = panelX - 220;
+    const iconY = panelY - 200;
+      
     const icon = this.scene.add
-      .image(675, 304, progression.weapon.iconTexture)
+      .image(iconX, iconY, progression.weapon.iconTexture)
       .setDisplaySize(72, 72);
+      
     const title = this.scene.add
-      .text(735, 283, progression.weapon.name.toUpperCase(), {
+      .text(iconX + 60, iconY - 21, progression.weapon.name.toUpperCase(), {
         fontFamily: 'Cinzel, serif',
-        fontSize: '18px',
+        fontSize: '20px',
         color: '#e4edf1',
       })
       .setOrigin(0, 0.5);
+      
     const status = this.scene.add
       .text(
-        735,
-        312,
+        iconX + 60,
+        iconY + 8,
         equipped
           ? action.evolved
             ? `LEVEL ${level} / EVOLVED: ${progression.weapon.evolution.name.toUpperCase()}`
@@ -75,11 +88,12 @@ export class DevWeaponPanel {
           : `NOT EQUIPPED / ${this.run.weapons.equipped.size}/${this.run.weapons.cap} WEAPONS`,
         {
           fontFamily: 'Inter, sans-serif',
-          fontSize: '12px',
+          fontSize: '13px',
           color: action.canEvolve ? '#d8c49b' : '#8edfff',
         },
       )
       .setOrigin(0, 0.5);
+      
     this.content.add([panel, icon, title, status]);
 
     if (equipped) {
@@ -87,47 +101,53 @@ export class DevWeaponPanel {
       this.content.add(
         this.scene.add
           .text(
-            855,
-            350,
+            panelX,
+            panelY - 120,
             `DMG ${Math.round(stats.damage)}   CD ${(stats.cooldownMs / 1000).toFixed(2)}s   COUNT ${Math.floor(
               stats.projectileCount,
             )}\nAREA ${Math.round(stats.area)}   RANGE ${Math.round(stats.range)}   PIERCE ${Math.floor(stats.pierce)}`,
             {
               fontFamily: 'Consolas, monospace',
-              fontSize: '12px',
+              fontSize: '14px',
               color: '#9fb8c2',
               align: 'center',
-              lineSpacing: 5,
+              lineSpacing: 8,
             },
           )
           .setOrigin(0.5),
       );
     }
 
-    this.addButton(720, 407, 190, action.canAdd ? 'ADD WEAPON' : equipped ? 'EQUIPPED' : 'WEAPON CAP REACHED', () => {
+    // Action buttons
+    const actionY = panelY - 20;
+    this.addButton(panelX - 140, actionY, 260, action.canAdd ? 'ADD WEAPON' : equipped ? 'EQUIPPED' : 'WEAPON CAP REACHED', () => {
       const applied = this.callbacks.weapons(this.selectedWeapon);
       this.callbacks.notify(applied ? `${progression.weapon.name} added.` : `${progression.weapon.name} could not be added.`);
       this.callbacks.rerender();
     }, equipped, action.canAdd);
-    this.addButton(930, 407, 190, '+1 LEVEL', () => this.applyLevel(), false, action.canLevel);
-    this.addButton(720, 455, 190, 'READY TO LEVEL 6', () => this.levelToReady(), false, action.canLevel);
+    
+    this.addButton(panelX + 140, actionY, 260, '+1 LEVEL', () => this.applyLevel(), false, action.canLevel);
+    
+    this.addButton(panelX - 140, actionY + 60, 260, 'READY TO LEVEL 6', () => this.levelToReady(), false, action.canLevel);
+    
     this.addButton(
-      930,
-      455,
-      190,
+      panelX + 140,
+      actionY + 60,
+      260,
       action.evolved ? 'EVOLVED' : `EVOLVE: ${progression.weapon.evolution.name}`,
       () => this.applyEvolution(),
       action.evolved,
       action.canEvolve,
     );
 
+    // Focused upgrades
     progression.focusedUpgrades.slice(0, 4).forEach((upgrade, index) => {
       const stacks = this.run.upgrades.stacks.get(upgrade.id) ?? 0;
       const canApply = equipped && level !== EVOLUTION_READY_LEVEL && stacks < upgrade.maxStacks;
       this.addButton(
-        720 + (index % 2) * 210,
-        515 + Math.floor(index / 2) * 48,
-        190,
+        panelX - 140 + (index % 2) * 280,
+        actionY + 140 + Math.floor(index / 2) * 60,
+        260,
         `${upgrade.name} ${stacks}/${upgrade.maxStacks}`,
         () => {
           const applied = this.callbacks.upgrades(upgrade.id);
@@ -179,12 +199,12 @@ export class DevWeaponPanel {
     enabled = true,
   ): void {
     const background = this.scene.add
-      .rectangle(x, y, width, 38, active ? COLORS.panelLight : COLORS.panel, enabled ? 0.96 : 0.42)
+      .rectangle(x, y, width, 44, active ? COLORS.panelLight : COLORS.panel, enabled ? 0.96 : 0.42)
       .setStrokeStyle(2, active ? COLORS.gold : enabled ? COLORS.border : 0x394047);
     const text = this.scene.add
       .text(x, y, label.toUpperCase(), {
         fontFamily: 'Cinzel, serif',
-        fontSize: '10px',
+        fontSize: '11px',
         color: enabled ? (active ? '#f0d8a0' : '#dce8ed') : '#627078',
         align: 'center',
         wordWrap: { width: width - 12 },

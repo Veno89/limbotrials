@@ -60,27 +60,27 @@ export class UpgradeScene extends Phaser.Scene {
   create(): void {
     this.selected = false;
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.84).setOrigin(0);
-    addTitle(this, GAME_WIDTH / 2, 96, this.choiceData.title, 37);
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 264, this.choiceData.title, 37);
     this.add
-      .text(GAME_WIDTH / 2, 139, this.choiceData.subtitle, {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 221, this.choiceData.subtitle, {
         fontFamily: 'Inter, sans-serif',
         fontSize: '16px',
         color: '#9bb0ba',
       })
       .setOrigin(0.5);
-    this.choiceData.choices.forEach((choice, index) => this.createCard(choice, index, 250 + index * 390, 385));
+    this.choiceData.choices.forEach((choice, index) => this.createCard(choice, index, GAME_WIDTH / 2 - 390 + index * 390, GAME_HEIGHT / 2 + 25));
     if (this.choiceData.rerolls > 0) {
       addButton(
         this,
         GAME_WIDTH / 2 - (this.choiceData.canSkip ? 135 : 0),
-        642,
+        GAME_HEIGHT / 2 + 282,
         `REROLL (${this.choiceData.rerolls}) [R]`,
         () => this.reroll(),
         240,
       );
     }
     if (this.choiceData.canSkip) {
-      addButton(this, GAME_WIDTH / 2 + 135, 642, 'SKIP FOR SOULS', () => this.skip(), 240);
+      addButton(this, GAME_WIDTH / 2 + 135, GAME_HEIGHT / 2 + 282, 'SKIP FOR SOULS', () => this.skip(), 240);
     }
     new StatsPanel(this, this.choiceData.run, { depth: 300 });
     const keyboard = this.input.keyboard;

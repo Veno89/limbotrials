@@ -26,8 +26,8 @@ interface NodeRenderState {
   radius: number;
 }
 
-const PATH_CENTER_X = [248, 640, 1032] as const;
-const NODE_START_Y = 238;
+const PATH_CENTER_X = [GAME_WIDTH / 2 - 392, GAME_WIDTH / 2, GAME_WIDTH / 2 + 392] as const;
+const NODE_START_Y = (GAME_HEIGHT - 720) / 2 + 238;
 const NODE_ROW_GAP = 62;
 const NODE_COLUMN_GAP = 68;
 
@@ -56,14 +56,14 @@ export class MetaProgressionScene extends Phaser.Scene {
       this.selectedCharacter = save.selectedCharacter;
     }
 
-    addTitle(this, GAME_WIDTH / 2, 46, 'META UPGRADES', 34);
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 314, 'META UPGRADES', 34);
     this.renderCharacterTabs(save);
     this.renderSummary(save);
     this.renderTree(save);
     if (data?.notice) {
       this.renderNotice(data.notice);
     }
-    addButton(this, 220, GAME_HEIGHT - 48, 'REFUND THIS SOUL', () => {
+    addButton(this, GAME_WIDTH / 2 - 420, GAME_HEIGHT - 48, 'REFUND THIS SOUL', () => {
       refundCharacterTalents(save, this.selectedCharacter);
       writeSave(save);
       this.scene.restart({ characterId: this.selectedCharacter, notice: 'TALENTS REFUNDED' });
@@ -77,22 +77,23 @@ export class MetaProgressionScene extends Phaser.Scene {
       const unlocked = save.unlockedCharacters.includes(characterId);
       const selected = characterId === this.selectedCharacter;
       const available = unlocked ? availableTalentPoints(save, characterId) : 0;
-      const x = 330 + index * 310;
+      const x = GAME_WIDTH / 2 - 310 + index * 310;
+      const yBase = GAME_HEIGHT / 2 - 267;
       const tab = this.add
-        .rectangle(x, 93, 260, 44, selected ? COLORS.panelLight : COLORS.panel, 0.96)
+        .rectangle(x, yBase, 260, 44, selected ? COLORS.panelLight : COLORS.panel, 0.96)
         .setStrokeStyle(2, selected ? COLORS.soul : unlocked ? COLORS.border : 0x394047)
         .setInteractive({ useHandCursor: true });
       this.add
-        .text(x, 93, unlocked ? character.name.toUpperCase() : `${character.name.toUpperCase()} LOCKED`, {
+        .text(x, yBase, unlocked ? character.name.toUpperCase() : `${character.name.toUpperCase()} LOCKED`, {
           fontFamily: 'Cinzel, serif',
           fontSize: '15px',
           color: unlocked ? '#dce8ed' : '#697780',
         })
         .setOrigin(0.5);
       if (available > 0) {
-        this.add.circle(x + 116, 76, 11, COLORS.gold, 1).setStrokeStyle(2, 0xf0d8a0);
+        this.add.circle(x + 116, yBase - 17, 11, COLORS.gold, 1).setStrokeStyle(2, 0xf0d8a0);
         this.add
-          .text(x + 116, 76, available > 99 ? '99+' : String(available), {
+          .text(x + 116, yBase - 17, available > 99 ? '99+' : String(available), {
             fontFamily: 'Inter, sans-serif',
             fontSize: available > 9 ? '9px' : '11px',
             fontStyle: 'bold',
@@ -116,7 +117,7 @@ export class MetaProgressionScene extends Phaser.Scene {
     this.add
       .text(
         GAME_WIDTH / 2,
-        132,
+        GAME_HEIGHT / 2 - 228,
         `${CHARACTERS[this.selectedCharacter].title.toUpperCase()}  |  LEGACY SOULS ${progress.legacySouls}  |  ` +
           `POINTS ${available} AVAILABLE / ${spent} SPENT / ${earned} EARNED  |  ${nextText}`,
         {
@@ -127,7 +128,7 @@ export class MetaProgressionScene extends Phaser.Scene {
       )
       .setOrigin(0.5);
     this.add
-      .text(GAME_WIDTH / 2, 154, 'Runs feed legacy souls to the character you played. Nodes spend points, not souls.', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 206, 'Runs feed legacy souls to the character you played. Nodes spend points, not souls.', {
         fontFamily: 'Inter, sans-serif',
         fontSize: '13px',
         color: '#9fb1b8',
@@ -179,18 +180,19 @@ export class MetaProgressionScene extends Phaser.Scene {
   }
 
   private renderPathHeader(path: TalentPathDefinition, centerX: number): void {
+    const yBase = GAME_HEIGHT / 2 - 183;
     this.add
-      .rectangle(centerX, 177, 330, 44, COLORS.panel, 0.92)
+      .rectangle(centerX, yBase, 330, 44, COLORS.panel, 0.92)
       .setStrokeStyle(2, path.color, 0.8);
     this.add
-      .text(centerX, 168, path.name.toUpperCase(), {
+      .text(centerX, yBase - 9, path.name.toUpperCase(), {
         fontFamily: 'Cinzel, serif',
         fontSize: '17px',
         color: '#dce8ed',
       })
       .setOrigin(0.5);
     this.add
-      .text(centerX, 188, path.description, {
+      .text(centerX, yBase + 11, path.description, {
         fontFamily: 'Inter, sans-serif',
         fontSize: '11px',
         color: '#9fb1b8',

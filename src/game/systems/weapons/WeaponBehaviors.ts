@@ -282,6 +282,58 @@ class ChainArcBehavior implements WeaponBehavior {
   }
 }
 
+class GravecleaverBehavior implements WeaponBehavior {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+    const performStrike = (range: number, sweepAngleDeg: number, isFollowUp: boolean) => {
+      audio.play('scythe');
+      
+      const currentTarget = context.enemies.findNearest(context.player.x, context.player.y, range);
+      const targetAngle = currentTarget 
+        ? Phaser.Math.Angle.Between(context.player.x, context.player.y, currentTarget.x, currentTarget.y)
+        : context.scytheFacingAngle;
+
+      const sweepAngle = sweepAngleDeg * (Math.PI / 180);
+      const sweep = context.scene.add
+        .container(context.player.x, context.player.y)
+        .setDepth(32)
+        .setAlpha(0.95)
+        .setRotation(targetAngle - sweepAngle / 2);
+
+      const blade = context.scene.add
+        .image(range * 0.5, 0, WEAPONS[id].texture)
+        .setDisplaySize(range * 0.9, range * 0.9)
+        .setRotation(Math.PI / 4)
+        .setTint(isFollowUp ? COLORS.blood : 0xffffff);
+
+      if (isFollowUp) {
+        blade.setFlipY(true);
+      }
+
+      sweep.add(blade);
+
+      context.scene.tweens.add({
+        targets: sweep,
+        rotation: targetAngle + sweepAngle / 2,
+        alpha: 0,
+        duration: 180,
+        ease: 'Cubic.Out',
+        onComplete: () => sweep.destroy(),
+      });
+
+      context.damageArc(context.player.x, context.player.y, range, id, targetAngle, sweepAngle);
+      context.juice.ring(context.player.x, context.player.y, range * 0.5, isFollowUp ? COLORS.blood : COLORS.void, 150);
+    };
+
+    performStrike(state.stats.range, state.stats.area, false);
+
+    if (state.level >= 7) {
+      context.scene.time.delayedCall(200, () => {
+        performStrike(state.stats.range * 1.3, state.stats.area * 1.5, true);
+      });
+    }
+  }
+}
+
 export const WEAPON_BEHAVIORS: Record<string, WeaponBehavior> = {
   'scythe': new BoneScytheBehavior(),
   'sigil': new HellfireBehavior(),
@@ -293,4 +345,5 @@ export const WEAPON_BEHAVIORS: Record<string, WeaponBehavior> = {
   'pulse': new PulseBehavior(),
   'targeted-projectile': new TargetedProjectilesBehavior(),
   'chain-arc': new ChainArcBehavior(),
+  'gravecleaver-slash': new GravecleaverBehavior(),
 };

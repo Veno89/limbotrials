@@ -68,7 +68,7 @@ export class JournalScene extends Phaser.Scene {
 
   private render(): void {
     this.content?.destroy(true);
-    this.content = this.add.container(0, 0);
+    this.content = this.add.container((GAME_WIDTH - 1280) / 2, (GAME_HEIGHT - 720) / 2);
     this.renderCategoryTabs();
     const entries = buildJournalEntries(this.save, this.selectedCategory);
     this.selectedEntry ??= entries[0];

@@ -26,7 +26,8 @@ export type WeaponId =
   | 'bonefan'
   | 'candlebrand'
   | 'bellringer-mace'
-  | 'crowfeather-arbalest';
+  | 'crowfeather-arbalest'
+  | 'gravecleaver';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -37,7 +38,8 @@ export type WeaponBehavior =
   | 'radial-projectile'
   | 'lobbed-projectile'
   | 'pulse'
-  | 'chain-arc';
+  | 'chain-arc'
+  | 'gravecleaver-slash';
 export type UpgradeCategory =
   | 'weapon'
   | 'weapon-level'
@@ -78,6 +80,7 @@ export type UpgradeId =
   | 'unlock-candlebrand'
   | 'unlock-bellringer-mace'
   | 'unlock-crowfeather-arbalest'
+  | 'unlock-gravecleaver'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -102,6 +105,7 @@ export type UpgradeId =
   | 'level-candlebrand'
   | 'level-bellringer-mace'
   | 'level-crowfeather-arbalest'
+  | 'level-gravecleaver'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -126,6 +130,7 @@ export type UpgradeId =
   | 'evolve-candlebrand'
   | 'evolve-bellringer-mace'
   | 'evolve-crowfeather-arbalest'
+  | 'evolve-gravecleaver'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -144,6 +149,10 @@ export type UpgradeId =
   | 'bloodletter-axe-size'
   | 'bloodletter-axe-haste'
   | 'bloodletter-axe-count'
+  | 'gravecleaver-damage'
+  | 'gravecleaver-haste'
+  | 'gravecleaver-crit'
+  | 'gravecleaver-crit-damage'
   | 'dirge-staff-targets'
   | 'dirge-staff-haste'
   | 'poison-flask-area'

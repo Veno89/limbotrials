@@ -26,14 +26,14 @@ abstract class EndScene extends Phaser.Scene {
     addTitle(
       this,
       GAME_WIDTH / 2,
-      92,
+      GAME_HEIGHT / 2 - 268,
       this.victory ? 'THE WARDEN FALLS' : 'OBLIVION CLAIMS YOU',
       43,
     ).setColor(this.victory ? '#d8c49b' : '#c96d72');
     this.add
       .text(
         GAME_WIDTH / 2,
-        205,
+        GAME_HEIGHT / 2 - 155,
         `${CHARACTERS[this.summary.characterId].name.toUpperCase()}\nTIME  ${formatTime(this.summary.elapsedMs)}   /   LEVEL  ${this.summary.level}\nSOULS REAPED  ${this.summary.souls}   /   ENEMIES ENDED  ${this.summary.kills}\nARTIFACTS CLAIMED  ${this.summary.artifacts.length}   /   CURSE  ${this.summary.curse.level} ${this.summary.curse.tierLabel.toUpperCase()}`,
         {
           fontFamily: 'Cinzel, serif',
@@ -51,7 +51,7 @@ abstract class EndScene extends Phaser.Scene {
       .map((result) => `${WEAPONS[result.id].name.toUpperCase()}  ${result.damage} DMG  ${result.kills} KILLS`)
       .join('\n') || 'NO WEAPON RECORDS';
     this.add
-      .text(GAME_WIDTH / 2, 318, weaponResults, {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 42, weaponResults, {
         fontFamily: 'Cinzel, serif',
         fontSize: '13px',
         color: '#9fb8c2',
@@ -65,7 +65,7 @@ abstract class EndScene extends Phaser.Scene {
     ];
     if (unlocks.length > 0) {
       this.add
-        .text(GAME_WIDTH / 2, 374, unlocks.join('\n'), {
+        .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 14, unlocks.join('\n'), {
           fontFamily: 'Cinzel, serif',
           fontSize: '14px',
           color: '#d8c49b',
@@ -78,7 +78,7 @@ abstract class EndScene extends Phaser.Scene {
     const uploadStatus = this.add
       .text(
         GAME_WIDTH / 2,
-        canUpload ? 558 : 548,
+        GAME_HEIGHT / 2 + (canUpload ? 198 : 188),
         canUpload ? 'ENTER A NAME TO UPLOAD THIS RUN' : 'LAB RUNS STAY LOCAL',
         {
           fontFamily: 'Cinzel, serif',
@@ -93,17 +93,17 @@ abstract class EndScene extends Phaser.Scene {
       showUploadResult(result);
     };
     if (this.summary.balance.presetId === 'standard') {
-      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, 462);
+      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 102);
       this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
         this.nameForm?.destroy();
         this.nameForm = undefined;
       });
     }
-    addButton(this, 240, 662, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
-    addButton(this, 640, 662, 'TRY AGAIN', () => {
+    addButton(this, GAME_WIDTH / 2 - 400, GAME_HEIGHT / 2 + 302, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
+    addButton(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 302, 'TRY AGAIN', () => {
       this.scene.start('GameScene', { characterId: this.summary.characterId });
     }, 250);
-    addButton(this, 1040, 662, 'QUIT', () => requestReturnToSite(), 250);
+    addButton(this, GAME_WIDTH / 2 + 400, GAME_HEIGHT / 2 + 302, 'QUIT', () => requestReturnToSite(), 250);
 
     function showUploadResult(result: RunSubmissionResult): void {
       if (uploadStatus.active) {

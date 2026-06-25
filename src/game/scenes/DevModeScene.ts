@@ -28,7 +28,7 @@ export interface DevModeSceneData {
   resumeGame: () => void;
 }
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 28; // 4 columns * 7 rows
 
 export class DevModeScene extends Phaser.Scene {
   private dataRef!: DevModeSceneData;
@@ -49,31 +49,39 @@ export class DevModeScene extends Phaser.Scene {
   create(): void {
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.78).setOrigin(0).setInteractive();
     this.add
-      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 1120, 610, COLORS.panel, 0.98)
+      .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 1700, 950, COLORS.panel, 0.98)
       .setStrokeStyle(2, COLORS.gold);
-    addTitle(this, GAME_WIDTH / 2, 68, 'LOCAL DEV MODE', 31).setColor('#f0d8a0');
+      
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 425, 'LOCAL DEV MODE', 31).setColor('#f0d8a0');
+    
     this.add
-      .text(GAME_WIDTH / 2, 104, 'DEV SERVER ONLY. SETTINGS LIVE IN LOCALSTORAGE, NOT GIT.', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 380, 'DEV SERVER ONLY. SETTINGS LIVE IN LOCALSTORAGE, NOT GIT.', {
         fontFamily: 'Cinzel, serif',
         fontSize: '12px',
         color: '#91a5ad',
       })
       .setOrigin(0.5);
+      
     this.statusText = this.add
-      .text(GAME_WIDTH / 2, 644, 'READY', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 430, 'READY', {
         fontFamily: 'Inter, sans-serif',
-        fontSize: '13px',
+        fontSize: '14px',
         color: '#9fb8c2',
       })
       .setOrigin(0.5);
+      
     this.input.keyboard?.once('keydown-ESC', () => this.close());
     this.render();
   }
 
   private render(): void {
     this.content?.destroy(true);
-    this.content = this.add.container(0, 0);
+    // Align the container to the top-left of the modal
+    this.content = this.add.container(GAME_WIDTH / 2 - 850, GAME_HEIGHT / 2 - 475);
+    
     this.renderTabs();
+    this.renderHotkeys();
+    
     if (this.tab === 'loadout') {
       this.renderLoadout();
     } else if (this.tab === 'upgrades') {
@@ -91,7 +99,8 @@ export class DevModeScene extends Phaser.Scene {
     } else {
       this.renderSpawns();
     }
-    this.addButton(1010, 588, 180, 'CLOSE', () => this.close());
+    
+    this.addButton(1550, 890, 200, 'CLOSE', () => this.close());
   }
 
   private renderTabs(): void {
@@ -103,7 +112,7 @@ export class DevModeScene extends Phaser.Scene {
     ];
     tabs.forEach(([id, label], index) => {
       const selected = this.tab === id;
-      this.addButton(260 + index * 190, 146, 155, label.toUpperCase(), () => {
+      this.addButton(250 + index * 220, 130, 200, label.toUpperCase(), () => {
         this.tab = id;
         this.page = 0;
         this.render();
@@ -111,11 +120,21 @@ export class DevModeScene extends Phaser.Scene {
     });
   }
 
+  private renderHotkeys(): void {
+    this.content?.add(
+      this.add.text(1300, 130, 'HOTKEYS: [ESC] CLOSE DEV MODE  |  [F8] TOGGLE TELEMETRY HUD', {
+        fontFamily: 'Consolas, monospace',
+        fontSize: '12px',
+        color: '#70828a',
+      }).setOrigin(0.5)
+    );
+  }
+
   private renderLoadout(): void {
     this.addButton(
-      250,
-      205,
-      210,
+      220,
+      200,
+      240,
       `INVINCIBLE: ${this.dataRef.getInvincible() ? 'ON' : 'OFF'}`,
       () => {
         this.dataRef.setInvincible(!this.dataRef.getInvincible());
@@ -124,15 +143,15 @@ export class DevModeScene extends Phaser.Scene {
       },
       this.dataRef.getInvincible(),
     );
-    this.addButton(500, 205, 210, 'FULL HEAL', () => {
+    this.addButton(480, 200, 240, 'FULL HEAL', () => {
       this.dataRef.healFull();
       this.setStatus('Health restored.');
     });
-    this.addButton(750, 205, 210, 'GRANT SHIELD', () => {
+    this.addButton(740, 200, 240, 'GRANT SHIELD', () => {
       this.dataRef.grantShield();
       this.setStatus('Shield granted.');
     });
-    this.addButton(1000, 205, 210, 'SPAWN CHEST', () => {
+    this.addButton(1000, 200, 240, 'SPAWN CHEST', () => {
       this.dataRef.spawnChest();
       this.setStatus('Reliquary spawned if the chest system is active.');
     });
@@ -149,14 +168,14 @@ export class DevModeScene extends Phaser.Scene {
   }
 
   private renderSpawns(): void {
-    this.addButton(250, 218, 205, 'TARGET DUMMY', () => {
+    this.addButton(220, 200, 240, 'TARGET DUMMY', () => {
       this.dataRef.spawnDummy();
       this.setStatus('Target dummy spawned.');
     }, true);
-    this.addButton(490, 218, 205, 'LIMBO WARDEN', () => this.spawnEnemy('limbo-warden'));
-    this.addButton(730, 218, 205, 'GRAVE FRENZY', () => this.grantPowerup('grave-frenzy'));
-    this.addButton(970, 218, 205, 'SOUL VACUUM', () => this.grantPowerup('soul-vacuum'));
-    this.addButton(250, 272, 205, 'OPEN BLOOD MARKET', () => {
+    this.addButton(480, 200, 240, 'LIMBO WARDEN', () => this.spawnEnemy('limbo-warden'));
+    this.addButton(740, 200, 240, 'GRAVE FRENZY', () => this.grantPowerup('grave-frenzy'));
+    this.addButton(1000, 200, 240, 'SOUL VACUUM', () => this.grantPowerup('soul-vacuum'));
+    this.addButton(1260, 200, 240, 'OPEN BLOOD MARKET', () => {
       this.dataRef.openShop();
       this.setStatus('Opening the Blood Market.');
     }, true);
@@ -165,7 +184,7 @@ export class DevModeScene extends Phaser.Scene {
       Object.values(ENEMIES).filter((enemy) => !enemy.boss),
       (enemy) => `${enemy.name} (${enemy.behavior})`,
       (enemy) => this.spawnEnemy(enemy.id),
-      330,
+      280,
     );
   }
 
@@ -173,29 +192,34 @@ export class DevModeScene extends Phaser.Scene {
     items: T[],
     labelFor: (item: T) => string,
     onSelect: (item: T) => void,
-    startY = 225,
+    startY = 220,
   ): void {
     const maxPage = Math.max(0, Math.ceil(items.length / PAGE_SIZE) - 1);
     this.page = Phaser.Math.Clamp(this.page, 0, maxPage);
     const visible = items.slice(this.page * PAGE_SIZE, this.page * PAGE_SIZE + PAGE_SIZE);
+    
+    // 4 columns
     visible.forEach((item, index) => {
-      const x = 390 + (index % 2) * 390;
-      const y = startY + Math.floor(index / 2) * 62;
-      this.addButton(x, y, 345, labelFor(item).toUpperCase(), () => onSelect(item));
+      const col = index % 4;
+      const row = Math.floor(index / 4);
+      const x = 325 + col * 350;
+      const y = startY + row * 62;
+      this.addButton(x, y, 320, labelFor(item).toUpperCase(), () => onSelect(item));
     });
-    this.addButton(450, 588, 150, 'PREV', () => {
+    
+    this.addButton(700, 890, 200, 'PREV', () => {
       this.page = Math.max(0, this.page - 1);
       this.render();
     }, false, this.page > 0);
-    this.addButton(830, 588, 150, 'NEXT', () => {
+    this.addButton(1000, 890, 200, 'NEXT', () => {
       this.page = Math.min(maxPage, this.page + 1);
       this.render();
     }, false, this.page < maxPage);
     this.content?.add(
       this.add
-        .text(640, 588, `${this.page + 1}/${maxPage + 1}`, {
+        .text(850, 890, `${this.page + 1}/${maxPage + 1}`, {
           fontFamily: 'Cinzel, serif',
-          fontSize: '13px',
+          fontSize: '14px',
           color: '#91a5ad',
         })
         .setOrigin(0.5),

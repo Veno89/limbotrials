@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, GAME_WIDTH } from '../constants';
+import { COLORS, GAME_HEIGHT, GAME_WIDTH } from '../constants';
 import { WEAPONS } from '../data/weapons';
 import type { RunState } from '../systems/RunState';
 import type { WeaponSystem } from '../systems/WeaponSystem';
@@ -17,7 +17,7 @@ interface WeaponSlot {
 
 export class WeaponActionBar {
   private readonly slots = new Map<WeaponId, WeaponSlot>();
-  private readonly y = 624;
+  private readonly y = GAME_HEIGHT - 96;
   private readonly spacing = 82;
   private readonly shortCooldownLabelThresholdMs = 1000;
   private readonly decimalCooldownLabelThresholdMs = 1800;

@@ -1,5 +1,5 @@
-export const GAME_WIDTH = 1280;
-export const GAME_HEIGHT = 720;
+export const GAME_WIDTH = 1920;
+export const GAME_HEIGHT = 1080;
 export const ARENA_WIDTH = 2560;
 export const ARENA_HEIGHT = 1920;
 export const RUN_DURATION_MS = 15 * 60 * 1000;

@@ -52,8 +52,8 @@ export class HudSystem {
 
     fixed(scene.add.rectangle(190, 30, 300, 22, 0x050809, 0.9).setStrokeStyle(2, COLORS.border));
     this.healthBar = fixed(scene.add.rectangle(42, 30, 296, 16, COLORS.blood).setOrigin(0, 0.5));
-    fixed(scene.add.rectangle(640, 692, 720, 14, 0x050809, 0.9).setStrokeStyle(1, COLORS.border));
-    this.xpBar = fixed(scene.add.rectangle(281, 692, 716, 10, COLORS.soul).setOrigin(0, 0.5));
+    fixed(scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT - 28, 720, 14, 0x050809, 0.9).setStrokeStyle(1, COLORS.border));
+    this.xpBar = fixed(scene.add.rectangle(GAME_WIDTH / 2 - 359, GAME_HEIGHT - 28, 716, 10, COLORS.soul).setOrigin(0, 0.5));
 
     this.statsText = fixed(
       scene.add.text(42, 75, '', {
@@ -118,7 +118,7 @@ export class HudSystem {
       .setVisible(false);
 
     this.lowHealthVignette = fixed(
-      scene.add.rectangle(640, 360, 1280, 720, 0x8f1018, 0).setBlendMode(Phaser.BlendModes.MULTIPLY),
+      scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x8f1018, 0).setBlendMode(Phaser.BlendModes.MULTIPLY),
     );
     this.actionBar = new WeaponActionBar(scene, run, weapons);
     this.statsPanel = new StatsPanel(scene, run);
@@ -189,11 +189,7 @@ export class HudSystem {
     this.curseText.setText(`CURSE ${curse.level}  ${curse.tierLabel.toUpperCase()}`);
     this.curseBar.setFillStyle(curseVisual.color, curse.level > 0 ? 0.95 : 0.45);
     this.curseBar.displayWidth = 296 * curseTierProgress(curse.level);
-    this.relicsText.setText(
-      `UPGRADES ${this.totalRelics()}${
-        status.length > 0 ? `\n${status.join('\n')}` : ''
-      }`,
-    );
+    this.relicsText.setText(status.length > 0 ? status.join('\n') : '');
     const healthRatio = this.run.resources.health / this.run.stats.current.maxHealth;
     this.lowHealthVignette.setAlpha(healthRatio < 0.3 ? 0.2 + Math.sin(time * 0.008) * 0.08 : 0);
 

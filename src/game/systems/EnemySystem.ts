@@ -103,6 +103,7 @@ export class EnemySystem {
       pressuredDefinition.maxHealth * scaling.healthMultiplier * cursePressure.healthMultiplier * ruinHealth,
     );
     const sprite = this.group.get(x, y, definition.texture) as Phaser.Physics.Arcade.Image;
+    sprite.setTexture(definition.texture);
     sprite.setActive(true).setVisible(true);
     sprite
       .setDisplaySize(pressuredDefinition.displaySize, pressuredDefinition.displaySize)
@@ -123,6 +124,8 @@ export class EnemySystem {
     sprite.setAlpha((definition.id === 'wraith' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
     if (cursePressure.tint) {
       sprite.setTint(cursePressure.tint);
+    } else {
+      sprite.clearTint();
     }
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     body.checkCollision.none = true;

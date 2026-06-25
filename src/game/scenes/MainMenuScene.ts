@@ -22,8 +22,8 @@ export class MainMenuScene extends Phaser.Scene {
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)
       .setAlpha(0.72);
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.32).setOrigin(0);
-    addTitle(this, GAME_WIDTH / 2, 132, 'EVERLASTING OBLIVION', 46);
-    addTitle(this, GAME_WIDTH / 2, 183, 'LIMBO TRIAL', 21).setColor('#8eb9ca');
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 228, 'EVERLASTING OBLIVION', 46);
+    addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 177, 'LIMBO TRIAL', 21).setColor('#8eb9ca');
 
     const availablePoints = save.unlockedCharacters.reduce(
       (total, characterId) => total + availableTalentPoints(save, characterId),
@@ -31,13 +31,14 @@ export class MainMenuScene extends Phaser.Scene {
     );
     const newJournalEntries = unseenJournalCount(save);
     const menuButton = { height: 46, fontSize: 16 } as const;
-    addButton(this, GAME_WIDTH / 2, 292, 'BEGIN THE TRIAL', () => {
+    const buttonStartY = GAME_HEIGHT / 2 - 68;
+    addButton(this, GAME_WIDTH / 2, buttonStartY, 'BEGIN THE TRIAL', () => {
       this.scene.start(FEATURE_FLAGS.characters ? 'CharacterSelectScene' : 'GameScene');
     }, 300, undefined, menuButton);
     addButton(
       this,
       GAME_WIDTH / 2,
-      352,
+      buttonStartY + 60,
       'META UPGRADES',
       () => this.scene.start('MetaProgressionScene'),
       300,
@@ -47,7 +48,7 @@ export class MainMenuScene extends Phaser.Scene {
     addButton(
       this,
       GAME_WIDTH / 2,
-      412,
+      buttonStartY + 120,
       'JOURNAL',
       () => this.scene.start('JournalScene'),
       300,
@@ -57,7 +58,7 @@ export class MainMenuScene extends Phaser.Scene {
     addButton(
       this,
       GAME_WIDTH / 2,
-      472,
+      buttonStartY + 180,
       'SETTINGS',
       () => this.scene.start('SettingsScene'),
       300,
@@ -67,7 +68,7 @@ export class MainMenuScene extends Phaser.Scene {
     addButton(
       this,
       GAME_WIDTH / 2,
-      532,
+      buttonStartY + 240,
       'QUIT',
       () => requestReturnToSite(),
       300,
