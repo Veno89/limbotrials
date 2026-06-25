@@ -199,12 +199,4 @@ export class HudSystem {
       this.bossBar.displayWidth = 596 * Phaser.Math.Clamp(boss.current / boss.max, 0, 1);
     }
   }
-
-  private totalRelics(): number {
-    let total = 0;
-    for (const count of this.run.upgrades.stacks.values()) {
-      total += count;
-    }
-    return total;
-  }
 }
