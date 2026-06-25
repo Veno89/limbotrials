@@ -283,7 +283,7 @@ class ChainArcBehavior implements WeaponBehavior {
 }
 
 class GravecleaverBehavior implements WeaponBehavior {
-  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState): void {
     const performStrike = (range: number, sweepAngleDeg: number, isFollowUp: boolean) => {
       audio.play('scythe');
       

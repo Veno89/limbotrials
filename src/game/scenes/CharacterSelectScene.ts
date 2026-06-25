@@ -100,7 +100,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const titleText = addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 240, 'NEW GAME PLUS', 32);
     edictContainer.add(titleText);
     
-    let multiplierText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 190, '', {
+    const multiplierText = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 190, '', {
       fontFamily: 'Cinzel, serif',
       fontSize: '18px',
       color: '#d7bd82',

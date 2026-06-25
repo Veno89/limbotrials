@@ -1,3 +1,5 @@
+import type { EnemyDefinition } from '../types/gameTypes';
+
 export interface SpectralChainsSweepProfile {
   facingAngle: number;
   arcSweepAngle: number;
@@ -33,7 +35,7 @@ export function isPointInArc(
 }
 
 export function calculateBindingsJumpTargets(
-  allNearbyEnemies: { sprite: Phaser.Physics.Arcade.Image; definition: any }[],
+  allNearbyEnemies: { sprite: Phaser.Physics.Arcade.Image; definition: EnemyDefinition }[],
   sourceX: number,
   sourceY: number,
   jumpRadius: number,

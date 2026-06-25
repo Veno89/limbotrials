@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import type { WeaponId, WeaponRuntimeState } from '../../types/gameTypes';
+import type { WeaponId, WeaponRuntimeState, EnemyDefinition } from '../../types/gameTypes';
 import type { RunState } from '../RunState';
 import type { JuiceSystem } from '../JuiceSystem';
 import type { EnemySystem } from '../EnemySystem';
@@ -35,5 +35,5 @@ export interface WeaponContext {
   afterAreaAttack(id: WeaponId, x: number, y: number, radius: number, scytheProfile?: ScytheSweepProfile): void;
   damageScytheSweep(x: number, y: number, radius: number, weaponId: WeaponId, damageScale: number, profile: ScytheSweepProfile): number;
   damageArc(x: number, y: number, radius: number, weaponId: WeaponId, facingAngle: number, sweepAngle: number): Set<Phaser.Physics.Arcade.Image>;
-  damageEnemy(sprite: Phaser.Physics.Arcade.Image, definition: any, weaponId: WeaponId, damageScale?: number): { killed: boolean };
+  damageEnemy(sprite: Phaser.Physics.Arcade.Image, definition: EnemyDefinition, weaponId: WeaponId, damageScale?: number): { killed: boolean };
 }
