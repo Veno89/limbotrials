@@ -11,7 +11,7 @@ browser.
 ## Current Features
 
 - Three playable characters with distinct starter weapons, stat profiles, and unlock conditions
-- Nine auto-weapons with explicit level-seven evolutions and evolved specializations
+- Twenty-five auto-weapons with explicit level-seven evolutions and evolved specializations
 - Sixteen enemy definitions, independently capped combat roles, authored encounters, elites, and a six-attack three-phase boss
 - Bounded adaptive threat scaling based on run time and player power
 - Run-only artifacts, themed reliquaries, curses, rare powerups, and a blood shrine

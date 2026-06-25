@@ -35,7 +35,7 @@ src/game/
 - `ChestSystem`: bounded player-relative reliquary spawning, proximity opening, objective data, and despawn behavior.
 - `LootRevealSystem`: non-modal soul-lock burst, curved reward travel, and player-side loot receipt after a reliquary opens.
 - `BossAttackSystem`: the Warden's six telegraphed attack patterns and focused boss-only telegraph, lane, and hazard helpers.
-- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for eleven weapons.
+- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for twenty-five weapons.
 - `WeaponEvolutionSystem`: level-seven capstone effects.
 - `WeaponUpgradeEffectSystem`: focused authored weapon effects for projectile splintering, spreading area blasts, delayed judgment echoes, and status application triggers.
 - `StatusEffectSystem`: data-defined enemy status lifetimes, stack refreshes, compact debuff icons, and damage-over-time ticks with weapon attribution.

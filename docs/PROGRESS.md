@@ -89,9 +89,17 @@
 - Completed Haunted Reaper's remaining identity nodes: Harvest Steps now rolls once per successful reap for a visible three-second movement burst, Crooked Reach rewards outer-half hits with damage and inward pull, and Grave Procession launches a travelling crescent every fifth primary reap.
 - Completed a comprehensive production-readiness hardening pass: cleaned up root fix scripts, removed test pollution, hardened GameScene restart listeners and save race conditions, guarded UpgradeOfferSystem against stopped scenes, and enabled stricter ESLint production rules.
 
+- Upgraded the game's baseline resolution from 1280x720 to 1920x1080, maintaining the 16:9 aspect ratio and dynamically centering UI elements.
+- Comprehensively redesigned the Dev Mode Console (1700x950) with a multi-column grid, split-view loadout details, and properly formatted scrollable areas.
+- Redesigned the Live Balance Overlay (F8) to support the 1080p density.
+- Added the `Gravecleaver` weapon (fast, short-range melee slash) and updated `The Penitent` to use it as their starter weapon.
+- Refactored HUD elements, moving the Weapon Arsenal bar to sit immediately above the XP bar and cleaning up redundant `ARTIFACTS:` and `UPGRADES:` text labels.
+- Increased the dash ghost trail duration and made the trail system universally applicable to all characters.
+- Fixed an object pooling bug in `EnemySystem` where recycled enemy sprites failed to update their textures, restoring visual variety for late-game enemies, ranged mobs, elites, and the Limbo Warden.
+
 ## Current State
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, a timed Blood Market, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, a first enemy status-effect foundation, eleven weapons, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, a save-backed discovery journal, local-only dev test controls, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, a timed Blood Market, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, a first enemy status-effect foundation, twenty-five weapons, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, a save-backed discovery journal, local-only dev test controls, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
 
 The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
 
