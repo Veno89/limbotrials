@@ -17,7 +17,7 @@ describe('character system', () => {
     const penitent = new RunState(save, 'standard', 'the-penitent');
     expect(penitent.stats.current.maxHealth).toBe(140);
     expect(penitent.stats.current.damage).toBeCloseTo(1.1);
-    expect([...penitent.weapons.equipped]).toEqual(['bone-scythe']);
+    expect([...penitent.weapons.equipped]).toEqual(['gravecleaver']);
 
     const ashwalker = new RunState(save, 'standard', 'ashwalker');
     expect(ashwalker.stats.current.maxHealth).toBe(75);
