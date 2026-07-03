@@ -43,13 +43,13 @@ describe('wave scaling', () => {
   it('introduces stronger enemies before fully retiring the opening fodder', () => {
     const mixedPools = getWaveTier(330000).sessions.flatMap((session) => session.enemyPool);
     expect(mixedPools).toContain('lost-soul');
-    expect(mixedPools).toContain('bone-crawler');
+    expect(mixedPools).toContain('grave-crawler');
     expect(mixedPools).toContain('flayed-wanderer');
     expect(mixedPools).toContain('gravebound-archer');
 
     const latePools = getWaveTier(600000).sessions.flatMap((session) => session.enemyPool);
     expect(latePools).not.toContain('lost-soul');
-    expect(latePools).not.toContain('bone-crawler');
+    expect(latePools).not.toContain('grave-crawler');
     expect(latePools).toContain('veil-stalker');
     expect(latePools).toContain('lantern-ghost');
   });

@@ -39,7 +39,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     ],
     replenishEveryMs: 650,
     spawns: [
-      { enemyId: 'bone-crawler', count: 24, radius: 310, maintainCount: 28, batchSize: 8 },
+      { enemyId: 'grave-crawler', count: 24, radius: 310, maintainCount: 28, batchSize: 8 },
       { enemyId: 'hollow-knight', count: 8, radius: 430, maintainCount: 10, batchSize: 3 },
       { enemyId: 'screamer', count: 3, radius: 520, maintainCount: 4, batchSize: 2 },
     ],

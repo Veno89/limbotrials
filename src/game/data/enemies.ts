@@ -14,9 +14,9 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     displaySize: 58,
     radius: 19,
   },
-  'bone-crawler': {
-    id: 'bone-crawler',
-    name: 'Bone Crawler',
+  'grave-crawler': {
+    id: 'grave-crawler',
+    name: 'Grave Crawler',
     texture: 'enemy-crawler',
     behavior: 'pursuit',
     maxHealth: 18,
@@ -122,7 +122,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
   'veil-stalker': {
     id: 'veil-stalker',
     name: 'Veil Stalker',
-    texture: 'enemy-veil-stalker',
+    texture: 'enemy-stalker',
     behavior: 'stalker',
     maxHealth: 72,
     speed: 104,
@@ -218,7 +218,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
   'ember-imp': {
     id: 'ember-imp',
     name: 'Ember Imp',
-    texture: 'enemy-stalker',
+    texture: 'enemy-ember-imp',
     behavior: 'bomb-thrower',
     maxHealth: 50,
     speed: 76,
@@ -261,7 +261,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
   'sinbound-stalker': {
     id: 'sinbound-stalker',
     name: 'Sinbound Stalker',
-    texture: 'enemy-veil-stalker',
+    texture: 'enemy-stalker',
     behavior: 'stalker',
     maxHealth: 180,
     speed: 112,
@@ -278,7 +278,7 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
   'player-echo': {
     id: 'player-echo',
     name: 'Death Echo',
-    texture: 'scythe_char',
+    texture: 'player-haunted',
     behavior: 'death-echo',
     maxHealth: 1200,
     speed: 62,

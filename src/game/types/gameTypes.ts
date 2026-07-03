@@ -230,7 +230,7 @@ export type UpgradeId =
 
 export type EnemyId =
   | 'lost-soul'
-  | 'bone-crawler'
+  | 'grave-crawler'
   | 'hollow-knight'
   | 'wraith'
   | 'void-caster'

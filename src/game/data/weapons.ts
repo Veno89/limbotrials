@@ -281,8 +281,8 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
     behavior: 'targeted-projectile',
     name: 'Gravetide Repeater',
     description: 'A cursed rapid-fire weapon that fires rhythmic bursts of piercing bolts.',
-    texture: 'projectile-laser', // placeholder
-    iconTexture: 'icon-staff', // placeholder
+    texture: 'projectile-crossbow-bolt',
+    iconTexture: 'weapon-gravetide-repeater',
     baseStats: stats({
       damage: 14,
       cooldownMs: 800,

@@ -42,7 +42,7 @@ const VALID_WEAPON_IDS = new Set<WeaponId>([
 ]);
 const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'lost-soul',
-  'bone-crawler',
+  'grave-crawler',
   'hollow-knight',
   'wraith',
   'void-caster',

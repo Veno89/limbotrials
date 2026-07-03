@@ -40,7 +40,7 @@ export const RUN_EVENTS: readonly RunEventDefinition[] = [
     atMs: 180000,
     warning: 'THE GRAVE FLOOR STIRS',
     warningColor: '#c7a76a',
-    spawns: [{ enemyId: 'bone-crawler', count: 24, distance: 650, formation: 'ring' }],
+    spawns: [{ enemyId: 'grave-crawler', count: 24, distance: 650, formation: 'ring' }],
   },
   {
     id: 'void-choir',

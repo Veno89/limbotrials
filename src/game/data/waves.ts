@@ -36,7 +36,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
   {
     fromMs: 120000,
     globalPopulationCap: 68,
-    sessions: [session('fodder', ['lost-soul', 'lost-soul', 'bone-crawler', 'plague-crawler', 'condemned-husk'], 620, 7, 52, 600)],
+    sessions: [session('fodder', ['lost-soul', 'lost-soul', 'grave-crawler', 'plague-crawler', 'condemned-husk'], 620, 7, 52, 600)],
   },
   {
     fromMs: 240000,
@@ -44,7 +44,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     sessions: [
       session(
         'fodder',
-        ['lost-soul', 'lost-soul', 'bone-crawler', 'bone-crawler', 'flayed-wanderer', 'plague-crawler', 'condemned-husk'],
+        ['lost-soul', 'lost-soul', 'grave-crawler', 'grave-crawler', 'flayed-wanderer', 'plague-crawler', 'condemned-husk'],
         570,
         8,
         58,
@@ -62,7 +62,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     sessions: [
       session(
         'fodder',
-        ['lost-soul', 'bone-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'condemned-husk'],
+        ['lost-soul', 'grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'condemned-husk'],
         540,
         9,
         64,
@@ -80,7 +80,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     sessions: [
       session(
         'fodder',
-        ['lost-soul', 'bone-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'condemned-husk'],
+        ['lost-soul', 'grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'condemned-husk'],
         520,
         9,
         68,
@@ -97,7 +97,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     fromMs: 510000,
     globalPopulationCap: 120,
     sessions: [
-      session('fodder', ['bone-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'condemned-husk'], 480, 11, 78, 620),
+      session('fodder', ['grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'condemned-husk'], 480, 11, 78, 620),
       session('bruiser', ['hollow-knight', 'lantern-ghost', 'lantern-ghost'], 1100, 4, 18, 650),
       session('caster', ['void-caster', 'gravebound-archer', 'gravebound-archer', 'ember-imp'], 2300, 1, 5, 700),
       session('screamer', ['screamer'], 4200, 1, 2, 710),

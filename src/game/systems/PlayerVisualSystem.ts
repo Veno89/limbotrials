@@ -15,7 +15,7 @@ export class PlayerVisualSystem {
     }
     this.player.setAlpha(0);
     this.animated = scene.add
-      .sprite(player.x, player.y, 'scythe_char')
+      .sprite(player.x, player.y, 'player-haunted')
       .setDisplaySize(88, 104)
       .setDepth(player.depth);
   }
