@@ -40,6 +40,7 @@ import statusSkull from '../../../assets/test/misc/skull.png?url';
 import statusBurn from '../../../assets/test/misc/fire.png?url';
 import statusSlow from '../../../assets/test/misc/freezing.png?url';
 import projectileMeteor from '../../../assets/test/misc/meteor.png?url';
+import poisonOoze from '../../../assets/test/misc/ooze.png?url';
 import iconJournal from '../../../assets/test/misc/journal.png?url';
 import iconStats from '../../../assets/test/misc/stats.png?url';
 import weaponBoneScythe from '../../../assets/test/weapons/bone_scythe.png?url';
@@ -109,6 +110,7 @@ export const ASSETS: Array<[string, string]> = [
   ['status-burn', statusBurn],
   ['status-slow', statusSlow],
   ['projectile-meteor', projectileMeteor],
+  ['poison-ooze', poisonOoze],
   ['icon-journal', iconJournal],
   ['icon-stats', iconStats],
   ['weapon-poison-flask', statusPoison],

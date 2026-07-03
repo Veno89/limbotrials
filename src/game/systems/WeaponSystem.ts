@@ -610,7 +610,8 @@ export class WeaponSystem implements WeaponContext {
         statusEffect: {
           id: effectId,
           damagePerTick: 3,
-        }
+        },
+        visualPreset: effectId === 'poison' ? 'poison-pool' : (effectId === 'burn' ? 'burning-ground' : undefined),
       });
       return;
     }
@@ -630,7 +631,7 @@ export class WeaponSystem implements WeaponContext {
         damageScale: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).damageScale,
         color: 0x1f8d37,
         strokeColor: 0x51d96b,
-        texture: 'weapon-poison-flask',
+        visualPreset: 'poison-pool',
         statusEffect: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).appliesPoison ? {
           id: 'poison',
           damagePerTick: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).poisonDamagePerTick,

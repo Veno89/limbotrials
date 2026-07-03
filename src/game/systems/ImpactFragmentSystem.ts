@@ -248,10 +248,15 @@ export class ImpactFragmentSystem {
   }
 
   public destroy(): void {
+    if (!this.fragments || !this.fragments.scene) return;
+    
     // Kill any active tweens on our fragments
-    this.fragments.getChildren().forEach((child) => {
-      this.scene.tweens.killTweensOf(child);
-    });
+    const children = this.fragments.getChildren();
+    if (children) {
+      children.forEach((child) => {
+        this.scene.tweens.killTweensOf(child);
+      });
+    }
     this.fragments.destroy(true);
   }
 }

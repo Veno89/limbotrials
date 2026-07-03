@@ -23,7 +23,7 @@ export interface HazardZoneProfile {
     damagePerTick: number;
   };
   proximityTrigger?: boolean;
-  visualPreset?: 'burning-ground';
+  visualPreset?: 'burning-ground' | 'poison-pool';
 }
 
 interface HazardZoneRuntime {
@@ -36,6 +36,7 @@ interface HazardZoneRuntime {
   pool: Phaser.GameObjects.Arc;
   sprite?: Phaser.GameObjects.Image;
   visualSprites?: Phaser.GameObjects.Image[];
+  vaporTimer?: Phaser.Time.TimerEvent;
 }
 
 export class HazardZoneSystem {
@@ -46,7 +47,15 @@ export class HazardZoneSystem {
     private readonly enemies: EnemySystem,
     private readonly statuses: StatusEffectSystem,
     private readonly damageEnemy: DamageEnemy,
-  ) {}
+  ) {
+    if (!this.scene.textures.exists('vapor-puff')) {
+      const g = this.scene.make.graphics({ x: 0, y: 0 });
+      g.fillStyle(0xffffff, 1);
+      g.fillCircle(8, 8, 8);
+      g.generateTexture('vapor-puff', 16, 16);
+      g.destroy();
+    }
+  }
 
   spawn(x: number, y: number, weaponId: WeaponId, profile: HazardZoneProfile): void {
     const pool = this.scene.add
@@ -76,6 +85,7 @@ export class HazardZoneSystem {
     });
     
     let visualSprites: Phaser.GameObjects.Image[] | undefined;
+    let vaporTimer: Phaser.Time.TimerEvent | undefined;
     if (profile.visualPreset === 'burning-ground') {
       visualSprites = [];
       // Scale count somewhat by radius, min 6, max 16
@@ -106,6 +116,69 @@ export class HazardZoneSystem {
         
         visualSprites.push(fireSprite);
       }
+    } else if (profile.visualPreset === 'poison-pool') {
+      visualSprites = [];
+      const poolBase = this.scene.add.image(x, y, 'poison-ooze')
+        .setDepth(16)
+        .setAlpha(0.65)
+        .setDisplaySize(profile.radius * 2, profile.radius * 2)
+        .setRotation(Phaser.Math.FloatBetween(0, Math.PI * 2));
+      
+      this.scene.tweens.add({
+        targets: poolBase,
+        scaleX: poolBase.scaleX * 1.05,
+        scaleY: poolBase.scaleY * 1.05,
+        alpha: 0.8,
+        yoyo: true,
+        repeat: -1,
+        duration: 1200,
+        ease: 'Sine.InOut',
+      });
+      
+      visualSprites.push(poolBase);
+      
+      const emitVapor = () => {
+        const activeVapors = visualSprites!.filter(s => s.active && s !== poolBase);
+        if (activeVapors.length > 10) return;
+        
+        const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+        const distance = profile.radius * Math.sqrt(Phaser.Math.FloatBetween(0, 1));
+        const vX = x + Math.cos(angle) * distance;
+        const vY = y + Math.sin(angle) * distance;
+        
+        const vapor = this.scene.add.image(vX, vY, 'vapor-puff')
+          .setDepth(18)
+          .setAlpha(Phaser.Math.FloatBetween(0.15, 0.45))
+          .setScale(Phaser.Math.FloatBetween(0.3, 0.8))
+          .setTint(0x7fff00);
+          
+        this.scene.tweens.add({
+          targets: vapor,
+          y: vY - Phaser.Math.FloatBetween(20, 60),
+          alpha: 0,
+          scaleX: vapor.scaleX * 1.5,
+          scaleY: vapor.scaleY * 1.5,
+          duration: Phaser.Math.Between(700, 1400),
+          ease: 'Sine.Out',
+          onComplete: () => {
+            if (vapor.active) {
+              const idx = visualSprites!.indexOf(vapor);
+              if (idx > -1) visualSprites!.splice(idx, 1);
+              vapor.destroy();
+            }
+          }
+        });
+        
+        visualSprites!.push(vapor);
+      };
+      
+      for (let i = 0; i < 4; i++) emitVapor();
+      
+      vaporTimer = this.scene.time.addEvent({
+        delay: Phaser.Math.Between(250, 400),
+        loop: true,
+        callback: emitVapor,
+      });
     }
     
     this.zones.push({
@@ -118,6 +191,7 @@ export class HazardZoneSystem {
       pool,
       sprite,
       visualSprites,
+      vaporTimer,
     });
   }
 
@@ -189,6 +263,9 @@ export class HazardZoneSystem {
     zone.pool.destroy();
     if (zone.sprite) {
       zone.sprite.destroy();
+    }
+    if (zone.vaporTimer) {
+      zone.vaporTimer.remove();
     }
     if (zone.visualSprites) {
       for (const sprite of zone.visualSprites) {

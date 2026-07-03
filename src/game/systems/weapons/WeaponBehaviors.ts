@@ -158,7 +158,6 @@ class HellfireBehavior implements WeaponBehavior {
       .setDepth(18);
     context.scene.tweens.add({
       targets: sigil,
-      angle: 140,
       scaleX: sigil.scaleX * 1.35,
       scaleY: sigil.scaleY * 1.35,
       alpha: 0.72,
