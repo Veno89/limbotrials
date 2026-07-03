@@ -12,6 +12,22 @@ export class EnemySpawnSystem {
   private nextEliteAt = 240000;
   private bossSpawned = false;
 
+  private determineEnemyTier(elapsedMs: number): number {
+    const minutes = elapsedMs / 60000;
+    const random = Math.random();
+    
+    if (minutes >= 10) {
+      if (random < 0.2) return 3;
+      if (random < 0.7) return 2;
+      return 1;
+    } else if (minutes >= 5) {
+      if (random < 0.2) return 2;
+      return 1;
+    }
+    
+    return 1;
+  }
+
   constructor(
     private readonly enemies: EnemySystem,
     private readonly onEliteWarning: () => void,
@@ -43,7 +59,8 @@ export class EnemySpawnSystem {
       }
       for (let index = 0; index < spawnCount; index += 1) {
         const id = selectEnemyFromPool(enabledPool);
-        this.enemies.spawnAroundPlayer(id, elapsedMs, session.distance + (index % 4) * 30);
+        const enemyTier = this.determineEnemyTier(elapsedMs);
+        this.enemies.spawnAroundPlayer(id, elapsedMs, session.distance + (index % 4) * 30, enemyTier);
       }
     }
 

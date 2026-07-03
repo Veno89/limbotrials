@@ -91,7 +91,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
       session('screamer', ['screamer'], 4800, 1, 1, 710),
     ],
     eliteEveryMs: 105000,
-    elitePool: ['condemned-brute', 'sentinel-of-woe'],
+    elitePool: ['condemned-brute', 'sentinel-of-woe', 'elite-void-caster'],
   },
   {
     fromMs: 510000,
@@ -103,7 +103,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
       session('screamer', ['screamer'], 4200, 1, 2, 710),
     ],
     eliteEveryMs: 105000,
-    elitePool: ['condemned-brute', 'sentinel-of-woe'],
+    elitePool: ['condemned-brute', 'sentinel-of-woe', 'elite-void-caster', 'elite-screamer'],
   },
   {
     fromMs: 600000,
@@ -115,7 +115,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
       session('screamer', ['screamer'], 4000, 1, 2, 720),
     ],
     eliteEveryMs: 90000,
-    elitePool: ['sentinel-of-woe', 'sentinel-of-woe', 'condemned-brute'],
+    elitePool: ['sentinel-of-woe', 'condemned-brute', 'elite-void-caster', 'elite-screamer', 'elite-summoner'],
   },
   {
     fromMs: 690000,
@@ -127,7 +127,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
       session('screamer', ['screamer'], 3800, 1, 3, 720),
     ],
     eliteEveryMs: 90000,
-    elitePool: ['sentinel-of-woe', 'sentinel-of-woe', 'condemned-brute'],
+    elitePool: ['sentinel-of-woe', 'elite-void-caster', 'elite-screamer', 'elite-summoner'],
   },
   {
     fromMs: 780000,

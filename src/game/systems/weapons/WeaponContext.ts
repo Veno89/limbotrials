@@ -8,7 +8,7 @@ import type { ScytheWakeSystem } from '../ScytheWakeSystem';
 import type { ScytheProcessionSystem } from '../ScytheProcessionSystem';
 import type { WeaponUpgradeEffectSystem } from '../WeaponUpgradeEffectSystem';
 import type { WeaponEvolutionSystem } from '../WeaponEvolutionSystem';
-import type { AcidPoolSystem } from '../AcidPoolSystem';
+import type { HazardZoneSystem } from '../HazardZoneSystem';
 import type { SpatialEntity } from '../SpatialGrid';
 import type { ScytheSweepProfile } from '../scytheRules';
 
@@ -24,16 +24,17 @@ export interface WeaponContext {
   readonly scytheProcessions: ScytheProcessionSystem;
   readonly upgradeEffects: WeaponUpgradeEffectSystem;
   readonly evolutions: WeaponEvolutionSystem;
-  readonly acidPools: AcidPoolSystem;
+  readonly hazardZones: HazardZoneSystem;
   readonly nearbyCache: SpatialEntity[];
   
   readonly scytheFacingAngle: number;
 
-  createProjectile(id: WeaponId, texture: string, state: WeaponRuntimeState, angle: number, time: number): void;
+  createProjectile(id: WeaponId, texture: string, state: WeaponRuntimeState, angle: number, time: number): Phaser.Physics.Arcade.Image;
   createLobbedProjectile(id: WeaponId, state: WeaponRuntimeState, landingX: number, landingY: number, time: number): void;
   damageArea(x: number, y: number, radius: number, weaponId: WeaponId, damageScale?: number): void;
   afterAreaAttack(id: WeaponId, x: number, y: number, radius: number, scytheProfile?: ScytheSweepProfile): void;
   damageScytheSweep(x: number, y: number, radius: number, weaponId: WeaponId, damageScale: number, profile: ScytheSweepProfile): number;
   damageArc(x: number, y: number, radius: number, weaponId: WeaponId, facingAngle: number, sweepAngle: number): Set<Phaser.Physics.Arcade.Image>;
   damageEnemy(sprite: Phaser.Physics.Arcade.Image, definition: EnemyDefinition, weaponId: WeaponId, damageScale?: number): { killed: boolean };
+  getProjectileRuntime(projectile: Phaser.Physics.Arcade.Image): any;
 }

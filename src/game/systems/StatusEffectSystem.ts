@@ -91,6 +91,23 @@ export class StatusEffectSystem {
     return consumed;
   }
 
+  getSpeedMultiplier(sprite: Phaser.Physics.Arcade.Image): number {
+    const statuses = this.enemyStatuses.get(sprite);
+    if (!statuses) {
+      return 1.0;
+    }
+    let multiplier = 1.0;
+    for (const [id, entry] of statuses) {
+      if (!isStatusExpired(entry.status, this.scene.time.now)) {
+        const def = STATUS_EFFECTS[id];
+        if (def.speedModifier !== undefined) {
+          multiplier *= def.speedModifier;
+        }
+      }
+    }
+    return multiplier;
+  }
+
   update(time: number): void {
     for (const [sprite, statuses] of [...this.enemyStatuses]) {
       const definition = this.enemies.getDefinition(sprite);

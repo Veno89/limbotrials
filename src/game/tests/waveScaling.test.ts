@@ -58,8 +58,10 @@ describe('wave scaling', () => {
     expect(getWaveTier(240000).elitePool).toEqual(['condemned-brute']);
     expect(getWaveTier(600000).elitePool).toEqual([
       'sentinel-of-woe',
-      'sentinel-of-woe',
       'condemned-brute',
+      'elite-void-caster',
+      'elite-screamer',
+      'elite-summoner',
     ]);
     expect(selectEnemyFromPool(['sentinel-of-woe', 'condemned-brute'], () => 0.99)).toBe(
       'condemned-brute',

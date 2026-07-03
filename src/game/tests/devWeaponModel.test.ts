@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { WEAPONS } from '../data/weapons';
+import { WEAPONS, WEAPONS_WITHOUT_FOCUSED_UPGRADES } from '../data/weapons';
 import { devWeaponActionState, getDevWeaponProgression } from '../systems/devWeaponModel';
 
 describe('dev weapon model', () => {
@@ -8,7 +8,7 @@ describe('dev weapon model', () => {
       const progression = getDevWeaponProgression(weapon.id);
       expect(progression.level.targetWeapon).toBe(weapon.id);
       expect(progression.evolution.targetWeapon).toBe(weapon.id);
-      if (!['gravetide-repeater', 'saintbreaker-pike', 'ashen-orbit', 'choir-of-teeth', 'eclipse-brand'].includes(weapon.id)) {
+      if (!WEAPONS_WITHOUT_FOCUSED_UPGRADES.includes(weapon.id)) {
         expect(progression.focusedUpgrades.length).toBeGreaterThan(0);
       }
       expect(Boolean(progression.unlock)).toBe(weapon.id !== 'bone-scythe');

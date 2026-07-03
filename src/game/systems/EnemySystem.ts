@@ -33,6 +33,7 @@ interface EnemyRuntime {
   damageMultiplier: number;
   lastBossPhase: number;
   entity: SpatialEntity;
+  tier: number;
 }
 
 export interface EnemyDeath {
@@ -72,22 +73,39 @@ export class EnemySystem {
     private readonly getCurse: () => CurseSnapshot,
     private readonly getDeathEchoProfile: () => DeathEchoProfile | undefined = () => undefined,
     private readonly getEdicts: () => readonly EdictId[] = () => [],
+    private readonly getSpeedMultiplier: (sprite: Phaser.Physics.Arcade.Image) => number = () => 1,
   ) {
     this.group = scene.physics.add.group();
     this.abilities = new EnemyAbilitySystem(scene, player, juice, onPlayerHit, getDeathEchoProfile);
   }
 
-  spawn(id: EnemyId, x: number, y: number, elapsedMs: number): Phaser.Physics.Arcade.Image {
+  spawn(id: EnemyId, x: number, y: number, elapsedMs: number, tier = 1): Phaser.Physics.Arcade.Image {
     const baseDefinition = ENEMIES[id];
     const echoProfile = id === 'player-echo' ? this.getDeathEchoProfile() : undefined;
+    
+    // Base tier multipliers
+    const tierHealth = Math.pow(1.6, tier - 1);
+    const tierDamage = Math.pow(1.3, tier - 1);
+    const tierSpeed = Math.pow(1.05, tier - 1);
+    const tierReward = tier;
+
     const definition = echoProfile
       ? {
           ...baseDefinition,
-          maxHealth: echoProfile.maxHealth,
-          speed: Math.round(baseDefinition.speed * echoProfile.speedMultiplier),
-          contactDamage: echoProfile.contactDamage,
+          maxHealth: echoProfile.maxHealth * tierHealth,
+          speed: Math.round(baseDefinition.speed * echoProfile.speedMultiplier * tierSpeed),
+          contactDamage: echoProfile.contactDamage * tierDamage,
+          xp: Math.round(baseDefinition.xp * tierReward),
+          soulValue: Math.round(baseDefinition.soulValue * tierReward),
         }
-      : baseDefinition;
+      : {
+          ...baseDefinition,
+          maxHealth: baseDefinition.maxHealth * tierHealth,
+          speed: Math.round(baseDefinition.speed * tierSpeed),
+          contactDamage: baseDefinition.contactDamage * tierDamage,
+          xp: Math.round(baseDefinition.xp * tierReward),
+          soulValue: Math.round(baseDefinition.soulValue * tierReward),
+        };
     const scaling = enemyThreatScaling(this.getThreat(), Boolean(definition.boss));
     const cursePressure = cursePressureForEnemy(definition, this.getCurse());
     const edicts = this.getEdicts();
@@ -122,8 +140,15 @@ export class EnemySystem {
       ease: 'Back.Out',
     });
     sprite.setAlpha((definition.id === 'wraith' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
+    
+    let baseTint = 0xffffff;
+    if (tier === 2) baseTint = 0xbd93f9; // Purple
+    if (tier >= 3) baseTint = 0xff5555; // Red
+    
     if (cursePressure.tint) {
       sprite.setTint(cursePressure.tint);
+    } else if (tier > 1) {
+      sprite.setTint(baseTint);
     } else {
       sprite.clearTint();
     }
@@ -142,6 +167,7 @@ export class EnemySystem {
       damageMultiplier: scaling.damageMultiplier * cursePressure.damageMultiplier * ruinDamage,
       lastBossPhase: 1,
       entity: { sprite, radius: pressuredDefinition.radius, definition: pressuredDefinition },
+      tier,
     });
     this.onEnemySpawn(id, elapsedMs);
     this.abilities.register(sprite, pressuredDefinition, scaling.damageMultiplier * cursePressure.damageMultiplier);
@@ -181,7 +207,7 @@ export class EnemySystem {
         distance,
       );
       const speed =
-        runtime.definition.speed * movement.speedMultiplier * (1 + (bossPhase - 1) * 0.16);
+        runtime.definition.speed * movement.speedMultiplier * this.getSpeedMultiplier(sprite) * (1 + (bossPhase - 1) * 0.16);
       const body = sprite.body as Phaser.Physics.Arcade.Body;
       body.setVelocity(
         Math.cos(movement.angle) * speed,
@@ -351,15 +377,15 @@ export class EnemySystem {
     );
   }
 
-  spawnAroundPlayer(id: EnemyId, elapsedMs: number, distance = 620): void {
+  spawnAroundPlayer(id: EnemyId, elapsedMs: number, distance = 620, tier = 1): void {
     const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
-    this.spawnAroundPlayerAtAngle(id, elapsedMs, distance, angle);
+    this.spawnAroundPlayerAtAngle(id, elapsedMs, distance, angle, tier);
   }
 
-  spawnAroundPlayerAtAngle(id: EnemyId, elapsedMs: number, distance: number, angle: number): void {
+  spawnAroundPlayerAtAngle(id: EnemyId, elapsedMs: number, distance: number, angle: number, tier = 1): void {
     const x = Phaser.Math.Clamp(this.player.x + Math.cos(angle) * distance, 60, ARENA_WIDTH - 60);
     const y = Phaser.Math.Clamp(this.player.y + Math.sin(angle) * distance, 60, ARENA_HEIGHT - 60);
-    this.spawn(id, x, y, elapsedMs);
+    this.spawn(id, x, y, elapsedMs, tier);
   }
 
   spawnDevTargetDummy(elapsedMs: number): void {
@@ -397,6 +423,7 @@ export class EnemySystem {
       damageMultiplier: 0,
       lastBossPhase: 1,
       entity: { sprite, radius: definition.radius, definition },
+      tier: 1,
     });
   }
 

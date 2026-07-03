@@ -514,6 +514,131 @@ class DeathEchoBehavior implements EnemyBehavior {
   }
 }
 
+class SpreadShooterBehavior implements EnemyBehavior {
+  movementFor(
+    context: EnemyAbilityContext,
+    sprite: Phaser.Physics.Arcade.Image,
+    runtime: AbilityRuntime,
+    _definition: EnemyDefinition,
+    time: number,
+    pursuitAngle: number,
+    distance: number,
+  ): EnemyMovementDirective {
+    if (time >= runtime.nextAbilityAt && distance < 750) {
+      runtime.nextAbilityAt = time + Phaser.Math.Between(3000, 4000);
+      this.telegraphSpread(context, sprite, runtime.damageMultiplier);
+    }
+    if (distance < 300) {
+      return { angle: pursuitAngle + Math.PI, speedMultiplier: 0.8 };
+    }
+    return { angle: pursuitAngle + runtime.strafeDirection * Math.PI * 0.4, speedMultiplier: 0.6 };
+  }
+
+  private telegraphSpread(context: EnemyAbilityContext, sprite: Phaser.Physics.Arcade.Image, damageMultiplier: number): void {
+    context.juice.ring(sprite.x, sprite.y, 64, 0xff5555, 600);
+    context.scene.time.delayedCall(600, () => {
+      if (!sprite.active) return;
+      const baseAngle = Phaser.Math.Angle.Between(sprite.x, sprite.y, context.player.x, context.player.y);
+      const angles = [baseAngle - 0.4, baseAngle - 0.2, baseAngle, baseAngle + 0.2, baseAngle + 0.4];
+      for (const angle of angles) {
+        const projectile = context.projectiles.get(sprite.x, sprite.y, 'projectile-void') as Phaser.Physics.Arcade.Image;
+        projectile.setActive(true).setVisible(true).setDisplaySize(28, 28).setDepth(28).setTint(0xff5555).setBlendMode(Phaser.BlendModes.ADD);
+        const body = projectile.body as Phaser.Physics.Arcade.Body;
+        body.setVelocity(Math.cos(angle) * 350, Math.sin(angle) * 350);
+        context.projectileRuntime.set(projectile, {
+          expiresAt: context.scene.time.now + 3000,
+          damage: scaleThreatDamage(16, damageMultiplier),
+          source: 'void-orb',
+        });
+      }
+    });
+  }
+}
+
+class WideAoEBehavior implements EnemyBehavior {
+  movementFor(
+    context: EnemyAbilityContext,
+    sprite: Phaser.Physics.Arcade.Image,
+    runtime: AbilityRuntime,
+    _definition: EnemyDefinition,
+    time: number,
+    pursuitAngle: number,
+    distance: number,
+  ): EnemyMovementDirective {
+    if (runtime.mode === 'windup') {
+      if (time >= runtime.modeEndsAt) {
+        runtime.mode = 'recovery';
+        runtime.modeEndsAt = time + 1000;
+        // Explode
+        context.juice.ring(sprite.x, sprite.y, 250, 0xff0000, 200);
+        if (Phaser.Math.Distance.Between(sprite.x, sprite.y, context.player.x, context.player.y) < 250) {
+          context.onPlayerHit(scaleThreatDamage(35, runtime.damageMultiplier), 'scream');
+        }
+      }
+      return { angle: runtime.targetAngle, speedMultiplier: 0.1 };
+    }
+    
+    if (runtime.mode === 'recovery') {
+      if (time >= runtime.modeEndsAt) {
+        runtime.mode = 'pursuit';
+      }
+      return { angle: pursuitAngle, speedMultiplier: 0.3 };
+    }
+
+    if (time >= runtime.nextAbilityAt && distance < 400) {
+      runtime.mode = 'windup';
+      runtime.modeEndsAt = time + 2000;
+      runtime.targetAngle = pursuitAngle;
+      runtime.nextAbilityAt = time + 6000;
+      
+      const line = context.scene.add
+        .circle(sprite.x, sprite.y, 250, 0xff0000, 0.2)
+        .setDepth(17);
+      context.scene.tweens.add({
+        targets: line,
+        alpha: 0.5,
+        scale: 1.05,
+        yoyo: true,
+        repeat: 5,
+        duration: 300,
+        onComplete: () => line.destroy(),
+      });
+      return { angle: pursuitAngle, speedMultiplier: 0.1 };
+    }
+    
+    return { angle: pursuitAngle, speedMultiplier: 1 };
+  }
+}
+
+class SummonerBehavior implements EnemyBehavior {
+  movementFor(
+    context: EnemyAbilityContext,
+    sprite: Phaser.Physics.Arcade.Image,
+    runtime: AbilityRuntime,
+    _definition: EnemyDefinition,
+    time: number,
+    pursuitAngle: number,
+    distance: number,
+  ): EnemyMovementDirective {
+    if (time >= runtime.nextAbilityAt && distance < 600) {
+      runtime.nextAbilityAt = time + 8000;
+      this.telegraphSummon(context, sprite);
+    }
+    if (distance < 400) {
+      return { angle: pursuitAngle + Math.PI, speedMultiplier: 0.8 };
+    }
+    return { angle: pursuitAngle + Math.PI * 0.5, speedMultiplier: 0.5 };
+  }
+
+  private telegraphSummon(context: EnemyAbilityContext, sprite: Phaser.Physics.Arcade.Image): void {
+    context.juice.ring(sprite.x, sprite.y, 100, 0x8e44ad, 1000);
+    context.scene.time.delayedCall(1000, () => {
+      if (!sprite.active) return;
+      context.scene.events.emit('elite-summon', sprite.x, sprite.y);
+    });
+  }
+}
+
 export const ENEMY_BEHAVIORS: Record<string, EnemyBehavior> = {
   'brute-charge': new BruteChargeBehavior(),
   'void-caster': new VoidCasterBehavior(),
@@ -523,4 +648,8 @@ export const ENEMY_BEHAVIORS: Record<string, EnemyBehavior> = {
   'trail-hazard': new TrailHazardBehavior(),
   'bomb-thrower': new BombThrowerBehavior(),
   'death-echo': new DeathEchoBehavior(),
+  'elite-charger': new BruteChargeBehavior(),
+  'elite-spread-shooter': new SpreadShooterBehavior(),
+  'elite-wide-aoe': new WideAoEBehavior(),
+  'elite-summoner': new SummonerBehavior(),
 };

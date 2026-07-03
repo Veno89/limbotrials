@@ -4,7 +4,7 @@ import { RunState } from '../systems/RunState';
 import { mutateUpgradeChoices } from '../systems/CursedRewardMutationSystem';
 import { selectCurseChoices, selectUpgradeChoices } from '../systems/UpgradeSystem';
 import { EVOLUTION_READY_LEVEL, MAX_WEAPON_LEVEL, type UpgradeId, type WeaponId } from '../types/gameTypes';
-import { WEAPONS } from '../data/weapons';
+import { WEAPONS, WEAPONS_WITHOUT_FOCUSED_UPGRADES } from '../data/weapons';
 import { UPGRADES } from '../data/upgrades';
 
 function selectionContext(run: RunState, playerLevel: number) {
@@ -28,7 +28,7 @@ function seededRandom(seed: number): () => number {
 
 describe('categorized upgrade system', () => {
   it('defines unlock, level, and evolution progression for every weapon', () => {
-    expect(Object.keys(WEAPONS)).toHaveLength(25);
+    expect(Object.keys(WEAPONS)).toHaveLength(31);
     for (const weapon of Object.values(WEAPONS)) {
       const progression = Object.values(UPGRADES).filter((upgrade) => upgrade.targetWeapon === weapon.id);
       expect(Object.values(UPGRADES).some((upgrade) => upgrade.unlockWeapon === weapon.id)).toBe(
@@ -36,7 +36,7 @@ describe('categorized upgrade system', () => {
       );
       expect(progression.some((upgrade) => upgrade.category === 'weapon-level')).toBe(true);
       expect(progression.some((upgrade) => upgrade.category === 'weapon-evolution')).toBe(true);
-      if (!['gravetide-repeater', 'saintbreaker-pike', 'ashen-orbit', 'choir-of-teeth', 'eclipse-brand'].includes(weapon.id)) {
+      if (!WEAPONS_WITHOUT_FOCUSED_UPGRADES.includes(weapon.id)) {
         expect(progression.some((upgrade) => upgrade.category === 'weapon-upgrade')).toBe(true);
       }
     }

@@ -566,4 +566,124 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       description: 'Strikes twice per cycle. The second strike has increased reach.',
     },
   },
+  'frozen-orb': {
+    id: 'frozen-orb',
+    behavior: 'frozen-orb',
+    name: 'Frozen Orb',
+    description: 'Fires a piercing orb of ice that slows enemies, surrounded by orbiting icicles that deal area damage.',
+    texture: 'projectile-laser', // We might need a new texture or just use laser tinted blue
+    iconTexture: 'status-slow',
+    baseStats: stats({ damage: 15, cooldownMs: 1800, range: 450, projectileSpeed: 200, pierce: 3, projectileSize: 42 }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+      { stat: 'pierce', mode: 'add', value: 1 },
+    ],
+    evolution: {
+      name: 'Glacial Heart',
+      description: 'The orb fires ice shards continually.',
+    },
+  },
+  'meteor-hammer': {
+    id: 'meteor-hammer',
+    behavior: 'meteor-strike',
+    name: 'Meteor Hammer',
+    description: 'Slams the ground in front, followed by a delayed meteor that leaves a burning patch.',
+    texture: 'weapon-bellringer-mace',
+    iconTexture: 'status-burn',
+    baseStats: stats({ damage: 45, cooldownMs: 2500, range: 200, area: 120 }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.2 },
+      { stat: 'area', mode: 'multiply', value: 1.1 },
+    ],
+    evolution: {
+      name: 'Cataclysm',
+      description: 'The meteor impact is devastating and leaves a massive inferno.',
+    },
+  },
+  'exploding-revolver': {
+    id: 'exploding-revolver',
+    behavior: 'burst-fire',
+    name: 'Hand Cannon',
+    description: 'Fires a rapid burst of explosive rounds that detonate on impact.',
+    texture: 'projectile-orb',
+    iconTexture: 'weapon-sanguine-needle',
+    baseStats: stats({ damage: 22, cooldownMs: 2000, range: 350, projectileSpeed: 600, projectileCount: 6, area: 45, projectileSize: 16 }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.12 },
+      { stat: 'projectileCount', mode: 'add', value: 1 },
+    ],
+    evolution: {
+      name: 'Six-Shooter of Doom',
+      description: 'Every shot fires two rounds simultaneously.',
+    },
+  },
+  'infernal-blunderbuss': {
+    id: 'infernal-blunderbuss',
+    behavior: 'fan-projectile',
+    name: 'Infernal Blunderbuss',
+    description: 'Unleashes a wide cone of fiery shrapnel that burns targets.',
+    texture: 'projectile-void',
+    iconTexture: 'status-burn',
+    baseStats: stats({ damage: 14, cooldownMs: 1400, range: 250, projectileSpeed: 450, projectileCount: 7, area: Math.PI / 4, projectileSize: 12 }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+      { stat: 'projectileCount', mode: 'add', value: 2 },
+    ],
+    evolution: {
+      name: 'Hell\'s Maw',
+      description: 'The cone is much wider and inflicts severe burns.',
+    },
+  },
+  'spike-trap': {
+    id: 'spike-trap',
+    behavior: 'deployable-trap',
+    name: 'Spike Trap',
+    description: 'Drops a trap that bleeds and slows enemies who walk over it.',
+    texture: 'prop-cage',
+    iconTexture: 'status-bleed',
+    baseStats: stats({ damage: 0, cooldownMs: 3000, range: 0, area: 64 }),
+    levelGrowth: [
+      { stat: 'area', mode: 'multiply', value: 1.2 },
+      { stat: 'cooldownMs', mode: 'multiply', value: 0.9 },
+    ],
+    evolution: {
+      name: 'Iron Maiden',
+      description: 'The trap lasts much longer and covers a huge area.',
+    },
+  },
+  'pouch-of-chaos': {
+    id: 'pouch-of-chaos',
+    behavior: 'lobbed-projectile',
+    name: 'Pouch of Chaos',
+    description: 'Throws a flask that bursts into a random status effect zone.',
+    texture: 'projectile-void',
+    iconTexture: 'status-slow',
+    baseStats: stats({ damage: 8, cooldownMs: 3000, range: 450, projectileSpeed: 250, area: 120, projectileSize: 16 }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.15 },
+      { stat: 'area', mode: 'multiply', value: 1.1 },
+    ],
+    evolution: {
+      name: 'Pandemonium Flask',
+      description: 'Increases burst radius significantly.',
+    },
+  },
 };
+
+/**
+ * Weapons that do not yet have authored focused upgrades.
+ * Used by tests to exempt them from focused upgrade requirements.
+ */
+export const WEAPONS_WITHOUT_FOCUSED_UPGRADES: WeaponId[] = [
+  'gravetide-repeater',
+  'saintbreaker-pike',
+  'ashen-orbit',
+  'choir-of-teeth',
+  'eclipse-brand',
+  'meteor-hammer',
+  'exploding-revolver',
+  'frozen-orb',
+  'spike-trap',
+  'pouch-of-chaos',
+  'infernal-blunderbuss',
+];

@@ -334,6 +334,126 @@ class GravecleaverBehavior implements WeaponBehavior {
   }
 }
 
+class BurstFireBehavior implements WeaponBehavior {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+    const target = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range);
+    if (!target) {
+      return;
+    }
+    const count = Math.max(1, Math.floor(state.stats.projectileCount));
+    // E.g. fire `count` times with a delay
+    for (let index = 0; index < count; index += 1) {
+      context.scene.time.delayedCall(index * 120, () => {
+        if (!context.player.active || !context.run.weapons.equipped.has(id)) return;
+        const currentTarget = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range);
+        if (!currentTarget) return;
+        
+        // Add recoil juice here if needed, audio
+        audio.play('soul-bolt');
+        const angle = Phaser.Math.Angle.Between(context.player.x, context.player.y, currentTarget.x, currentTarget.y);
+        context.createProjectile(id, WEAPONS[id].texture, state, angle, context.scene.time.now);
+        context.juice.playerDamage(); // small recoil bump
+      });
+    }
+  }
+}
+
+class DeployableTrapBehavior implements WeaponBehavior {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+    // Drop trap at player location
+    context.hazardZones.spawn(
+      context.player.x,
+      context.player.y,
+      id,
+      {
+        radius: state.stats.area,
+        durationMs: 8000 + (state.level * 1000), // simplistic scaling
+        tickIntervalMs: 500,
+        damageScale: 1,
+        color: 0x51d96b, // trap color
+        strokeColor: 0x4a90e2,
+        texture: WEAPONS[id].texture,
+        statusEffect: {
+          id: 'bleed',
+          damagePerTick: 3,
+        },
+        proximityTrigger: true,
+      }
+    );
+  }
+}
+
+class MeteorHammerBehavior implements WeaponBehavior {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+    const target = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range);
+    if (!target) return;
+    
+    // Frontal slam
+    const angle = Phaser.Math.Angle.Between(context.player.x, context.player.y, target.x, target.y);
+    context.damageArc(context.player.x, context.player.y, state.stats.range, id, angle, Math.PI / 2);
+    
+    // Meteor patch at target location
+    const meteorX = target.x;
+    const meteorY = target.y;
+    
+    context.juice.ring(meteorX, meteorY, state.stats.area, COLORS.hellfire, 400);
+    context.scene.time.delayedCall(600, () => {
+      if (!context.player.active) return;
+      // Meteor lands
+      context.juice.heavyImpact();
+      context.damageArea(meteorX, meteorY, state.stats.area, id);
+      context.hazardZones.spawn(meteorX, meteorY, id, {
+        radius: state.stats.area,
+        durationMs: 4000,
+        tickIntervalMs: 500,
+        damageScale: 0.5,
+        color: COLORS.hellfire,
+        strokeColor: 0xd94545,
+        statusEffect: {
+          id: 'burn',
+          damagePerTick: 4,
+        }
+      });
+    });
+  }
+}
+
+class FrozenOrbBehavior implements WeaponBehavior {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, time: number): void {
+    const target = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range);
+    if (!target) return;
+
+    audio.play('soul-bolt'); // Maybe distinct audio later
+    const angle = Phaser.Math.Angle.Between(context.player.x, context.player.y, target.x, target.y);
+    const projectile = context.createProjectile(id, WEAPONS[id].texture, state, angle, time);
+
+    // Initialize orbiting icicles
+    const numIcicles = 3;
+    const icicles = [];
+    for (let i = 0; i < numIcicles; i++) {
+      const icicle = context.scene.physics.add.image(projectile.x, projectile.y, 'projectile-orb')
+        .setDisplaySize(state.stats.projectileSize * 0.4, state.stats.projectileSize * 0.4)
+        .setTint(0x00ffff) // Ice blue
+        .setDepth(15);
+      const body = icicle.body as Phaser.Physics.Arcade.Body;
+      body.setCircle(icicle.displayWidth * 0.5);
+      icicles.push({ sprite: icicle, angleOffset: (Math.PI * 2 / numIcicles) * i });
+    }
+    
+    // We attach icicles and angle to projectile via runtime data or just scene update
+    const runtime = context.getProjectileRuntime(projectile);
+    if (runtime) {
+      runtime.data = {
+        icicles,
+        orbitRadius: state.stats.projectileSize * 1.5,
+        rotationSpeed: 0.05,
+        currentRotation: 0,
+        hitReadyAt: new Map<Phaser.Physics.Arcade.Image, number>(),
+      };
+    }
+  }
+}
+
 export const WEAPON_BEHAVIORS: Record<string, WeaponBehavior> = {
   'scythe': new BoneScytheBehavior(),
   'sigil': new HellfireBehavior(),
@@ -346,4 +466,8 @@ export const WEAPON_BEHAVIORS: Record<string, WeaponBehavior> = {
   'targeted-projectile': new TargetedProjectilesBehavior(),
   'chain-arc': new ChainArcBehavior(),
   'gravecleaver-slash': new GravecleaverBehavior(),
+  'burst-fire': new BurstFireBehavior(),
+  'deployable-trap': new DeployableTrapBehavior(),
+  'meteor-strike': new MeteorHammerBehavior(),
+  'frozen-orb': new FrozenOrbBehavior(),
 };

@@ -1,7 +1,12 @@
 import Phaser from 'phaser';
 import { BALANCE } from '../config/balanceConfig';
 import { WEAPONS } from '../data/weapons';
-import type { EnemyDefinition, WeaponId, WeaponRuntimeState } from '../types/gameTypes';
+import type {
+  EnemyDefinition,
+  WeaponId,
+  WeaponRuntimeState,
+  StatusEffectId,
+} from '../types/gameTypes';
 import { calculateDamage } from './DamageSystem';
 import type { EnemySystem } from './EnemySystem';
 import type { JuiceSystem } from './JuiceSystem';
@@ -14,7 +19,7 @@ import { calculateBloodletterThrow } from './weaponRules';
 import { WeaponUpgradeEffectSystem } from './WeaponUpgradeEffectSystem';
 import type { ConditionalUpgradeSystem } from './ConditionalUpgradeSystem';
 import type { StatusEffectSystem } from './StatusEffectSystem';
-import { AcidPoolSystem } from './AcidPoolSystem';
+import { HazardZoneSystem } from './HazardZoneSystem';
 import {
   poisonFlaskImpactRadius,
   poisonFlaskPoolProfile,
@@ -33,7 +38,7 @@ import { ScytheProcessionSystem } from './ScytheProcessionSystem';
 import type { WeaponContext } from './weapons/WeaponContext';
 import { WEAPON_BEHAVIORS } from './weapons/WeaponBehaviors';
 
-interface ProjectileRuntime {
+export interface ProjectileRuntime {
   weaponId: WeaponId;
   pierceRemaining: number;
   expiresAt: number;
@@ -43,6 +48,7 @@ interface ProjectileRuntime {
   returnAt?: number;
   returning?: boolean;
   outboundExhausted?: boolean;
+  data?: any;
 }
 
 export interface WeaponCooldownState {
@@ -60,7 +66,7 @@ export class WeaponSystem implements WeaponContext {
   private readonly synergies: WeaponSynergySystem;
   private readonly crimsonOrbit: CrimsonOrbitSystem;
   public readonly upgradeEffects: WeaponUpgradeEffectSystem;
-  public readonly acidPools: AcidPoolSystem;
+  public readonly hazardZones: HazardZoneSystem;
   public readonly scytheWakes: ScytheWakeSystem;
   public readonly scytheTalents: BoneScytheTalentRuntimeSystem;
   public readonly scytheProcessions: ScytheProcessionSystem;
@@ -82,7 +88,7 @@ export class WeaponSystem implements WeaponContext {
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
     this.synergies = new WeaponSynergySystem(run);
     this.crimsonOrbit = new CrimsonOrbitSystem(scene, player, enemies);
-    this.acidPools = new AcidPoolSystem(
+    this.hazardZones = new HazardZoneSystem(
       scene,
       enemies,
       statuses,
@@ -143,7 +149,7 @@ export class WeaponSystem implements WeaponContext {
       }
     }
     this.updateProjectiles(time);
-    this.acidPools.update(time);
+    this.hazardZones.update(time);
     this.scytheWakes.update(time);
     this.scytheProcessions.update(time);
   }
@@ -208,7 +214,9 @@ export class WeaponSystem implements WeaponContext {
       }
       if (time >= runtime.expiresAt) {
         if (runtime.landingX !== undefined && runtime.landingY !== undefined) {
-          this.landPoisonFlask(runtime, runtime.landingX, runtime.landingY, true);
+          this.landLobbedProjectile(runtime, runtime.landingX, runtime.landingY, true);
+        } else if (runtime.weaponId === 'exploding-revolver') {
+          this.explodeRevolver(projectile.x, projectile.y, runtime);
         }
         this.destroyProjectile(projectile);
         continue;
@@ -232,6 +240,46 @@ export class WeaponSystem implements WeaponContext {
           continue;
         }
       }
+      
+      if (runtime.weaponId === 'frozen-orb' && runtime.data) {
+        runtime.data.currentRotation += runtime.data.rotationSpeed;
+        const icicles = runtime.data.icicles as { sprite: Phaser.Physics.Arcade.Image, angleOffset: number }[];
+        
+        for (const icicle of icicles) {
+          const angle = runtime.data.currentRotation + icicle.angleOffset;
+          icicle.sprite.setPosition(
+            projectile.x + Math.cos(angle) * runtime.data.orbitRadius,
+            projectile.y + Math.sin(angle) * runtime.data.orbitRadius
+          );
+          
+          // Check icicle collision
+          const candidates = this.enemies.grid.getNearby(icicle.sprite.x, icicle.sprite.y, 80, this.nearbyCache);
+          for (const entity of candidates) {
+            const enemy = entity.sprite;
+            const definition = entity.definition;
+            if (
+              time < (runtime.data.hitReadyAt.get(enemy) ?? 0) ||
+              Phaser.Math.Distance.Between(icicle.sprite.x, icicle.sprite.y, enemy.x, enemy.y) >
+                definition.radius + icicle.sprite.displayWidth * 0.35
+            ) {
+              continue;
+            }
+            runtime.data.hitReadyAt.set(enemy, time + 600); // 600ms cooldown per enemy for icicles
+            const result = this.damageEnemy(enemy, definition, runtime.weaponId);
+            this.afterProjectileImpact(runtime.weaponId, enemy, result.killed, runtime.hit);
+          }
+        }
+        
+        // Clean up stale hits periodically
+        if (time % 60 === 0) {
+          for (const enemy of runtime.data.hitReadyAt.keys()) {
+            if (!enemy.active) {
+              runtime.data.hitReadyAt.delete(enemy);
+            }
+          }
+        }
+      }
+
       let shouldDestroy = false;
       const candidates = this.enemies.grid.getNearby(projectile.x, projectile.y, 100, this.nearbyCache);
       for (const entity of candidates) {
@@ -249,8 +297,13 @@ export class WeaponSystem implements WeaponContext {
         runtime.hit.add(enemy);
         const result = this.damageEnemy(enemy, definition, runtime.weaponId);
         this.afterProjectileImpact(runtime.weaponId, enemy, result.killed, runtime.hit);
-        if (runtime.weaponId === 'poison-flask') {
-          this.landPoisonFlask(runtime, enemy.x, enemy.y, false);
+        if (runtime.weaponId === 'poison-flask' || runtime.weaponId === 'pouch-of-chaos') {
+          this.landLobbedProjectile(runtime, enemy.x, enemy.y, false);
+          shouldDestroy = true;
+          continue;
+        }
+        if (runtime.weaponId === 'exploding-revolver') {
+          this.explodeRevolver(enemy.x, enemy.y, runtime);
           shouldDestroy = true;
           continue;
         }
@@ -305,7 +358,7 @@ export class WeaponSystem implements WeaponContext {
     state: WeaponRuntimeState,
     angle: number,
     time: number,
-  ): void {
+  ): Phaser.Physics.Arcade.Image {
     const projectile = this.projectiles.get(this.player.x, this.player.y) as Phaser.Physics.Arcade.Image;
     projectile
       .setTexture(texture)
@@ -331,6 +384,12 @@ export class WeaponSystem implements WeaponContext {
       returning: false,
       outboundExhausted: false,
     });
+    
+    return projectile;
+  }
+
+  public getProjectileRuntime(projectile: Phaser.Physics.Arcade.Image): ProjectileRuntime | undefined {
+    return this.projectileRuntime.get(projectile);
   }
 
   public createLobbedProjectile(
@@ -504,17 +563,60 @@ export class WeaponSystem implements WeaponContext {
     this.juice.ring(enemy.x, enemy.y, 32, 0x9f1f2d, 180);
   }
 
-  private landPoisonFlask(runtime: ProjectileRuntime, x: number, y: number, impactDamage: boolean): void {
+  private explodeRevolver(x: number, y: number, runtime: ProjectileRuntime): void {
     const state = this.run.weapons.getState(runtime.weaponId);
+    this.juice.ring(x, y, state.stats.area, 0xffa500, 200);
+    this.damageArea(x, y, state.stats.area, runtime.weaponId);
+  }
+
+  private landLobbedProjectile(runtime: ProjectileRuntime, x: number, y: number, impactDamage: boolean): void {
+    const state = this.run.weapons.getState(runtime.weaponId);
+    
+    if (runtime.weaponId === 'pouch-of-chaos') {
+      this.juice.ring(x, y, state.stats.area, 0x8e44ad, 260);
+      if (impactDamage) {
+        this.damageArea(x, y, state.stats.area, runtime.weaponId);
+      }
+      
+      const effects: StatusEffectId[] = ['poison', 'bleed', 'burn', 'slow'];
+      const effectId = effects[Phaser.Math.Between(0, effects.length - 1)]!;
+      
+      this.hazardZones.spawn(x, y, runtime.weaponId, {
+        radius: state.stats.area,
+        durationMs: 4000,
+        tickIntervalMs: 500,
+        damageScale: 0.5,
+        color: 0x8e44ad,
+        strokeColor: 0xd7bde2,
+        statusEffect: {
+          id: effectId,
+          damagePerTick: 3,
+        }
+      });
+      return;
+    }
+
     this.juice.ring(x, y, state.stats.area, 0x51d96b, 260);
     if (impactDamage) {
       this.damageArea(x, y, poisonFlaskImpactRadius(state.stats), runtime.weaponId);
     }
-    this.acidPools.spawn(
+    this.hazardZones.spawn(
       x,
       y,
       runtime.weaponId,
-      poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)),
+      {
+        radius: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).radius,
+        durationMs: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).durationMs,
+        tickIntervalMs: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).tickIntervalMs,
+        damageScale: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).damageScale,
+        color: 0x1f8d37,
+        strokeColor: 0x51d96b,
+        texture: 'weapon-poison-flask',
+        statusEffect: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).appliesPoison ? {
+          id: 'poison',
+          damagePerTick: poisonFlaskPoolProfile(state.stats, this.evolutions.isEvolved(runtime.weaponId)).poisonDamagePerTick,
+        } : undefined,
+      }
     );
   }
 
@@ -583,6 +685,12 @@ export class WeaponSystem implements WeaponContext {
       (...args) => this.damageEnemy(...args),
       (...args) => this.damageArea(...args),
     );
+    
+    if (id === 'frozen-orb') {
+      this.statuses.applyToEnemy(impact, 'slow', { sourceWeaponId: id, damagePerTick: 0 });
+    } else if (id === 'infernal-blunderbuss') {
+      this.statuses.applyToEnemy(impact, 'burn', { sourceWeaponId: id, damagePerTick: 2 });
+    }
   }
 
   private effectiveCooldown(state: WeaponRuntimeState): number {
@@ -597,6 +705,12 @@ export class WeaponSystem implements WeaponContext {
   }
 
   private destroyProjectile(projectile: Phaser.Physics.Arcade.Image): void {
+    const runtime = this.projectileRuntime.get(projectile);
+    if (runtime && runtime.data && runtime.data.icicles) {
+      for (const icicle of runtime.data.icicles) {
+        icicle.sprite.destroy();
+      }
+    }
     this.projectileRuntime.delete(projectile);
     projectile.setActive(false).setVisible(false);
   }

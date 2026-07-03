@@ -583,6 +583,16 @@ export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
     modifiers: [{ stat: 'damage', mode: 'multiply', value: 1.15 }],
     effect: 'halo-flies-frenzy',
   },
+  'necromancers-skull': {
+    id: 'necromancers-skull',
+    name: 'Necromancer\'s Skull',
+    description: 'A floating skull companion that periodically summons skeletons to fight for you.',
+    flavorText: '"Even in death, it still whispers to the void."',
+    rarity: 'rare',
+    poolTier: 'tier-3',
+    iconTexture: 'icon-void-sword',
+    effect: 'necromancer-skull-companion',
+  },
 };
 
 export function getAvailableArtifacts(save: SaveData, isNgPlus = false): ArtifactDefinition[] {

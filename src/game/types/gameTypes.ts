@@ -27,7 +27,13 @@ export type WeaponId =
   | 'candlebrand'
   | 'bellringer-mace'
   | 'crowfeather-arbalest'
-  | 'gravecleaver';
+  | 'gravecleaver'
+  | 'frozen-orb'
+  | 'meteor-hammer'
+  | 'exploding-revolver'
+  | 'infernal-blunderbuss'
+  | 'spike-trap'
+  | 'pouch-of-chaos';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -39,7 +45,11 @@ export type WeaponBehavior =
   | 'lobbed-projectile'
   | 'pulse'
   | 'chain-arc'
-  | 'gravecleaver-slash';
+  | 'gravecleaver-slash'
+  | 'burst-fire'
+  | 'deployable-trap'
+  | 'meteor-strike'
+  | 'frozen-orb';
 export type UpgradeCategory =
   | 'weapon'
   | 'weapon-level'
@@ -81,6 +91,12 @@ export type UpgradeId =
   | 'unlock-bellringer-mace'
   | 'unlock-crowfeather-arbalest'
   | 'unlock-gravecleaver'
+  | 'unlock-frozen-orb'
+  | 'unlock-meteor-hammer'
+  | 'unlock-exploding-revolver'
+  | 'unlock-infernal-blunderbuss'
+  | 'unlock-spike-trap'
+  | 'unlock-pouch-of-chaos'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -106,6 +122,12 @@ export type UpgradeId =
   | 'level-bellringer-mace'
   | 'level-crowfeather-arbalest'
   | 'level-gravecleaver'
+  | 'level-frozen-orb'
+  | 'level-meteor-hammer'
+  | 'level-exploding-revolver'
+  | 'level-infernal-blunderbuss'
+  | 'level-spike-trap'
+  | 'level-pouch-of-chaos'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -131,6 +153,12 @@ export type UpgradeId =
   | 'evolve-bellringer-mace'
   | 'evolve-crowfeather-arbalest'
   | 'evolve-gravecleaver'
+  | 'evolve-frozen-orb'
+  | 'evolve-meteor-hammer'
+  | 'evolve-exploding-revolver'
+  | 'evolve-infernal-blunderbuss'
+  | 'evolve-spike-trap'
+  | 'evolve-pouch-of-chaos'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -213,6 +241,9 @@ export type EnemyId =
   | 'veil-stalker'
   | 'condemned-brute'
   | 'sentinel-of-woe'
+  | 'elite-void-caster'
+  | 'elite-screamer'
+  | 'elite-summoner'
   | 'plague-crawler'
   | 'ember-imp'
   | 'grave-defiler'
@@ -230,7 +261,11 @@ export type EnemyBehavior =
   | 'stalker'
   | 'trail-hazard'
   | 'bomb-thrower'
-  | 'death-echo';
+  | 'death-echo'
+  | 'elite-charger'
+  | 'elite-spread-shooter'
+  | 'elite-wide-aoe'
+  | 'elite-summoner';
 export type MetaUpgradeId = 'vital-remnant' | 'cruel-memory' | 'hungry-echo' | 'fateful-thread';
 export type BossAttackId =
   | 'shockwave'
@@ -250,7 +285,7 @@ export type EnemyAbilityId =
   | 'echo-charge';
 export type PlayerDamageSourceId = EnemyId | EnemyAbilityId | BossAttackId | 'blood-shrine';
 export type PowerupId = 'mending-soul' | 'soul-vacuum' | 'grave-frenzy';
-export type StatusEffectId = 'bleed' | 'poison';
+export type StatusEffectId = 'bleed' | 'poison' | 'burn' | 'slow';
 export type BalancePresetId =
   | 'standard'
   | 'scythe-evolution'
@@ -311,7 +346,8 @@ export type ArtifactEffectId =
   | 'reliquary-key-bounty'
   | 'crown-ash-fury'
   | 'red-testament-embrace'
-  | 'halo-flies-frenzy';
+  | 'halo-flies-frenzy'
+  | 'necromancer-skull-companion';
 export type TalentPathId =
   | 'haunted-reaper'
   | 'haunted-echo'
@@ -567,7 +603,8 @@ export type ArtifactId =
   | 'reliquary-key'
   | 'crown-of-ash'
   | 'the-red-testament'
-  | 'halo-of-flies';
+  | 'halo-of-flies'
+  | 'necromancers-skull';
 
 export type ArtifactRarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 export type ArtifactPoolTier = 'base' | 'tier-2' | 'tier-3' | 'tier-4' | 'ng-plus';
@@ -658,6 +695,7 @@ export interface StatusEffectDefinition {
   tickIntervalMs: number;
   baseDamagePerTick: number;
   maxStacks: number;
+  speedModifier?: number;
 }
 
 export interface MetaUpgradeDefinition {

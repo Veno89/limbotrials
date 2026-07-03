@@ -12,6 +12,7 @@ import { UpgradeOfferSystem } from '../systems/UpgradeOfferSystem';
 import { loadSave, recordRunResult, writeSave } from '../systems/SaveSystem';
 import { ChestSystem } from '../systems/ChestSystem';
 import { WeaponSystem } from '../systems/WeaponSystem';
+import { CompanionSystem } from '../systems/CompanionSystem';
 import type {
   AppliedRewardResult,
   ArtifactId,
@@ -105,6 +106,7 @@ export class GameScene extends Phaser.Scene {
   private edicts: EdictId[] = [];
   private discoverySave!: SaveData;
   private devInvincible = false;
+  private companions!: CompanionSystem;
 
   constructor() {
     super('GameScene');
@@ -137,8 +139,24 @@ export class GameScene extends Phaser.Scene {
     this.events.on(Phaser.Scenes.Events.RESUME, resumeListener);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.events.off(Phaser.Scenes.Events.RESUME, resumeListener);
+      this.events.off('elite-summon', eliteSummonListener);
       audio.stopAmbience();
     });
+    
+    const eliteSummonListener = (x: number, y: number) => {
+      const pool: EnemyId[] = ['bone-crawler', 'lost-soul', 'wraith'];
+      const activeMinions = this.enemies.countAny(pool);
+      if (activeMinions > 12) return; // Cap at 12 active minions globally
+
+      const spawns = Math.min(4, 12 - activeMinions);
+      for (let i = 0; i < spawns; i++) {
+        const id = pool[Phaser.Math.Between(0, pool.length - 1)]!;
+        const offsetX = Phaser.Math.Between(-80, 80);
+        const offsetY = Phaser.Math.Between(-80, 80);
+        this.enemies.spawn(id, x + offsetX, y + offsetY, this.run.elapsedMs);
+      }
+    };
+    this.events.on('elite-summon', eliteSummonListener);
     this.run = new RunState(
       save,
       this.balancePresetId,
@@ -186,6 +204,8 @@ export class GameScene extends Phaser.Scene {
       () => this.run.getThreatSnapshot(),
       () => this.run.curse.snapshot(),
       () => this.deathEcho?.profile(),
+      () => this.run.edicts,
+      (sprite) => this.statuses?.getSpeedMultiplier(sprite) ?? 1,
     );
     this.conditionalUpgrades = new ConditionalUpgradeSystem(this.player, this.run, this.juice);
     this.statuses = new StatusEffectSystem(this, this.enemies, this.run, (id) =>
@@ -214,6 +234,13 @@ export class GameScene extends Phaser.Scene {
       this.powerups,
       this.conditionalUpgrades,
       this.statuses,
+    );
+    this.companions = new CompanionSystem(
+      this,
+      this.player,
+      this.enemies,
+      this.run,
+      this.juice,
     );
     this.artifactEffects = new ArtifactEffectSystem(this.run, this.juice, {
       reduceWeaponCooldowns: (milliseconds) => this.weapons.reduceCooldowns(milliseconds),
@@ -406,6 +433,7 @@ export class GameScene extends Phaser.Scene {
     } else {
       this.presetSpawner?.update(this.run.elapsedMs);
     }
+    this.companions.update(time);
     this.enemies.update(time, this.run.elapsedMs);
     this.weapons.update(time);
     this.statuses.update(time);
