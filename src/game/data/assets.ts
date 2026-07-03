@@ -37,6 +37,9 @@ import pickupXp from '../../../assets/test/misc/xp.png?url';
 import statusBleed from '../../../assets/test/misc/blood_drop.png?url';
 import statusPoison from '../../../assets/test/misc/poison.png?url';
 import statusSkull from '../../../assets/test/misc/skull.png?url';
+import statusBurn from '../../../assets/test/misc/fire.png?url';
+import statusSlow from '../../../assets/test/misc/freezing.png?url';
+import projectileMeteor from '../../../assets/test/misc/meteor.png?url';
 import iconJournal from '../../../assets/test/misc/journal.png?url';
 import iconStats from '../../../assets/test/misc/stats.png?url';
 import weaponBoneScythe from '../../../assets/test/weapons/bone_scythe.png?url';
@@ -103,6 +106,9 @@ export const ASSETS: Array<[string, string]> = [
   ['status-bleed', statusBleed],
   ['status-poison', statusPoison],
   ['status-skull', statusSkull],
+  ['status-burn', statusBurn],
+  ['status-slow', statusSlow],
+  ['projectile-meteor', projectileMeteor],
   ['icon-journal', iconJournal],
   ['icon-stats', iconStats],
   ['weapon-poison-flask', statusPoison],

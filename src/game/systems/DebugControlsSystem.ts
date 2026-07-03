@@ -20,6 +20,7 @@ export class DebugControlsSystem {
     onToggleDebugOverlay: () => void,
   ) {
     const keyboard = scene.input.keyboard;
+    keyboard?.addCapture('F1,F2,F3,F4,F5,F6,F7,F8,F9,F10');
     keyboard?.on('keydown-B', () => enemies.spawnAroundPlayer('limbo-warden', run.elapsedMs, 500));
     keyboard?.on('keydown-P', () => this.spawnStressPack());
     keyboard?.on('keydown-L', () => offers.request('standard'));

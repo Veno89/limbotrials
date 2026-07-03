@@ -23,6 +23,7 @@ export interface HazardZoneProfile {
     damagePerTick: number;
   };
   proximityTrigger?: boolean;
+  visualPreset?: 'burning-ground';
 }
 
 interface HazardZoneRuntime {
@@ -34,6 +35,7 @@ interface HazardZoneRuntime {
   expiresAt: number;
   pool: Phaser.GameObjects.Arc;
   sprite?: Phaser.GameObjects.Image;
+  visualSprites?: Phaser.GameObjects.Image[];
 }
 
 export class HazardZoneSystem {
@@ -73,6 +75,39 @@ export class HazardZoneSystem {
       ease: 'Sine.InOut',
     });
     
+    let visualSprites: Phaser.GameObjects.Image[] | undefined;
+    if (profile.visualPreset === 'burning-ground') {
+      visualSprites = [];
+      // Scale count somewhat by radius, min 6, max 16
+      const count = Phaser.Math.Clamp(Math.floor(profile.radius / 15), 6, 16);
+      for (let i = 0; i < count; i++) {
+        const angle = Phaser.Math.FloatBetween(0, Math.PI * 2);
+        const distance = profile.radius * Math.sqrt(Phaser.Math.FloatBetween(0, 1));
+        const fireX = x + Math.cos(angle) * distance;
+        const fireY = y + Math.sin(angle) * distance;
+        
+        const fireSprite = this.scene.add.image(fireX, fireY, 'status-burn')
+          .setDepth(18)
+          .setAlpha(Phaser.Math.FloatBetween(0.55, 0.9))
+          .setScale(Phaser.Math.FloatBetween(0.25, 0.65))
+          .setBlendMode(Phaser.BlendModes.ADD)
+          .setRotation(Phaser.Math.FloatBetween(-0.2, 0.2));
+          
+        this.scene.tweens.add({
+          targets: fireSprite,
+          alpha: fireSprite.alpha * 0.6,
+          scaleX: fireSprite.scaleX * 1.2,
+          scaleY: fireSprite.scaleY * 1.2,
+          yoyo: true,
+          repeat: -1,
+          duration: Phaser.Math.Between(300, 700),
+          ease: 'Sine.InOut',
+        });
+        
+        visualSprites.push(fireSprite);
+      }
+    }
+    
     this.zones.push({
       x,
       y,
@@ -82,6 +117,7 @@ export class HazardZoneSystem {
       expiresAt: this.scene.time.now + profile.durationMs,
       pool,
       sprite,
+      visualSprites,
     });
   }
 
@@ -153,6 +189,18 @@ export class HazardZoneSystem {
     zone.pool.destroy();
     if (zone.sprite) {
       zone.sprite.destroy();
+    }
+    if (zone.visualSprites) {
+      for (const sprite of zone.visualSprites) {
+        this.scene.tweens.killTweensOf(sprite);
+        sprite.destroy();
+      }
+    }
+  }
+  
+  public destroy(): void {
+    for (let i = this.zones.length - 1; i >= 0; i--) {
+      this.destroyZone(i);
     }
   }
 }

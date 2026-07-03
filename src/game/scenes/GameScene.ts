@@ -13,6 +13,7 @@ import { loadSave, recordRunResult, writeSave } from '../systems/SaveSystem';
 import { ChestSystem } from '../systems/ChestSystem';
 import { WeaponSystem } from '../systems/WeaponSystem';
 import { CompanionSystem } from '../systems/CompanionSystem';
+import { ImpactFragmentSystem } from '../systems/ImpactFragmentSystem';
 import type {
   AppliedRewardResult,
   ArtifactId,
@@ -107,6 +108,7 @@ export class GameScene extends Phaser.Scene {
   private discoverySave!: SaveData;
   private devInvincible = false;
   private companions!: CompanionSystem;
+  private impactFragments!: ImpactFragmentSystem;
 
   constructor() {
     super('GameScene');
@@ -141,6 +143,7 @@ export class GameScene extends Phaser.Scene {
       this.events.off(Phaser.Scenes.Events.RESUME, resumeListener);
       this.events.off('elite-summon', eliteSummonListener);
       audio.stopAmbience();
+      this.impactFragments?.destroy();
     });
     
     const eliteSummonListener = (x: number, y: number) => {
@@ -178,6 +181,7 @@ export class GameScene extends Phaser.Scene {
     applyGameplayCameraZoom(this.cameras.main);
     this.cameras.main.startFollow(this.player, true, 0.09, 0.09);
 
+    this.impactFragments = new ImpactFragmentSystem(this);
     this.juice = new JuiceSystem(this, save.settings.screenShake, save.settings.particles);
     this.lootReveal = new LootRevealSystem(this, this.player, this.juice);
     this.enemies = new EnemySystem(
@@ -234,6 +238,7 @@ export class GameScene extends Phaser.Scene {
       this.powerups,
       this.conditionalUpgrades,
       this.statuses,
+      this.impactFragments,
     );
     this.companions = new CompanionSystem(
       this,
@@ -398,7 +403,7 @@ export class GameScene extends Phaser.Scene {
         () => this.toggleDebugOverlay(),
       );
       devListener = (event: KeyboardEvent) => {
-        if (event.code === 'Backquote') {
+        if (event.code === 'Backquote' || event.code === 'IntlBackslash' || event.key === '§' || event.key === '½') {
           event.preventDefault();
           this.openDevMode();
         }

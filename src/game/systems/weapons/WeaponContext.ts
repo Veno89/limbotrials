@@ -11,6 +11,7 @@ import type { WeaponEvolutionSystem } from '../WeaponEvolutionSystem';
 import type { HazardZoneSystem } from '../HazardZoneSystem';
 import type { SpatialEntity } from '../SpatialGrid';
 import type { ScytheSweepProfile } from '../scytheRules';
+import type { ImpactFragmentSystem } from '../ImpactFragmentSystem';
 
 export interface WeaponContext {
   readonly scene: Phaser.Scene;
@@ -25,11 +26,12 @@ export interface WeaponContext {
   readonly upgradeEffects: WeaponUpgradeEffectSystem;
   readonly evolutions: WeaponEvolutionSystem;
   readonly hazardZones: HazardZoneSystem;
+  readonly impactFragments: ImpactFragmentSystem;
   readonly nearbyCache: SpatialEntity[];
   
   readonly scytheFacingAngle: number;
 
-  createProjectile(id: WeaponId, texture: string, state: WeaponRuntimeState, angle: number, time: number): Phaser.Physics.Arcade.Image;
+  createProjectile(id: WeaponId, texture: string, state: WeaponRuntimeState, angle: number, time: number, startX?: number, startY?: number): Phaser.Physics.Arcade.Image;
   createLobbedProjectile(id: WeaponId, state: WeaponRuntimeState, landingX: number, landingY: number, time: number): void;
   damageArea(x: number, y: number, radius: number, weaponId: WeaponId, damageScale?: number): void;
   afterAreaAttack(id: WeaponId, x: number, y: number, radius: number, scytheProfile?: ScytheSweepProfile): void;

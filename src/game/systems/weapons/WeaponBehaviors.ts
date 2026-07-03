@@ -352,7 +352,6 @@ class BurstFireBehavior implements WeaponBehavior {
         audio.play('soul-bolt');
         const angle = Phaser.Math.Angle.Between(context.player.x, context.player.y, currentTarget.x, currentTarget.y);
         context.createProjectile(id, WEAPONS[id].texture, state, angle, context.scene.time.now);
-        context.juice.playerDamage(); // small recoil bump
       });
     }
   }
@@ -396,11 +395,29 @@ class MeteorHammerBehavior implements WeaponBehavior {
     const meteorX = target.x;
     const meteorY = target.y;
     
-    context.juice.ring(meteorX, meteorY, state.stats.area, COLORS.hellfire, 400);
+    // Spawn falling meteor visual
+    const fallHeight = 600;
+    const visualMeteor = context.scene.add.image(meteorX, meteorY - fallHeight, 'projectile-meteor')
+      .setDepth(60)
+      .setDisplaySize(state.stats.area, state.stats.area);
+
+    context.scene.tweens.add({
+      targets: visualMeteor,
+      y: meteorY,
+      duration: 600,
+      ease: 'Quad.In',
+    });
+
+    context.juice.ring(meteorX, meteorY, state.stats.area, COLORS.hellfire, 600);
     context.scene.time.delayedCall(600, () => {
-      if (!context.player.active) return;
+      if (!context.player.active) {
+        visualMeteor.destroy();
+        return;
+      }
+      visualMeteor.destroy();
       // Meteor lands
       context.juice.heavyImpact();
+      context.impactFragments.spawn({ x: meteorX, y: meteorY, preset: 'meteor' });
       context.damageArea(meteorX, meteorY, state.stats.area, id);
       context.hazardZones.spawn(meteorX, meteorY, id, {
         radius: state.stats.area,
@@ -412,7 +429,8 @@ class MeteorHammerBehavior implements WeaponBehavior {
         statusEffect: {
           id: 'burn',
           damagePerTick: 4,
-        }
+        },
+        visualPreset: 'burning-ground',
       });
     });
   }

@@ -20,6 +20,7 @@ import { WeaponUpgradeEffectSystem } from './WeaponUpgradeEffectSystem';
 import type { ConditionalUpgradeSystem } from './ConditionalUpgradeSystem';
 import type { StatusEffectSystem } from './StatusEffectSystem';
 import { HazardZoneSystem } from './HazardZoneSystem';
+import type { ImpactFragmentSystem } from './ImpactFragmentSystem';
 import {
   poisonFlaskImpactRadius,
   poisonFlaskPoolProfile,
@@ -83,6 +84,7 @@ export class WeaponSystem implements WeaponContext {
     private readonly powerups: PowerupSystem,
     private readonly conditionalUpgrades: ConditionalUpgradeSystem,
     private readonly statuses: StatusEffectSystem,
+    public readonly impactFragments: ImpactFragmentSystem,
   ) {
     this.projectiles = scene.physics.add.group();
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
@@ -278,6 +280,21 @@ export class WeaponSystem implements WeaponContext {
             }
           }
         }
+        
+        // Evolved version fires ice shards
+        const state = this.run.weapons.getState(runtime.weaponId);
+        if (state.level >= 7) {
+          if (!runtime.data.lastShardFiredAt) runtime.data.lastShardFiredAt = time;
+          if (time - runtime.data.lastShardFiredAt > 200) {
+            runtime.data.lastShardFiredAt = time;
+            const target = this.enemies.findNearest(projectile.x, projectile.y, 400);
+            if (target) {
+              const angle = Phaser.Math.Angle.Between(projectile.x, projectile.y, target.x, target.y);
+              const shard = this.createProjectile(runtime.weaponId, 'projectile-laser', state, angle, time, projectile.x, projectile.y);
+              shard.setDisplaySize(16, 16).setTint(0x00ffff);
+            }
+          }
+        }
       }
 
       let shouldDestroy = false;
@@ -358,8 +375,10 @@ export class WeaponSystem implements WeaponContext {
     state: WeaponRuntimeState,
     angle: number,
     time: number,
+    startX: number = this.player.x,
+    startY: number = this.player.y,
   ): Phaser.Physics.Arcade.Image {
-    const projectile = this.projectiles.get(this.player.x, this.player.y) as Phaser.Physics.Arcade.Image;
+    const projectile = this.projectiles.get(startX, startY) as Phaser.Physics.Arcade.Image;
     projectile
       .setTexture(texture)
       .setActive(true)
