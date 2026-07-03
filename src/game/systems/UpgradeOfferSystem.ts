@@ -48,6 +48,7 @@ export class UpgradeOfferSystem {
       choices.map((choice) => choice.id),
       this.run.elapsedMs,
     );
+    this.pauseHudScene();
     this.scene.scene.pause();
     const copy = OFFER_COPY[kind];
     this.scene.scene.launch('UpgradeScene', {
@@ -119,6 +120,19 @@ export class UpgradeOfferSystem {
       this.open(next);
     } else if (this.scene.scene.isPaused()) {
       this.scene.scene.resume();
+      this.resumeHudScene();
+    }
+  }
+
+  private pauseHudScene(): void {
+    if (this.scene.scene.isActive('GameHudScene')) {
+      this.scene.scene.pause('GameHudScene');
+    }
+  }
+
+  private resumeHudScene(): void {
+    if (this.scene.scene.isPaused('GameHudScene')) {
+      this.scene.scene.resume('GameHudScene');
     }
   }
 }

@@ -12,7 +12,6 @@ import { UpgradeOfferSystem } from '../systems/UpgradeOfferSystem';
 import { loadSave, recordRunResult, writeSave } from '../systems/SaveSystem';
 import { ChestSystem } from '../systems/ChestSystem';
 import { WeaponSystem } from '../systems/WeaponSystem';
-import { HudSystem } from '../ui/HudSystem';
 import type {
   AppliedRewardResult,
   ArtifactId,
@@ -40,6 +39,7 @@ import { BALANCE_PRESETS } from '../data/balancePresets';
 import { DebugControlsSystem } from '../systems/DebugControlsSystem';
 import { CHARACTERS } from '../data/characters';
 import { FEATURE_FLAGS } from '../config/featureFlags';
+import { applyGameplayCameraZoom } from '../config/cameraConfig';
 import { PlayerStatusVisualSystem } from '../ui/PlayerStatusVisualSystem';
 import { LootRevealSystem } from '../ui/LootRevealSystem';
 import { PlayerVisualSystem } from '../systems/PlayerVisualSystem';
@@ -59,6 +59,7 @@ import { selectShopOffers, canAffordBlood } from '../systems/shopRules';
 import type { ShopOfferDefinition } from '../data/shop';
 import type { ShopPurchaseResult } from './ShopScene';
 import { ArenaFloorSystem } from '../systems/ArenaFloorSystem';
+import type { GameHudScene } from './GameHudScene';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -80,7 +81,6 @@ export class GameScene extends Phaser.Scene {
   private pickups!: PickupSystem;
   private powerups!: PowerupSystem;
   private weapons!: WeaponSystem;
-  private hud!: HudSystem;
   private juice!: JuiceSystem;
   private ended = false;
   private invulnerableUntil = 0;
@@ -157,6 +157,7 @@ export class GameScene extends Phaser.Scene {
     this.player.setDisplaySize(74, 74).setDepth(35).setCollideWorldBounds(true);
     this.playerVisuals = new PlayerVisualSystem(this, this.player, this.run.characterId);
     this.cameras.main.setBounds(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+    applyGameplayCameraZoom(this.cameras.main);
     this.cameras.main.startFollow(this.player, true, 0.09, 0.09);
 
     this.juice = new JuiceSystem(this, save.settings.screenShake, save.settings.particles);
@@ -277,7 +278,6 @@ export class GameScene extends Phaser.Scene {
     if (this.balancePresetId !== 'standard') {
       applyBalancePreset(this.balancePresetId, this.run, this.enemies, this.player);
       this.presetSpawner = new BalancePresetSpawnSystem(this.balancePresetId, this.enemies);
-      this.juice.warning(BALANCE_PRESETS[this.balancePresetId].name, '#d7bd82');
     }
     if (this.balancePresetId === 'standard' && FEATURE_FLAGS.artifacts && FEATURE_FLAGS.chests) {
       this.chests = new ChestSystem(this, this.player, this.juice, (x, y) => {
@@ -327,15 +327,10 @@ export class GameScene extends Phaser.Scene {
         },
       });
     }
-    this.hud = new HudSystem(
-      this,
-      this.run,
-      this.enemies,
-      this.movement,
-      this.weapons,
-      this.chests,
-      this.shop,
-    );
+    this.launchHudScene();
+    if (this.balancePresetId !== 'standard') {
+      this.juice.warning(BALANCE_PRESETS[this.balancePresetId].name, '#d7bd82');
+    }
     if (this.balancePresetId === 'standard') {
       this.deathEcho = new DeathEchoSystem(
         this.enemies,
@@ -373,6 +368,7 @@ export class GameScene extends Phaser.Scene {
         this.powerups,
         () => this.grantShield(),
         () => this.endRun(false),
+        () => this.toggleDebugOverlay(),
       );
       devListener = (event: KeyboardEvent) => {
         if (event.code === 'Backquote') {
@@ -387,6 +383,9 @@ export class GameScene extends Phaser.Scene {
       this.input.keyboard?.off('keydown-ESC', pauseListener);
       if (devListener) {
         this.input.keyboard?.off('keydown', devListener);
+      }
+      if (this.scene.isActive('GameHudScene') || this.scene.isPaused('GameHudScene')) {
+        this.scene.stop('GameHudScene');
       }
       this.juice.destroy();
     });
@@ -417,7 +416,6 @@ export class GameScene extends Phaser.Scene {
     this.shop?.update(this.run.elapsedMs);
     this.updateShield(this.run.elapsedMs);
     this.playerStatusVisuals.update(time);
-    this.hud.update(time);
     this.debugControls?.update(time);
     if (this.run.elapsedMs >= this.nextBalanceSampleAt) {
       this.nextBalanceSampleAt = this.run.elapsedMs + 1000;
@@ -433,6 +431,39 @@ export class GameScene extends Phaser.Scene {
 
   abandonRun(): void {
     this.endRun(false);
+  }
+
+  private launchHudScene(): void {
+    if (this.scene.isActive('GameHudScene') || this.scene.isPaused('GameHudScene')) {
+      this.scene.stop('GameHudScene');
+    }
+    this.scene.launch('GameHudScene', {
+      run: this.run,
+      enemies: this.enemies,
+      movement: this.movement,
+      weapons: this.weapons,
+      chests: this.chests,
+      shop: this.shop,
+      juice: this.juice,
+    });
+    this.scene.bringToTop('GameHudScene');
+  }
+
+  private pauseHudScene(): void {
+    if (this.scene.isActive('GameHudScene')) {
+      this.scene.pause('GameHudScene');
+    }
+  }
+
+  private resumeHudScene(): void {
+    if (this.scene.isPaused('GameHudScene')) {
+      this.scene.resume('GameHudScene');
+    }
+  }
+
+  private toggleDebugOverlay(): void {
+    const hudScene = this.scene.get('GameHudScene') as GameHudScene | undefined;
+    hudScene?.toggleDebugOverlay();
   }
 
   private createArena(): void {
@@ -546,6 +577,7 @@ export class GameScene extends Phaser.Scene {
     if (!import.meta.env.DEV || this.scene.isActive('DevModeScene')) {
       return;
     }
+    this.pauseHudScene();
     this.scene.pause();
     this.scene.launch('DevModeScene', {
       run: this.run,
@@ -598,7 +630,10 @@ export class GameScene extends Phaser.Scene {
         this.run.resources.health = this.run.stats.current.maxHealth;
       },
       grantShield: () => this.grantShield(),
-      resumeGame: () => this.scene.resume(),
+      resumeGame: () => {
+        this.scene.resume();
+        this.resumeHudScene();
+      },
     });
   }
 
@@ -606,6 +641,7 @@ export class GameScene extends Phaser.Scene {
     if (!this.scene.isActive() || this.scene.isPaused()) {
       return;
     }
+    this.pauseHudScene();
     this.scene.pause();
     this.scene.launch('PauseScene');
   }
@@ -626,13 +662,17 @@ export class GameScene extends Phaser.Scene {
       weaponCap: this.run.weapons.cap,
     });
     this.run.balance.recordTimeline('shop:opened', this.run.elapsedMs);
+    this.pauseHudScene();
     this.scene.pause();
     this.scene.launch('ShopScene', {
       offers: [...this.shopOffers],
       health: this.run.resources.health,
       maxHealth: this.run.stats.current.maxHealth,
       onPurchase: (offer: ShopOfferDefinition) => this.purchaseShopOffer(offer),
-      onClose: () => this.scene.resume(),
+      onClose: () => {
+        this.scene.resume();
+        this.resumeHudScene();
+      },
     });
     this.scene.bringToTop('ShopScene');
     return true;

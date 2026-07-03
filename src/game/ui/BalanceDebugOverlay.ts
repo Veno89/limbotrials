@@ -5,7 +5,7 @@ import type { RunState } from '../systems/RunState';
 import { formatTime } from './uiHelpers';
 
 export class BalanceDebugOverlay {
-  private readonly panel: Phaser.GameObjects.Rectangle;
+  private readonly panel: Phaser.GameObjects.Container;
   private readonly text: Phaser.GameObjects.Text;
   private visible = false;
   private nextRefreshAt = 0;
@@ -15,10 +15,16 @@ export class BalanceDebugOverlay {
     private readonly run: RunState,
     private readonly enemies: EnemySystem,
   ) {
+    const panelWidth = 380;
+    const panelHeight = 310;
+    const borderSize = 2;
+    const background = scene.add.rectangle(0, 0, panelWidth, panelHeight, 0x050809, 0.94).setOrigin(0);
+    const top = scene.add.rectangle(0, 0, panelWidth, borderSize, COLORS.gold).setOrigin(0);
+    const bottom = scene.add.rectangle(0, panelHeight - borderSize, panelWidth, borderSize, COLORS.gold).setOrigin(0);
+    const left = scene.add.rectangle(0, 0, borderSize, panelHeight, COLORS.gold).setOrigin(0);
+    const right = scene.add.rectangle(panelWidth - borderSize, 0, borderSize, panelHeight, COLORS.gold).setOrigin(0);
     this.panel = scene.add
-      .rectangle(GAME_WIDTH - 24, 118, 380, 310, 0x050809, 0.94)
-      .setOrigin(1, 0)
-      .setStrokeStyle(2, COLORS.gold)
+      .container(GAME_WIDTH - 24 - panelWidth, 118, [background, top, bottom, left, right])
       .setScrollFactor(0)
       .setDepth(250)
       .setVisible(false);

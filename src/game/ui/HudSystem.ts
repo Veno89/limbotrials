@@ -15,6 +15,10 @@ import { curseVisualFor } from './curseVisualRules';
 import type { ShopSystem } from '../systems/ShopSystem';
 import { ShopObjectiveHud } from './ShopObjectiveHud';
 
+export interface HudSystemOptions {
+  onOpenJournal?: () => void;
+}
+
 export class HudSystem {
   private readonly healthBar: Phaser.GameObjects.Rectangle;
   private readonly xpBar: Phaser.GameObjects.Rectangle;
@@ -40,6 +44,7 @@ export class HudSystem {
     private readonly weapons: WeaponSystem,
     chests?: ChestSystem,
     shop?: ShopSystem,
+    private readonly options: HudSystemOptions = {},
   ) {
     type FixedGameObject = Phaser.GameObjects.GameObject &
       Phaser.GameObjects.Components.ScrollFactor &
@@ -162,6 +167,10 @@ export class HudSystem {
     journalBg.setInteractive({ useHandCursor: true });
     journalBg.on('pointerdown', (_pointer: Phaser.Input.Pointer, _localX: number, _localY: number, event: Phaser.Types.Input.EventData) => {
       event.stopPropagation();
+      if (this.options.onOpenJournal) {
+        this.options.onOpenJournal();
+        return;
+      }
       scene.scene.pause();
       scene.scene.launch('JournalScene', {
         resumeGame: () => scene.scene.resume()

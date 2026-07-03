@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import type { BalancePresetId, WeaponId, UpgradeId } from '../types/gameTypes';
-import { BalanceDebugOverlay } from '../ui/BalanceDebugOverlay';
 import type { EnemySystem } from './EnemySystem';
 import type { RunState } from './RunState';
 import type { UpgradeOfferSystem } from './UpgradeOfferSystem';
@@ -9,8 +8,6 @@ import { EVOLUTION_READY_LEVEL } from '../types/gameTypes';
 import type { PowerupSystem } from './PowerupSystem';
 
 export class DebugControlsSystem {
-  private readonly overlay: BalanceDebugOverlay;
-
   constructor(
     private readonly scene: Phaser.Scene,
     private readonly run: RunState,
@@ -20,8 +17,8 @@ export class DebugControlsSystem {
     private readonly powerups: PowerupSystem,
     onGrantShield: () => void,
     onEndRun: () => void,
+    onToggleDebugOverlay: () => void,
   ) {
-    this.overlay = new BalanceDebugOverlay(scene, run, enemies);
     const keyboard = scene.input.keyboard;
     keyboard?.on('keydown-B', () => enemies.spawnAroundPlayer('limbo-warden', run.elapsedMs, 500));
     keyboard?.on('keydown-P', () => this.spawnStressPack());
@@ -41,14 +38,14 @@ export class DebugControlsSystem {
     keyboard?.on('keydown-F5', () => this.restartWithPreset('standard'));
     keyboard?.on('keydown-F6', () => this.restartWithPreset('new-weapon-lab'));
     keyboard?.on('keydown-F7', () => this.restartWithPreset('crimson-orbit-lab'));
-    keyboard?.on('keydown-F8', () => this.overlay.toggle());
+    keyboard?.on('keydown-F8', onToggleDebugOverlay);
     keyboard?.on('keydown-F9', () => this.restartWithPreset('weapon-identity-lab'));
     keyboard?.on('keydown-F10', () => this.restartWithPreset('upgrade-effects-lab'));
     keyboard?.on('keydown-O', onEndRun);
   }
 
   update(time: number): void {
-    this.overlay.update(time);
+    void time;
   }
 
   private spawnStressPack(): void {

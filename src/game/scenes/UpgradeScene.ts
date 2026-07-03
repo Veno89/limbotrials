@@ -59,7 +59,7 @@ export class UpgradeScene extends Phaser.Scene {
 
   create(): void {
     this.selected = false;
-    this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.84).setOrigin(0);
+    this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.84).setOrigin(0).setInteractive();
     addTitle(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 - 264, this.choiceData.title, 37);
     this.add
       .text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 221, this.choiceData.subtitle, {

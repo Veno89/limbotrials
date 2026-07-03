@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_HEIGHT, GAME_WIDTH } from './constants';
 import { BootScene } from './scenes/BootScene';
 import { GameOverScene, VictoryScene } from './scenes/EndScenes';
+import { GameHudScene } from './scenes/GameHudScene';
 import { GameScene } from './scenes/GameScene';
 import { JournalScene } from './scenes/JournalScene';
 import { MainMenuScene } from './scenes/MainMenuScene';
@@ -45,6 +46,7 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     SettingsScene,
     CharacterSelectScene,
     GameScene,
+    GameHudScene,
     ShopScene,
     UpgradeScene,
     PauseScene,

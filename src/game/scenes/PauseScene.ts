@@ -10,7 +10,7 @@ export class PauseScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.82).setOrigin(0);
+    this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.82).setOrigin(0).setInteractive();
     const pauseButton = { height: 46, fontSize: 16 } as const;
     addTitle(this, GAME_WIDTH / 2, 215, 'THE TRIAL WAITS', 35);
     addButton(this, GAME_WIDTH / 2, 292, 'CONTINUE', () => this.resumeRun(), 270, undefined, pauseButton);
@@ -51,6 +51,7 @@ export class PauseScene extends Phaser.Scene {
   private resumeRun(): void {
     this.scene.stop();
     this.scene.resume('GameScene');
+    this.scene.resume('GameHudScene');
   }
 
   private openSubmenu(sceneKey: 'JournalScene' | 'SettingsScene'): void {

@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
-import { COLORS } from '../constants';
+import { COLORS, GAME_WIDTH } from '../constants';
+
+export type WarningSink = (text: string, color?: string) => void;
 
 export class JuiceSystem {
   private lastHeavyImpactAt = Number.NEGATIVE_INFINITY;
@@ -7,6 +9,7 @@ export class JuiceSystem {
   private readonly inactiveDamageTexts: Phaser.GameObjects.Text[] = [];
   private readonly inactiveRings: Phaser.GameObjects.Arc[] = [];
   private warningLabel?: Phaser.GameObjects.Text;
+  private warningSink?: WarningSink;
 
   constructor(
     private readonly scene: Phaser.Scene,
@@ -28,6 +31,10 @@ export class JuiceSystem {
       lifespan: { min: 280, max: 520 },
       emitting: false,
     }).setDepth(40);
+  }
+
+  setWarningSink(sink: WarningSink | undefined): void {
+    this.warningSink = sink;
   }
 
   private getDamageText(): Phaser.GameObjects.Text {
@@ -149,9 +156,13 @@ export class JuiceSystem {
   }
 
   warning(text: string, color = '#b9dded'): void {
+    if (this.warningSink) {
+      this.warningSink(text, color);
+      return;
+    }
     if (!this.warningLabel) {
       this.warningLabel = this.scene.add
-        .text(640, 170, '', {
+        .text(GAME_WIDTH / 2, 170, '', {
           fontFamily: 'Cinzel, serif',
           fontSize: '34px',
           stroke: '#050708',
@@ -167,6 +178,7 @@ export class JuiceSystem {
       this.scene.tweens.killTweensOf(this.warningLabel);
     }
     
+    this.warningLabel.setPosition(GAME_WIDTH / 2, 170);
     this.warningLabel.setText(text);
     this.warningLabel.setColor(color);
     
