@@ -15,7 +15,7 @@ describe('curse pressure rules', () => {
       damageMultiplier: 1,
       speedMultiplier: 1,
     });
-    expect(cursePressureForEnemy(ENEMIES['condemned-husk'], snapshot(12, ['unmarked', 'touched']))).toMatchObject({
+    expect(cursePressureForEnemy(ENEMIES['wretched-runt'], snapshot(12, ['unmarked', 'touched']))).toMatchObject({
       healthMultiplier: 1,
       damageMultiplier: 1,
       speedMultiplier: 1,
@@ -25,7 +25,7 @@ describe('curse pressure rules', () => {
   it('makes curse-gated enemies substantially tougher than ambient enemies at high curse', () => {
     const highCurse = snapshot(125, ['unmarked', 'touched', 'marked', 'condemned', 'forsaken']);
     const ambient = cursePressureForEnemy(ENEMIES['lost-soul'], highCurse);
-    const husk = cursePressureForEnemy(ENEMIES['condemned-husk'], highCurse);
+    const husk = cursePressureForEnemy(ENEMIES['wretched-runt'], highCurse);
 
     expect(husk.healthMultiplier).toBeGreaterThan(ambient.healthMultiplier * 2);
     expect(husk.damageMultiplier).toBeGreaterThan(ambient.damageMultiplier);

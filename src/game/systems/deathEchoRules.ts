@@ -43,7 +43,7 @@ const VALID_WEAPON_IDS = new Set<WeaponId>([
 const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'lost-soul',
   'grave-crawler',
-  'hollow-knight',
+  'limbo-knight',
   'wraith',
   'void-caster',
   'screamer',
@@ -56,7 +56,7 @@ const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'plague-crawler',
   'ember-imp',
   'grave-defiler',
-  'condemned-husk',
+  'wretched-runt',
   'sinbound-stalker',
   'player-echo',
   'limbo-warden',

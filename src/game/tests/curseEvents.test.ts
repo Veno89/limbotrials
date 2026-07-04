@@ -39,7 +39,7 @@ describe('curse events', () => {
     const forsaken = snapshot(90, ['unmarked', 'touched', 'marked', 'condemned', 'forsaken']);
 
     expect(shouldScheduleCurseSurges(marked)).toBe(true);
-    expect(getCurseSurgeEvent(marked).spawns.map((spawn) => spawn.enemyId)).toEqual(['condemned-husk']);
+    expect(getCurseSurgeEvent(marked).spawns.map((spawn) => spawn.enemyId)).toEqual(['wretched-runt']);
     expect(getCurseSurgeEvent(forsaken).spawns.map((spawn) => spawn.enemyId)).toContain('sinbound-stalker');
     expect(getCurseSurgeIntervalMs(forsaken)).toBeLessThan(getCurseSurgeIntervalMs(marked));
   });

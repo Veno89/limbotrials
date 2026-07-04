@@ -28,10 +28,10 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     radius: 16,
     facePlayerOffset: -Math.PI * 0.75,
   },
-  'hollow-knight': {
-    id: 'hollow-knight',
-    name: 'Hollow Knight',
-    texture: 'enemy-knight',
+  'limbo-knight': {
+    id: 'limbo-knight',
+    name: 'Limbo Knight',
+    texture: 'enemy-limbo-knight',
     behavior: 'pursuit',
     maxHealth: 110,
     speed: 48,
@@ -241,10 +241,10 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     displaySize: 62,
     radius: 20,
   },
-  'condemned-husk': {
-    id: 'condemned-husk',
-    name: 'Condemned Husk',
-    texture: 'enemy-flayed-wanderer',
+  'wretched-runt': {
+    id: 'wretched-runt',
+    name: 'Wretched Runt',
+    texture: 'enemy-wretched-runt',
     behavior: 'pursuit',
     maxHealth: 95,
     speed: 92,
@@ -253,10 +253,6 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     soulValue: 1,
     displaySize: 68,
     radius: 22,
-    spawnRequirements: {
-      minCurse: 25,
-      tags: ['cursed'],
-    },
   },
   'sinbound-stalker': {
     id: 'sinbound-stalker',

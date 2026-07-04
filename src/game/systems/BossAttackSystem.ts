@@ -56,7 +56,7 @@ export class BossAttackSystem {
     }
     const count = hasBossCurseTag(curse, 'curse-aura') ? 2 : 1;
     for (let index = 0; index < count; index += 1) {
-      this.enemies.spawnAroundPlayer('condemned-husk', this.getElapsedMs(), 520 + phase * 35 + index * 30);
+      this.enemies.spawnAroundPlayer('wretched-runt', this.getElapsedMs(), 520 + phase * 35 + index * 30);
     }
     if (phase >= 3 && hasBossCurseTag(curse, 'curse-aura')) {
       this.juice.warning('THE WARDEN ANSWERS YOUR CURSE', '#d26468');

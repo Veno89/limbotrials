@@ -231,7 +231,7 @@ export type UpgradeId =
 export type EnemyId =
   | 'lost-soul'
   | 'grave-crawler'
-  | 'hollow-knight'
+  | 'limbo-knight'
   | 'wraith'
   | 'void-caster'
   | 'screamer'
@@ -247,7 +247,7 @@ export type EnemyId =
   | 'plague-crawler'
   | 'ember-imp'
   | 'grave-defiler'
-  | 'condemned-husk'
+  | 'wretched-runt'
   | 'sinbound-stalker'
   | 'player-echo'
   | 'limbo-warden';

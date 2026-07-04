@@ -80,7 +80,7 @@ export const RUN_EVENTS: readonly RunEventDefinition[] = [
     warning: 'THE HOLLOW GUARD ADVANCES',
     warningColor: '#c7a76a',
     spawns: [
-      { enemyId: 'hollow-knight', count: 8, distance: 720, formation: 'ring' },
+      { enemyId: 'limbo-knight', count: 8, distance: 720, formation: 'ring' },
       { enemyId: 'sentinel-of-woe', count: 1, distance: 760 },
       { enemyId: 'gravebound-archer', count: 4, distance: 700, formation: 'ring' },
     ],

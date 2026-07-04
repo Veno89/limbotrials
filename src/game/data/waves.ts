@@ -36,7 +36,7 @@ export const WAVE_TIERS: readonly WaveTier[] = [
   {
     fromMs: 120000,
     globalPopulationCap: 68,
-    sessions: [session('fodder', ['lost-soul', 'lost-soul', 'grave-crawler', 'plague-crawler', 'condemned-husk'], 620, 7, 52, 600)],
+    sessions: [session('fodder', ['lost-soul', 'lost-soul', 'grave-crawler', 'plague-crawler', 'wretched-runt'], 620, 7, 52, 600)],
   },
   {
     fromMs: 240000,
@@ -44,13 +44,13 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     sessions: [
       session(
         'fodder',
-        ['lost-soul', 'lost-soul', 'grave-crawler', 'grave-crawler', 'flayed-wanderer', 'plague-crawler', 'condemned-husk'],
+        ['lost-soul', 'lost-soul', 'grave-crawler', 'grave-crawler', 'flayed-wanderer', 'plague-crawler', 'wretched-runt'],
         570,
         8,
         58,
         610,
       ),
-      session('bruiser', ['wraith', 'hollow-knight'], 1450, 2, 8, 640),
+      session('bruiser', ['wraith', 'limbo-knight'], 1450, 2, 8, 640),
       session('caster', ['void-caster', 'ember-imp'], 2900, 1, 2, 690),
     ],
     eliteEveryMs: 120000,
@@ -62,13 +62,13 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     sessions: [
       session(
         'fodder',
-        ['lost-soul', 'grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'condemned-husk'],
+        ['lost-soul', 'grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'wretched-runt'],
         540,
         9,
         64,
         610,
       ),
-      session('bruiser', ['wraith', 'hollow-knight'], 1300, 3, 10, 640),
+      session('bruiser', ['wraith', 'limbo-knight'], 1300, 3, 10, 640),
       session('caster', ['void-caster', 'gravebound-archer', 'ember-imp'], 2600, 1, 3, 690),
     ],
     eliteEveryMs: 120000,
@@ -80,13 +80,13 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     sessions: [
       session(
         'fodder',
-        ['lost-soul', 'grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'condemned-husk'],
+        ['lost-soul', 'grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'plague-crawler', 'wretched-runt'],
         520,
         9,
         68,
         620,
       ),
-      session('bruiser', ['wraith', 'hollow-knight', 'lantern-ghost'], 1250, 3, 14, 650),
+      session('bruiser', ['wraith', 'limbo-knight', 'lantern-ghost'], 1250, 3, 14, 650),
       session('caster', ['void-caster', 'gravebound-archer', 'ember-imp'], 2500, 1, 4, 700),
       session('screamer', ['screamer'], 4800, 1, 1, 710),
     ],
@@ -97,8 +97,8 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     fromMs: 510000,
     globalPopulationCap: 120,
     sessions: [
-      session('fodder', ['grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'condemned-husk'], 480, 11, 78, 620),
-      session('bruiser', ['hollow-knight', 'lantern-ghost', 'lantern-ghost'], 1100, 4, 18, 650),
+      session('fodder', ['grave-crawler', 'flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'wretched-runt'], 480, 11, 78, 620),
+      session('bruiser', ['limbo-knight', 'lantern-ghost', 'lantern-ghost'], 1100, 4, 18, 650),
       session('caster', ['void-caster', 'gravebound-archer', 'gravebound-archer', 'ember-imp'], 2300, 1, 5, 700),
       session('screamer', ['screamer'], 4200, 1, 2, 710),
     ],
@@ -109,8 +109,8 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     fromMs: 600000,
     globalPopulationCap: 135,
     sessions: [
-      session('fodder', ['flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'condemned-husk'], 455, 12, 86, 630),
-      session('bruiser', ['hollow-knight', 'lantern-ghost', 'lantern-ghost'], 1020, 4, 22, 660),
+      session('fodder', ['flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'wretched-runt'], 455, 12, 86, 630),
+      session('bruiser', ['limbo-knight', 'lantern-ghost', 'lantern-ghost'], 1020, 4, 22, 660),
       session('caster', ['void-caster', 'gravebound-archer', 'gravebound-archer', 'ember-imp'], 2200, 1, 5, 710),
       session('screamer', ['screamer'], 4000, 1, 2, 720),
     ],
@@ -121,8 +121,8 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     fromMs: 690000,
     globalPopulationCap: 145,
     sessions: [
-      session('fodder', ['flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'condemned-husk'], 430, 13, 92, 630),
-      session('bruiser', ['hollow-knight', 'lantern-ghost', 'lantern-ghost'], 950, 5, 24, 660),
+      session('fodder', ['flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'wretched-runt'], 430, 13, 92, 630),
+      session('bruiser', ['limbo-knight', 'lantern-ghost', 'lantern-ghost'], 950, 5, 24, 660),
       session('caster', ['gravebound-archer', 'gravebound-archer', 'void-caster', 'ember-imp'], 2100, 1, 6, 710),
       session('screamer', ['screamer'], 3800, 1, 3, 720),
     ],
@@ -133,8 +133,8 @@ export const WAVE_TIERS: readonly WaveTier[] = [
     fromMs: 780000,
     globalPopulationCap: 160,
     sessions: [
-      session('fodder', ['flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'condemned-husk'], 390, 15, 102, 640),
-      session('bruiser', ['lantern-ghost', 'lantern-ghost', 'hollow-knight', 'sinbound-stalker'], 850, 6, 30, 670),
+      session('fodder', ['flayed-wanderer', 'flayed-wanderer', 'veil-stalker', 'grave-defiler', 'wretched-runt'], 390, 15, 102, 640),
+      session('bruiser', ['lantern-ghost', 'lantern-ghost', 'limbo-knight', 'sinbound-stalker'], 850, 6, 30, 670),
       session('caster', ['gravebound-archer', 'gravebound-archer', 'void-caster', 'ember-imp'], 1900, 1, 7, 720),
       session('screamer', ['screamer'], 3400, 1, 4, 730),
     ],

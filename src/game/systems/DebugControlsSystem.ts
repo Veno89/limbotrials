@@ -50,7 +50,7 @@ export class DebugControlsSystem {
   }
 
   private spawnStressPack(): void {
-    const pool = ['flayed-wanderer', 'veil-stalker', 'lantern-ghost', 'hollow-knight'] as const;
+    const pool = ['flayed-wanderer', 'veil-stalker', 'lantern-ghost', 'limbo-knight'] as const;
     for (let index = 0; index < 200; index += 1) {
       this.enemies.spawnAroundPlayer(pool[index % pool.length]!, this.run.elapsedMs, 700 + (index % 8) * 28);
     }

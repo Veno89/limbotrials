@@ -51,7 +51,7 @@ export class CompanionSystem {
         this.nextSummonAt = time + 4000;
         this.juice.ring(this.skullSprite.x, this.skullSprite.y, 24, 0xbd93f9, 200);
         
-        const skeleton = this.group.create(this.skullSprite.x, this.skullSprite.y, 'enemy-hollow-knight') as Phaser.Physics.Arcade.Image;
+        const skeleton = this.group.create(this.skullSprite.x, this.skullSprite.y, 'enemy-limbo-knight') as Phaser.Physics.Arcade.Image;
         skeleton.setDisplaySize(48, 48).setDepth(20).setTint(0x9d72db); // friendly purple tint
         
         this.skeletons.push({

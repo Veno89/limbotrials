@@ -4,6 +4,8 @@ import scytheChar from '../../../assets/test/characters/haunted.png?url';
 import penitentIdle1 from '../../../assets/test/characters/thepenitent.png?url';
 import enemyLostSoul from '../../../assets/test/enemies/lost_soul.png?url';
 import enemyCrawler from '../../../assets/test/enemies/grave_crawler.png?url';
+import enemyLimboKnight from '../../../assets/test/enemies/limbo_knight.png?url';
+import enemyWretchedRunt from '../../../assets/test/enemies/wretched_runt.png?url';
 import enemyStalker from '../../../assets/test/enemies/stalker.png?url';
 import artifactCursedHourglass from '../../../assets/test/artifacts/cursed_hourglass.png?url';
 import pickupXp from '../../../assets/test/misc/xp.png?url';
@@ -44,6 +46,8 @@ export const ASSETS: Array<[string, string]> = [
   ['player-penitent', penitentIdle1],
   ['enemy-lost-soul', enemyLostSoul],
   ['enemy-crawler', enemyCrawler],
+  ['enemy-limbo-knight', enemyLimboKnight],
+  ['enemy-wretched-runt', enemyWretchedRunt],
   ['enemy-stalker', enemyStalker],
   ['artifact-cursed-hourglass', artifactCursedHourglass],
   ['pickup-xp', pickupXp],

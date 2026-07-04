@@ -389,7 +389,7 @@ export class EnemySystem {
   }
 
   spawnDevTargetDummy(elapsedMs: number): void {
-    const baseDefinition = ENEMIES['hollow-knight'];
+    const baseDefinition = ENEMIES['limbo-knight'];
     const definition: EnemyDefinition = {
       ...baseDefinition,
       name: 'Target Dummy',

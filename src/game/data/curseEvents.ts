@@ -19,14 +19,14 @@ const THRESHOLD_EVENTS: Partial<Record<CurseTierId, CurseEventDefinition>> = {
     id: 'curse-threshold-marked',
     warning: 'HELL HAS NOTICED YOU',
     warningColor: '#d26468',
-    spawns: [{ enemyId: 'condemned-husk', count: 8, distance: 620, formation: 'ring' }],
+    spawns: [{ enemyId: 'wretched-runt', count: 8, distance: 620, formation: 'ring' }],
   },
   condemned: {
     id: 'curse-threshold-condemned',
     warning: 'THE CONDEMNED ANSWER YOUR MARK',
     warningColor: '#ff6a4d',
     spawns: [
-      { enemyId: 'condemned-husk', count: 10, distance: 600, formation: 'ring' },
+      { enemyId: 'wretched-runt', count: 10, distance: 600, formation: 'ring' },
       { enemyId: 'sinbound-stalker', count: 2, distance: 680 },
     ],
   },
@@ -35,7 +35,7 @@ const THRESHOLD_EVENTS: Partial<Record<CurseTierId, CurseEventDefinition>> = {
     warning: 'LIMBO OPENS ITS HUNT',
     warningColor: '#ff3b66',
     spawns: [
-      { enemyId: 'condemned-husk', count: 12, distance: 590, formation: 'ring' },
+      { enemyId: 'wretched-runt', count: 12, distance: 590, formation: 'ring' },
       { enemyId: 'sinbound-stalker', count: 4, distance: 650, formation: 'ring' },
     ],
   },
@@ -79,7 +79,7 @@ export function getCurseSurgeEvent(snapshot: CurseSnapshot): CurseEventDefinitio
       warning: 'A FORSAKEN SURGE BREAKS THROUGH',
       warningColor: '#ff3b66',
       spawns: [
-        { enemyId: 'condemned-husk', count: 10, distance: 610, formation: 'ring' },
+        { enemyId: 'wretched-runt', count: 10, distance: 610, formation: 'ring' },
         { enemyId: 'sinbound-stalker', count: 3, distance: 680 },
       ],
     };
@@ -90,7 +90,7 @@ export function getCurseSurgeEvent(snapshot: CurseSnapshot): CurseEventDefinitio
       warning: 'CURSED SOULS CLAW INTO THE TRIAL',
       warningColor: '#ff6a4d',
       spawns: [
-        { enemyId: 'condemned-husk', count: 8, distance: 620, formation: 'ring' },
+        { enemyId: 'wretched-runt', count: 8, distance: 620, formation: 'ring' },
         { enemyId: 'sinbound-stalker', count: 1, distance: 690 },
       ],
     };
@@ -99,6 +99,6 @@ export function getCurseSurgeEvent(snapshot: CurseSnapshot): CurseEventDefinitio
     id: 'curse-surge',
     warning: 'THE MARK PULLS HUSKS FROM BELOW',
     warningColor: '#d26468',
-    spawns: [{ enemyId: 'condemned-husk', count: 6, distance: 630, formation: 'ring' }],
+    spawns: [{ enemyId: 'wretched-runt', count: 6, distance: 630, formation: 'ring' }],
   };
 }

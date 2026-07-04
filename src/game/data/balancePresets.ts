@@ -40,7 +40,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     replenishEveryMs: 650,
     spawns: [
       { enemyId: 'grave-crawler', count: 24, radius: 310, maintainCount: 28, batchSize: 8 },
-      { enemyId: 'hollow-knight', count: 8, radius: 430, maintainCount: 10, batchSize: 3 },
+      { enemyId: 'limbo-knight', count: 8, radius: 430, maintainCount: 10, batchSize: 3 },
       { enemyId: 'screamer', count: 3, radius: 520, maintainCount: 4, batchSize: 2 },
     ],
   },
@@ -67,7 +67,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     replenishEveryMs: 550,
     spawns: [
       { enemyId: 'lost-soul', count: 36, radius: 400, maintainCount: 40, batchSize: 12 },
-      { enemyId: 'hollow-knight', count: 12, radius: 520, maintainCount: 14, batchSize: 4 },
+      { enemyId: 'limbo-knight', count: 12, radius: 520, maintainCount: 14, batchSize: 4 },
       { enemyId: 'void-caster', count: 6, radius: 620, maintainCount: 6, batchSize: 2 },
     ],
   },
@@ -113,7 +113,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     replenishEveryMs: 750,
     spawns: [
       { enemyId: 'limbo-warden', count: 1, radius: 560 },
-      { enemyId: 'hollow-knight', count: 12, radius: 650, maintainCount: 14, batchSize: 4 },
+      { enemyId: 'limbo-knight', count: 12, radius: 650, maintainCount: 14, batchSize: 4 },
       { enemyId: 'void-caster', count: 6, radius: 700, maintainCount: 7, batchSize: 3 },
     ],
   },
@@ -163,7 +163,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     replenishEveryMs: 650,
     spawns: [
       { enemyId: 'flayed-wanderer', count: 24, radius: 250, maintainCount: 28, batchSize: 8 },
-      { enemyId: 'hollow-knight', count: 8, radius: 330, maintainCount: 10, batchSize: 3 },
+      { enemyId: 'limbo-knight', count: 8, radius: 330, maintainCount: 10, batchSize: 3 },
       { enemyId: 'veil-stalker', count: 5, radius: 410, maintainCount: 6, batchSize: 2 },
     ],
   },
@@ -187,7 +187,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     replenishEveryMs: 650,
     spawns: [
       { enemyId: 'flayed-wanderer', count: 30, radius: 320, maintainCount: 34, batchSize: 10 },
-      { enemyId: 'hollow-knight', count: 10, radius: 430, maintainCount: 12, batchSize: 4 },
+      { enemyId: 'limbo-knight', count: 10, radius: 430, maintainCount: 12, batchSize: 4 },
       { enemyId: 'gravebound-archer', count: 5, radius: 600, maintainCount: 6, batchSize: 2 },
     ],
   },
@@ -210,7 +210,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
     replenishEveryMs: 600,
     spawns: [
       { enemyId: 'flayed-wanderer', count: 30, radius: 350, maintainCount: 34, batchSize: 10 },
-      { enemyId: 'hollow-knight', count: 10, radius: 460, maintainCount: 12, batchSize: 4 },
+      { enemyId: 'limbo-knight', count: 10, radius: 460, maintainCount: 12, batchSize: 4 },
       { enemyId: 'gravebound-archer', count: 5, radius: 620, maintainCount: 6, batchSize: 2 },
     ],
   },

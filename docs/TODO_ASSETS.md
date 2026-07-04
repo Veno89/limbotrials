@@ -15,8 +15,8 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 
 ## 💀 Enemies & Bosses
 *(Currently you only have `lost_soul`, `grave_crawler`, and `stalker` in the test folder)*
-- [ ] **Wretched Runt** 
-- [ ] **Limbo Knight** 
+- [x] **Wretched Runt** 
+- [x] **Limbo Knight** 
 - [ ] **Tormented Shade** 
 - [ ] **Limbo Abomination / Brute** 
 - [ ] **Void Caster** 
