@@ -4,7 +4,7 @@ export type RunEventId =
   | 'first-judgment'
   | 'crawler-tide'
   | 'void-choir'
-  | 'wraith-procession'
+  | 'tormented-shade-procession'
   | 'midpoint-hunt'
   | 'knights-advance'
   | 'second-soul-surge'
@@ -55,12 +55,12 @@ export const RUN_EVENTS: readonly RunEventDefinition[] = [
     reward: 'curse',
   },
   {
-    id: 'wraith-procession',
+    id: 'tormented-shade-procession',
     atMs: 360000,
     warning: 'THE UNBURIED CROSS THE VEIL',
     warningColor: '#69d9ff',
     spawns: [
-      { enemyId: 'wraith', count: 10, distance: 690, formation: 'ring' },
+      { enemyId: 'tormented-shade', count: 10, distance: 690, formation: 'ring' },
       { enemyId: 'lantern-ghost', count: 8, distance: 720, formation: 'ring' },
     ],
   },

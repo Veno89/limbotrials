@@ -11,7 +11,7 @@ describe('run events', () => {
     const triggered = new Set<RunEventId>(['first-judgment', 'crawler-tide']);
     expect(getPendingRunEvents(360000, triggered).map((event) => event.id)).toEqual([
       'void-choir',
-      'wraith-procession',
+      'tormented-shade-procession',
     ]);
   });
 

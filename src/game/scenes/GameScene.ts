@@ -147,7 +147,7 @@ export class GameScene extends Phaser.Scene {
     });
     
     const eliteSummonListener = (x: number, y: number) => {
-      const pool: EnemyId[] = ['grave-crawler', 'lost-soul', 'wraith'];
+      const pool: EnemyId[] = ['grave-crawler', 'lost-soul', 'tormented-shade'];
       const activeMinions = this.enemies.countAny(pool);
       if (activeMinions > 12) return; // Cap at 12 active minions globally
 

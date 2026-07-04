@@ -44,7 +44,7 @@ const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'lost-soul',
   'grave-crawler',
   'limbo-knight',
-  'wraith',
+  'tormented-shade',
   'void-caster',
   'screamer',
   'flayed-wanderer',

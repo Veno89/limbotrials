@@ -34,7 +34,7 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
       { enemyId: 'lost-soul', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
       { enemyId: 'grave-crawler', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
       { enemyId: 'limbo-knight', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
-      { enemyId: 'wraith', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
+      { enemyId: 'tormented-shade', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
       { enemyId: 'void-caster', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
       { enemyId: 'screamer', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },
       { enemyId: 'flayed-wanderer', count: 1, radius: 400, maintainCount: 1, batchSize: 1 },

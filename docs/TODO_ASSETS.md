@@ -17,7 +17,7 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 *(Currently you only have `lost_soul`, `grave_crawler`, and `stalker` in the test folder)*
 - [x] **Wretched Runt** 
 - [x] **Limbo Knight** 
-- [ ] **Tormented Shade** 
+- [x] **Tormented Shade** 
 - [ ] **Limbo Abomination / Brute** 
 - [ ] **Void Caster** 
 - [ ] **Screamer** 

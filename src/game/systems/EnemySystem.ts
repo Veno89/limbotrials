@@ -139,7 +139,7 @@ export class EnemySystem {
       duration: 350,
       ease: 'Back.Out',
     });
-    sprite.setAlpha((definition.id === 'wraith' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
+    sprite.setAlpha((definition.id === 'tormented-shade' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
     
     let baseTint = 0xffffff;
     if (tier === 2) baseTint = 0xbd93f9; // Purple

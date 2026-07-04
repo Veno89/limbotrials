@@ -6,6 +6,7 @@ import enemyLostSoul from '../../../assets/test/enemies/lost_soul.png?url';
 import enemyCrawler from '../../../assets/test/enemies/grave_crawler.png?url';
 import enemyLimboKnight from '../../../assets/test/enemies/limbo_knight.png?url';
 import enemyPlagueCrawler from '../../../assets/test/enemies/plague_crawler.png?url';
+import enemyTormentedShade from '../../../assets/test/enemies/tormented_shade.png?url';
 import enemyWretchedRunt from '../../../assets/test/enemies/wretched_runt.png?url';
 import enemyStalker from '../../../assets/test/enemies/stalker.png?url';
 import artifactCursedHourglass from '../../../assets/test/artifacts/cursed_hourglass.png?url';
@@ -49,6 +50,7 @@ export const ASSETS: Array<[string, string]> = [
   ['enemy-crawler', enemyCrawler],
   ['enemy-limbo-knight', enemyLimboKnight],
   ['enemy-plague-crawler', enemyPlagueCrawler],
+  ['enemy-tormented-shade', enemyTormentedShade],
   ['enemy-wretched-runt', enemyWretchedRunt],
   ['enemy-stalker', enemyStalker],
   ['artifact-cursed-hourglass', artifactCursedHourglass],

@@ -41,10 +41,10 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     displaySize: 117,
     radius: 38,
   },
-  wraith: {
-    id: 'wraith',
-    name: 'Wraith',
-    texture: 'enemy-wraith',
+  'tormented-shade': {
+    id: 'tormented-shade',
+    name: 'Tormented Shade',
+    texture: 'enemy-tormented-shade',
     behavior: 'wobble',
     maxHealth: 54,
     speed: 88,

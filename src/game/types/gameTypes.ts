@@ -232,7 +232,7 @@ export type EnemyId =
   | 'lost-soul'
   | 'grave-crawler'
   | 'limbo-knight'
-  | 'wraith'
+  | 'tormented-shade'
   | 'void-caster'
   | 'screamer'
   | 'flayed-wanderer'
