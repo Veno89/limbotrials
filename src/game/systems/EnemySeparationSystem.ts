@@ -26,13 +26,13 @@ export class EnemySeparationSystem {
           }
           const dx = target.sprite.x - other.sprite.x;
           const dy = target.sprite.y - other.sprite.y;
-          const minimumDistance = (target.radius + other.radius) * 0.72;
+          const minimumDistance = (target.radius + other.radius) * 1.0;
           const distanceSquared = dx * dx + dy * dy;
           if (distanceSquared >= minimumDistance * minimumDistance) {
             continue;
           }
           const distance = Math.max(0.1, Math.sqrt(distanceSquared));
-          const strength = ((minimumDistance - distance) / minimumDistance) * 75;
+          const strength = ((minimumDistance - distance) / minimumDistance) * 350;
           pushX += (dx / distance) * strength;
           pushY += (dy / distance) * strength;
         }

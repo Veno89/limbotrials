@@ -1,6 +1,6 @@
-export const GAMEPLAY_CAMERA_ZOOM = 1.12;
+export const GAMEPLAY_CAMERA_ZOOM = 1.3;
 export const MIN_GAMEPLAY_CAMERA_ZOOM = 1.08;
-export const MAX_GAMEPLAY_CAMERA_ZOOM = 1.2;
+export const MAX_GAMEPLAY_CAMERA_ZOOM = 1.35;
 export const DEFAULT_UI_ZOOM = 1;
 
 export interface ZoomableCamera {
