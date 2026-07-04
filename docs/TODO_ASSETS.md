@@ -20,7 +20,7 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 - [x] **Tormented Shade** 
 - [ ] **Limbo Abomination / Brute** 
 - [ ] **Void Caster** 
-- [ ] **Screamer** 
+- [x] **Screamer** 
 - [ ] **Flayed Wanderer** 
 - [ ] **Lantern Ghost** 
 - [ ] **Sentinel of Woe** 
