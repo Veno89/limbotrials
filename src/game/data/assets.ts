@@ -2,6 +2,7 @@ import menuBackground from '../../../assets/sprites/backgrounds/realmainmenuback
 import legacyBackground from '../../../assets/sprites/backgrounds/characterselectbackground.png?url';
 import scytheChar from '../../../assets/test/characters/haunted.png?url';
 import penitentIdle1 from '../../../assets/test/characters/thepenitent.png?url';
+import ashwalkerIdle1 from '../../../assets/test/characters/ashwalker.png?url';
 import enemyLostSoul from '../../../assets/test/enemies/lost_soul.png?url';
 import enemyCrawler from '../../../assets/test/enemies/grave_crawler.png?url';
 import enemyLimboKnight from '../../../assets/test/enemies/limbo_knight.png?url';
@@ -47,6 +48,7 @@ export const ASSETS: Array<[string, string]> = [
   ['legacy-background', legacyBackground],
   ['player-haunted', scytheChar],
   ['player-penitent', penitentIdle1],
+  ['player-ashwalker', ashwalkerIdle1],
   ['enemy-lost-soul', enemyLostSoul],
   ['enemy-crawler', enemyCrawler],
   ['enemy-limbo-knight', enemyLimboKnight],

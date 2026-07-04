@@ -11,7 +11,7 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 ## 🤺 Player Characters
 - [x] **Haunted Base Sprite** (`assets/test/characters/haunted.png`)
 - [x] **Penitent Base Sprite** (`assets/test/characters/thepenitent.png`)
-- [ ] **Ashwalker Base Sprite** 
+- [x] **Ashwalker Base Sprite** 
 
 ## 💀 Enemies & Bosses
 *(Currently you only have `lost_soul`, `grave_crawler`, and `stalker` in the test folder)*
