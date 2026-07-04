@@ -141,13 +141,13 @@ export class EnemySystem {
     });
     sprite.setAlpha((definition.id === 'tormented-shade' || definition.id === 'lantern-ghost' ? 0.82 : 1) * cursePressure.alphaMultiplier);
     
-    let baseTint = 0xffffff;
+    let baseTint = definition.tint ?? 0xffffff;
     if (tier === 2) baseTint = 0xbd93f9; // Purple
     if (tier >= 3) baseTint = 0xff5555; // Red
     
     if (cursePressure.tint) {
       sprite.setTint(cursePressure.tint);
-    } else if (tier > 1) {
+    } else if (baseTint !== 0xffffff) {
       sprite.setTint(baseTint);
     } else {
       sprite.clearTint();
