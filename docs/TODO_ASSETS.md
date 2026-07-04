@@ -26,7 +26,7 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 - [ ] **Sentinel of Woe** 
 - [ ] **Gravebound Archer** 
 - [ ] **Veil Stalker** 
-- [ ] **Mire Crawler** 
+- [x] **Plague Crawler** 
 - [ ] **Basic Archer** 
 - [ ] **Floor 1 Boss / Warden** 
 
