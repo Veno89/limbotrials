@@ -60,6 +60,7 @@ export class GameHudScene extends Phaser.Scene {
       this.dataRef.juice.setWarningSink(undefined);
       if (this.warningLabel) {
         this.tweens.killTweensOf(this.warningLabel);
+        this.warningLabel = undefined;
       }
     });
   }
