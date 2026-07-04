@@ -78,7 +78,12 @@ export class JuiceSystem {
     this.squash(sprite, 0.15);
     this.scene.time.delayedCall(55, () => {
       if (sprite.active) {
-        sprite.clearTint();
+        const baseTint = sprite.getData('baseTint');
+        if (baseTint !== undefined) {
+          sprite.setTint(baseTint);
+        } else {
+          sprite.clearTint();
+        }
       }
     });
   }

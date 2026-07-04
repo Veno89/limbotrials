@@ -147,10 +147,13 @@ export class EnemySystem {
     
     if (cursePressure.tint) {
       sprite.setTint(cursePressure.tint);
+      sprite.setData('baseTint', cursePressure.tint);
     } else if (baseTint !== 0xffffff) {
       sprite.setTint(baseTint);
+      sprite.setData('baseTint', baseTint);
     } else {
       sprite.clearTint();
+      sprite.setData('baseTint', undefined);
     }
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     body.checkCollision.none = true;
