@@ -37,7 +37,7 @@ export const CHARACTERS: Record<CharacterId, CharacterDefinition> = {
     title: 'The Cinder Between Worlds',
     flavorText: 'A swift, fragile remnant that refuses to cool.',
     texture: 'player-ashwalker',
-    starterWeapon: 'soul-bolt',
+    starterWeapon: 'ashen-longbow',
     baseStatOverrides: {
       maxHealth: 75,
       moveSpeed: 275,
