@@ -51,8 +51,8 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     contactDamage: 11,
     xp: 3,
     soulValue: 1,
-    displaySize: 64,
-    radius: 20,
+    displaySize: 83,
+    radius: 26,
   },
   'void-caster': {
     id: 'void-caster',
@@ -264,8 +264,9 @@ export const ENEMIES: Record<EnemyId, EnemyDefinition> = {
     contactDamage: 16,
     xp: 8,
     soulValue: 2,
-    displaySize: 78,
-    radius: 24,
+    displaySize: 108,
+    radius: 33,
+    tint: 0x4444ff,
     spawnRequirements: {
       minCurse: 50,
       tags: ['hunted'],
