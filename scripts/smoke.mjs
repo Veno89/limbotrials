@@ -3,6 +3,8 @@ import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 import { createServer } from 'vite';
 
+process.env.VITE_DISABLE_RUN_ARCHIVE = 'true';
+
 const browserCandidates = [
   process.env.CHROME_PATH,
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',

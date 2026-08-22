@@ -50,6 +50,7 @@ Open the local URL printed by Vite.
 | `npm test` | Run the pure-logic Vitest suite |
 | `npm run build` | Type-check and create the production bundle |
 | `npm run smoke` | Run the headless browser gameplay and performance smoke test |
+| `npm run runs:index` | Rebuild local playtest-data indexes after adding run JSON files manually |
 
 The smoke test detects common Chrome and Edge installations. Set `CHROME_PATH` to
 use another executable.

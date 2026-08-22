@@ -21,6 +21,7 @@
     "typecheck": "tsc -b --pretty false && tsc -p netlify/functions/tsconfig.json --pretty false",
     "test": "vitest run",
     "smoke": "node scripts/smoke.mjs",
+    "runs:index": "node scripts/index-runs.mjs",
     "analytics:latest": "node --env-file-if-exists=.env scripts/latest-runs.mjs",
     "lint": "eslint src netlify/functions"
   },

@@ -4,7 +4,8 @@ import type { RunSummary } from '../types/gameTypes';
 import { addButton, addTitle, formatTime } from '../ui/uiHelpers';
 import { WEAPONS } from '../data/weapons';
 import { CHARACTERS } from '../data/characters';
-import { createRunSubmissionSession, type RunSubmissionResult } from '../../analytics/runSubmissionService';
+import { archiveRunLocally } from '../../analytics/localRunArchiveService';
+import { createRunSubmissionSession } from '../../analytics/runSubmissionService';
 import { ResultLeaderboardForm } from '../ui/ResultLeaderboardForm';
 import { requestReturnToSite } from '../gameExitEvents';
 
@@ -75,36 +76,14 @@ abstract class EndScene extends Phaser.Scene {
     }
     const canUpload = this.summary.balance.presetId === 'standard';
     const session = canUpload ? createRunSubmissionSession(this.summary) : undefined;
-    const uploadStatus = this.add
-      .text(
-        GAME_WIDTH / 2,
-        GAME_HEIGHT / 2 + (canUpload ? 198 : 188),
-        canUpload ? 'ENTER A NAME TO UPLOAD THIS RUN' : 'LAB RUNS STAY LOCAL',
-        {
-          fontFamily: 'Cinzel, serif',
-          fontSize: '10px',
-          color: canUpload ? '#9fb8c2' : '#d8c49b',
-          align: 'center',
-          wordWrap: { width: 780 },
-        },
-      )
-      .setOrigin(0.5);
-    const showResult = (result: RunSubmissionResult): void => {
-      showUploadResult(result);
-    };
-    const showCopyResult = (copied: boolean): void => {
-      if (uploadStatus.active) {
-        uploadStatus
-          .setText(copied ? 'FULL RUN JSON COPIED — READY TO PASTE' : 'COULD NOT COPY RUN JSON')
-          .setColor(copied ? '#69d9ff' : '#c96d72');
-      }
-    };
+    const localArchive = import.meta.env.DEV && import.meta.env.VITE_DISABLE_RUN_ARCHIVE !== 'true'
+      ? archiveRunLocally(this.summary)
+      : undefined;
     this.nameForm = new ResultLeaderboardForm(
       this,
       this.summary,
       session,
-      showResult,
-      showCopyResult,
+      localArchive,
       GAME_WIDTH / 2,
       GAME_HEIGHT / 2 + 102,
     );
@@ -117,14 +96,6 @@ abstract class EndScene extends Phaser.Scene {
       this.scene.start('GameScene', { characterId: this.summary.characterId });
     }, 250);
     addButton(this, GAME_WIDTH / 2 + 400, GAME_HEIGHT / 2 + 302, 'QUIT', () => requestReturnToSite(), 250);
-
-    function showUploadResult(result: RunSubmissionResult): void {
-      if (uploadStatus.active) {
-        uploadStatus
-          .setText(result.message.toUpperCase())
-          .setColor(result.status === 'failed' ? '#c96d72' : result.status === 'partial' ? '#d8c49b' : '#69d9ff');
-      }
-    }
   }
 }
 

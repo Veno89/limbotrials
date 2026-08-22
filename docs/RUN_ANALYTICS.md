@@ -15,10 +15,17 @@ analytics row may keep `player_name` as `null`; join on `run_id` to
 `leaderboard_entries` when the published name matters. The landing page only
 displays the leaderboard and does not submit or change scores.
 
-Every result screen also provides **Copy Run JSON**. This copies the complete,
-formatted `RunSummary` directly to the clipboard without contacting the database
-or requiring a leaderboard name. Standard and local balance-lab runs can therefore
-be pasted into an external analysis session even when Supabase is unavailable.
+Every result screen also provides **Copy JSON** and **Download JSON**. Both use the
+complete, formatted `RunSummary` without contacting the database or requiring a
+leaderboard name. Standard and balance-lab runs can therefore be shared or stored
+even when Supabase is unavailable.
+
+While the game is running through `npm run dev`, reaching a result screen also
+automatically saves the run under `playtest-data/runs/`. The development recorder
+rebuilds `playtest-data/index.csv` and `playtest-data/runs.jsonl` after every save.
+The result panel displays the exact saved path or tells the player to use Download
+if the recorder is unavailable. Generated playtest data remains local and is
+ignored by Git. See `playtest-data/README.md` for the short user workflow.
 
 ## Privacy And Access
 

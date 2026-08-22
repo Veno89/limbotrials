@@ -1,22 +1,25 @@
 import Phaser from 'phaser';
-import type { RunSubmissionResult, RunSubmissionSession } from '../../analytics/runSubmissionService';
+import type { LocalRunArchiveResult } from '../../analytics/localRunArchiveService';
+import type { RunSubmissionSession } from '../../analytics/runSubmissionService';
 import { loadPlayerName, savePlayerName } from '../../leaderboard/playerIdentity';
 import { parsePlayerName } from '../../leaderboard/scoreSubmissionRules';
 import type { RunSummary } from '../types/gameTypes';
-import { copyRunSummaryJson } from './runJsonExport';
+import { copyRunSummaryJson, downloadRunSummaryJson } from './runJsonExport';
 
 export class ResultLeaderboardForm {
   private readonly root: HTMLFormElement;
   private readonly input?: HTMLInputElement;
   private readonly uploadButton?: HTMLButtonElement;
   private readonly copyButton: HTMLButtonElement;
+  private readonly downloadButton: HTMLButtonElement;
+  private readonly actionStatus: HTMLParagraphElement;
+  private readonly archiveStatus?: HTMLParagraphElement;
 
   constructor(
     scene: Phaser.Scene,
     summary: RunSummary,
     session: RunSubmissionSession | undefined,
-    onResult: (result: RunSubmissionResult) => void,
-    onCopyResult: (copied: boolean) => void,
+    localArchive: Promise<LocalRunArchiveResult> | undefined,
     x = 640,
     y = 510,
   ) {
@@ -24,29 +27,39 @@ export class ResultLeaderboardForm {
     this.root.className = 'result-name-form';
     this.root.innerHTML = session
       ? `
-        <label for="result-leaderboard-name">SAVE OR SHARE THIS RUN</label>
+        <label>RUN DATA</label>
         <div class="result-name-form__row">
           <input
             id="result-leaderboard-name"
+            aria-label="Leaderboard name"
             maxlength="24"
             autocomplete="nickname"
             placeholder="Enter name"
           />
           <button type="submit" data-action="upload">UPLOAD RUN</button>
-          <button type="button" data-action="copy">COPY RUN JSON</button>
+          <button type="button" data-action="copy">COPY JSON</button>
+          <button type="button" data-action="download">DOWNLOAD JSON</button>
         </div>
-        <p>Upload publishes the score and balance data. Copy JSON stays local and includes the complete run report.</p>
+        <p class="result-name-form__help">Upload is optional and needs a name. Copy or Download keeps the complete report locally.</p>
+        ${localArchive ? '<p class="result-name-form__archive" data-role="archive">AUTO-SAVE: SAVING TO PLAYTEST-DATA...</p>' : ''}
+        <p class="result-name-form__status" data-role="status" aria-live="polite"></p>
       `
       : `
-        <label>LOCAL RUN DATA</label>
+        <label>RUN DATA</label>
         <div class="result-name-form__row result-name-form__row--local">
-          <button type="button" data-action="copy">COPY RUN JSON</button>
+          <button type="button" data-action="copy">COPY JSON</button>
+          <button type="button" data-action="download">DOWNLOAD JSON</button>
         </div>
-        <p>Lab runs cannot be uploaded, but their complete report can still be copied for analysis.</p>
+        <p class="result-name-form__help">Lab runs stay local. Copy puts the report on your clipboard; Download saves a JSON file.</p>
+        ${localArchive ? '<p class="result-name-form__archive" data-role="archive">AUTO-SAVE: SAVING TO PLAYTEST-DATA...</p>' : ''}
+        <p class="result-name-form__status" data-role="status" aria-live="polite"></p>
       `;
     this.input = this.root.querySelector('input') ?? undefined;
     this.uploadButton = this.root.querySelector<HTMLButtonElement>('[data-action="upload"]') ?? undefined;
     this.copyButton = this.root.querySelector<HTMLButtonElement>('[data-action="copy"]')!;
+    this.downloadButton = this.root.querySelector<HTMLButtonElement>('[data-action="download"]')!;
+    this.actionStatus = this.root.querySelector<HTMLParagraphElement>('[data-role="status"]')!;
+    this.archiveStatus = this.root.querySelector<HTMLParagraphElement>('[data-role="archive"]') ?? undefined;
 
     if (this.input && this.uploadButton && session) {
       this.input.value = loadPlayerName();
@@ -70,7 +83,7 @@ export class ResultLeaderboardForm {
             } else {
               this.setPending(false);
             }
-            onResult(result);
+            this.showActionResult(result.message, result.status === 'failed' ? 'failed' : 'success');
           }
         });
       });
@@ -85,9 +98,34 @@ export class ResultLeaderboardForm {
         }
         this.copyButton.disabled = false;
         this.copyButton.textContent = copied ? 'JSON COPIED' : 'COPY FAILED';
-        onCopyResult(copied);
+        this.showActionResult(
+          copied ? 'Full run JSON copied. It is ready to paste.' : 'Could not copy. Use Download instead.',
+          copied ? 'success' : 'failed',
+        );
       });
     });
+
+    this.downloadButton.addEventListener('click', () => {
+      const fileName = downloadRunSummaryJson(summary);
+      this.downloadButton.textContent = fileName ? 'JSON DOWNLOADED' : 'DOWNLOAD FAILED';
+      this.showActionResult(
+        fileName ? `Downloaded ${fileName}` : 'Could not download. Use Copy JSON instead.',
+        fileName ? 'success' : 'failed',
+      );
+    });
+
+    if (localArchive && this.archiveStatus) {
+      void localArchive.then((result) => {
+        if (!this.root.isConnected || !this.archiveStatus) {
+          return;
+        }
+        this.archiveStatus.textContent = result.status === 'saved'
+          ? `AUTO-SAVED: ${result.filePath}`
+          : 'AUTO-SAVE FAILED: USE DOWNLOAD';
+        this.archiveStatus.classList.toggle('result-name-form__archive--failed', result.status === 'failed');
+        this.archiveStatus.title = result.message;
+      });
+    }
 
     scene.add.dom(x, y, this.root).setOrigin(0.5);
   }
@@ -119,5 +157,10 @@ export class ResultLeaderboardForm {
     if (this.input && this.uploadButton) {
       this.uploadButton.disabled = !parsePlayerName(this.input.value);
     }
+  }
+
+  private showActionResult(message: string, status: 'success' | 'failed'): void {
+    this.actionStatus.textContent = message;
+    this.actionStatus.classList.toggle('result-name-form__status--failed', status === 'failed');
   }
 }

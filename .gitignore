@@ -23,6 +23,9 @@ pnpm-debug.log*
 balance-report*.json
 balance-export*.json
 dev-mode*.local.json
+playtest-data/runs/
+playtest-data/index.csv
+playtest-data/runs.jsonl
 
 # Editor and operating system files
 .idea/
