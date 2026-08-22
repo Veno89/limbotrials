@@ -92,13 +92,26 @@ abstract class EndScene extends Phaser.Scene {
     const showResult = (result: RunSubmissionResult): void => {
       showUploadResult(result);
     };
-    if (this.summary.balance.presetId === 'standard') {
-      this.nameForm = new ResultLeaderboardForm(this, session!, showResult, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 102);
-      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-        this.nameForm?.destroy();
-        this.nameForm = undefined;
-      });
-    }
+    const showCopyResult = (copied: boolean): void => {
+      if (uploadStatus.active) {
+        uploadStatus
+          .setText(copied ? 'FULL RUN JSON COPIED — READY TO PASTE' : 'COULD NOT COPY RUN JSON')
+          .setColor(copied ? '#69d9ff' : '#c96d72');
+      }
+    };
+    this.nameForm = new ResultLeaderboardForm(
+      this,
+      this.summary,
+      session,
+      showResult,
+      showCopyResult,
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2 + 102,
+    );
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.nameForm?.destroy();
+      this.nameForm = undefined;
+    });
     addButton(this, GAME_WIDTH / 2 - 400, GAME_HEIGHT / 2 + 302, 'MAIN MENU', () => this.scene.start('MainMenuScene'), 250);
     addButton(this, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 302, 'TRY AGAIN', () => {
       this.scene.start('GameScene', { characterId: this.summary.characterId });

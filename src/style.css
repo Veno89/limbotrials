@@ -127,7 +127,7 @@ body.game-running {
 
 .result-name-form {
   box-sizing: border-box;
-  width: 500px;
+  width: 680px;
   padding: 10px 14px 9px;
   border: 1px solid rgb(199 167 106 / 45%);
   border-radius: 2px;
@@ -154,8 +154,13 @@ body.game-running {
 
 .result-name-form__row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 150px;
+  grid-template-columns: minmax(0, 1fr) 145px 145px;
   gap: 8px;
+}
+
+.result-name-form__row--local {
+  grid-template-columns: minmax(220px, 320px);
+  justify-content: center;
 }
 
 .result-name-form p {

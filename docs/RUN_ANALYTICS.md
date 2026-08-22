@@ -15,6 +15,11 @@ analytics row may keep `player_name` as `null`; join on `run_id` to
 `leaderboard_entries` when the published name matters. The landing page only
 displays the leaderboard and does not submit or change scores.
 
+Every result screen also provides **Copy Run JSON**. This copies the complete,
+formatted `RunSummary` directly to the clipboard without contacting the database
+or requiring a leaderboard name. Standard and local balance-lab runs can therefore
+be pasted into an external analysis session even when Supabase is unavailable.
+
 ## Privacy And Access
 
 - Browser clients cannot read or write `run_analytics`.
