@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { gameConfig } from '../game/config';
 import { RETURN_TO_SITE_EVENT } from '../game/gameExitEvents';
+import { reserveGameSecondaryClick } from './gameInputGuard';
 
 export async function launchGame(root: HTMLElement, onExit: () => void): Promise<void> {
   root.innerHTML = `
@@ -16,6 +17,11 @@ export async function launchGame(root: HTMLElement, onExit: () => void): Promise
     </div>
   `;
 
+  const gameSurface = root.querySelector<HTMLElement>('#game');
+  if (!gameSurface) {
+    throw new Error('Missing game surface.');
+  }
+  const releaseSecondaryClick = reserveGameSecondaryClick(gameSurface);
   const game = new Phaser.Game(gameConfig);
   let exited = false;
   const exit = (): void => {
@@ -24,6 +30,7 @@ export async function launchGame(root: HTMLElement, onExit: () => void): Promise
     }
     exited = true;
     window.removeEventListener(RETURN_TO_SITE_EVENT, exit);
+    releaseSecondaryClick();
     game.destroy(true);
     onExit();
   };
