@@ -19,7 +19,6 @@ import statusSkull from '../../../assets/test/misc/skull.png?url';
 import statusBurn from '../../../assets/test/misc/fire.png?url';
 import statusSlow from '../../../assets/test/misc/freezing.png?url';
 import projectileCrossbowBolt from '../../../assets/test/projectiles/crossbow_bolt.png?url';
-import projectileMeteor from '../../../assets/test/misc/meteor.png?url';
 import poisonOoze from '../../../assets/test/misc/ooze.png?url';
 import iconJournal from '../../../assets/test/misc/journal.png?url';
 import iconStats from '../../../assets/test/misc/stats.png?url';
@@ -54,6 +53,10 @@ export const ASSETS: Array<[string, string]> = [
   ['enemy-limbo-knight', enemyLimboKnight],
   ['enemy-plague-crawler', enemyPlagueCrawler],
   ['enemy-tormented-shade', enemyTormentedShade],
+  // Semantic placeholders used by the new-weapon lab until bespoke art lands.
+  ['enemy-flayed-wanderer', enemyWretchedRunt],
+  ['enemy-lantern-ghost', enemyTormentedShade],
+  ['enemy-gravebound-archer', enemyLimboKnight],
   ['enemy-screamer', enemyScreamer],
   ['enemy-wretched-runt', enemyWretchedRunt],
   ['enemy-stalker', enemyStalker],
@@ -65,7 +68,6 @@ export const ASSETS: Array<[string, string]> = [
   ['status-burn', statusBurn],
   ['status-slow', statusSlow],
   ['projectile-crossbow-bolt', projectileCrossbowBolt],
-  ['projectile-meteor', projectileMeteor],
   ['poison-ooze', poisonOoze],
   ['icon-journal', iconJournal],
   ['icon-stats', iconStats],
@@ -79,6 +81,8 @@ export const ASSETS: Array<[string, string]> = [
   ['weapon-ashen-longbow', weaponAshenLongbow],
   ['weapon-bloodletter-axe', weaponBloodletterAxe],
   ['weapon-dirge-staff', weaponDirgeStaff],
+  // Placeholder until dedicated Tesla Coil artwork is available.
+  ['weapon-tesla-coil', weaponDirgeStaff],
   ['weapon-sanguine-needle', weaponSanguineNeedle],
   ['weapon-spectral-chains', weaponSpectralChains],
   ['weapon-gravetide-repeater', weaponGravetideRepeater],
@@ -91,4 +95,3 @@ export const ASSETS: Array<[string, string]> = [
   ['arena-tile-5', arenaTile5],
 
 ];
-

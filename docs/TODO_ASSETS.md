@@ -34,9 +34,11 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 - [ ] **Void Orb** 
 - [ ] **Magic Projectile** 
 - [ ] **Laser Beam** 
+- [x] **Meteor Hammer strike animation** (`src/game/vfx/effects/meteor-strike.vvfx-runtime.json`)
+- [x] **Tesla Coil attack and chain animations** (`src/game/vfx/effects/`)
 
 ## 🗡️ Weapons (Missing Custom Assets)
-*(Currently you only have 10 custom weapon assets out of 31 weapons)*
+*(Currently you only have 10 custom weapon assets out of 32 weapons)*
 - [x] **Poison Flask**
 - [x] **Sanguine Needle**
 - [x] **Spectral Chains**
@@ -58,6 +60,11 @@ This includes assets that are currently using AI placeholders, assets sharing a 
 - [ ] **Infernal Blunderbuss**
 - [ ] **Spike Trap**
 - [ ] **Pouch of Chaos**
+- [ ] **Tesla Coil**
+
+The completed VVFX entries above replace the attack animations, not the weapon
+icons. Meteor Hammer and Tesla Coil remain unchecked here until their dedicated
+inventory/HUD artwork replaces the current placeholders.
 
 ## 💍 Artifacts (Missing Custom Assets)
 *(Currently you only have `cursed_hourglass.png` and `necrotic_hand.png` out of 50+ artifacts!)*

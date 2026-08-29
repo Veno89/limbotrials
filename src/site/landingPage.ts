@@ -89,7 +89,7 @@ export function renderLandingPage(root: HTMLElement, onStart: () => void): void 
 
         <section id="the-trial" class="relative border-y border-mist/10 bg-ink py-24">
           <div class="mx-auto max-w-7xl px-5 lg:px-8">
-            ${sectionHeading('THE TRIAL', 'Build power. Read danger. Refuse oblivion.', 'Nine weapons, evolved specializations, adaptive threat, run-only artifacts, and authored enemy pressure shape each attempt.')}
+            ${sectionHeading('THE TRIAL', 'Build power. Read danger. Refuse oblivion.', 'Dozens of weapons, evolved specializations, adaptive threat, run-only artifacts, and authored enemy pressure shape each attempt.')}
             <div class="mt-14 grid gap-5 md:grid-cols-3">
               ${featureCard(voidSwordImage, 'Forge An Identity', 'Combine five weapons, focused upgrades, explicit evolutions, and synergies into a build with a real combat profile.')}
               ${featureCard(reliquaryImage, 'Claim The Reliquaries', 'Find and open timed reliquaries in the arena to secure powerful run-only artifacts before they fade.')}

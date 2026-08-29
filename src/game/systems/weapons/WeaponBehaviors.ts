@@ -6,6 +6,9 @@ import Phaser from 'phaser';
 import { getBloodletterThrowAngles } from '../../systems/weaponRules';
 import { audio } from '../AudioSystem';
 import type { ScytheSweepProfile } from '../../systems/scytheRules';
+import { fireChainStrike } from './chainStrike';
+import { fireMeteorHammer } from './meteorHammer';
+import { fireTeslaCoil } from './teslaCoil';
 
 export interface WeaponBehavior {
   fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, time: number): void;
@@ -96,33 +99,6 @@ class PoisonFlaskBehavior implements WeaponBehavior {
       );
     }
     context.juice.ring(context.player.x, context.player.y, 46, 0x51d96b, 190);
-  }
-}
-
-class ChainStrikeBehavior implements WeaponBehavior {
-  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState): void {
-    const excluded = new Set<Phaser.Physics.Arcade.Image>();
-    const count = Math.max(1, Math.floor(state.stats.targetCount));
-    let struck = false;
-    for (let index = 0; index < count; index += 1) {
-      const target = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range, excluded);
-      if (!target) {
-        break;
-      }
-      const definition = context.enemies.getDefinition(target);
-      if (!definition) {
-        continue;
-      }
-      struck = true;
-      excluded.add(target);
-      context.juice.ring(target.x, target.y, 44, COLORS.soul, 180);
-      context.damageArea(target.x, target.y, 0, id); // Just damage the target for now using damageArea with radius 0, wait, it's better to implement damageEnemy directly if needed. But weapon system handles this.
-      context.afterAreaAttack(id, target.x, target.y, state.stats.area);
-    }
-    if (struck) {
-      audio.play('soul-bolt');
-      context.juice.ring(context.player.x, context.player.y, 58, COLORS.void, 220);
-    }
   }
 }
 
@@ -334,7 +310,7 @@ class GravecleaverBehavior implements WeaponBehavior {
 }
 
 class BurstFireBehavior implements WeaponBehavior {
-  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState): void {
     const target = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range);
     if (!target) {
       return;
@@ -357,7 +333,7 @@ class BurstFireBehavior implements WeaponBehavior {
 }
 
 class DeployableTrapBehavior implements WeaponBehavior {
-  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
+  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState): void {
     // Drop trap at player location
     context.hazardZones.spawn(
       context.player.x,
@@ -378,60 +354,6 @@ class DeployableTrapBehavior implements WeaponBehavior {
         proximityTrigger: true,
       }
     );
-  }
-}
-
-class MeteorHammerBehavior implements WeaponBehavior {
-  fire(context: WeaponContext, id: WeaponId, state: WeaponRuntimeState, _time: number): void {
-    const target = context.enemies.findNearest(context.player.x, context.player.y, state.stats.range);
-    if (!target) return;
-    
-    // Frontal slam
-    const angle = Phaser.Math.Angle.Between(context.player.x, context.player.y, target.x, target.y);
-    context.damageArc(context.player.x, context.player.y, state.stats.range, id, angle, Math.PI / 2);
-    
-    // Meteor patch at target location
-    const meteorX = target.x;
-    const meteorY = target.y;
-    
-    // Spawn falling meteor visual
-    const fallHeight = 600;
-    const visualMeteor = context.scene.add.image(meteorX, meteorY - fallHeight, 'projectile-meteor')
-      .setDepth(60)
-      .setDisplaySize(state.stats.area, state.stats.area);
-
-    context.scene.tweens.add({
-      targets: visualMeteor,
-      y: meteorY,
-      duration: 600,
-      ease: 'Quad.In',
-    });
-
-    context.juice.ring(meteorX, meteorY, state.stats.area, COLORS.hellfire, 600);
-    context.scene.time.delayedCall(600, () => {
-      if (!context.player.active) {
-        visualMeteor.destroy();
-        return;
-      }
-      visualMeteor.destroy();
-      // Meteor lands
-      context.juice.heavyImpact();
-      context.impactFragments.spawn({ x: meteorX, y: meteorY, preset: 'meteor' });
-      context.damageArea(meteorX, meteorY, state.stats.area, id);
-      context.hazardZones.spawn(meteorX, meteorY, id, {
-        radius: state.stats.area,
-        durationMs: 4000,
-        tickIntervalMs: 500,
-        damageScale: 0.5,
-        color: COLORS.hellfire,
-        strokeColor: 0xd94545,
-        statusEffect: {
-          id: 'burn',
-          damagePerTick: 4,
-        },
-        visualPreset: 'burning-ground',
-      });
-    });
   }
 }
 
@@ -476,7 +398,8 @@ export const WEAPON_BEHAVIORS: Record<string, WeaponBehavior> = {
   'sigil': new HellfireBehavior(),
   'fan-projectile': new FanProjectilesBehavior(),
   'returning-projectile': new ReturningProjectileBehavior(),
-  'chain-strike': new ChainStrikeBehavior(),
+  'chain-strike': { fire: fireChainStrike },
+  'tesla-coil': { fire: fireTeslaCoil },
   'radial-projectile': new RadialProjectilesBehavior(),
   'lobbed-projectile': new PoisonFlaskBehavior(),
   'pulse': new PulseBehavior(),
@@ -485,6 +408,6 @@ export const WEAPON_BEHAVIORS: Record<string, WeaponBehavior> = {
   'gravecleaver-slash': new GravecleaverBehavior(),
   'burst-fire': new BurstFireBehavior(),
   'deployable-trap': new DeployableTrapBehavior(),
-  'meteor-strike': new MeteorHammerBehavior(),
+  'meteor-strike': { fire: fireMeteorHammer },
   'frozen-orb': new FrozenOrbBehavior(),
 };

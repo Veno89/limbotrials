@@ -28,7 +28,8 @@
   "dependencies": {
     "@netlify/functions": "^5.3.0",
     "@supabase/supabase-js": "^2.108.1",
-    "phaser": "^4.1.0"
+    "@vvfx/phaser-runtime": "file:vendor/vvfx-phaser-runtime-0.16.0.tgz",
+    "phaser": "4.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",

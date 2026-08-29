@@ -27,12 +27,13 @@ describe('balance presets', () => {
       BALANCE_PRESETS['crimson-orbit-lab'].upgrades.indexOf('bloodletter-axe-count'),
     );
     expect(BALANCE_PRESETS['new-weapon-lab'].weapons).toEqual([
-      'ashen-longbow',
       'bloodletter-axe',
       'dirge-staff',
       'poison-flask',
+      'tesla-coil',
     ]);
     expect(BALANCE_PRESETS['new-weapon-lab'].upgrades).toContain('evolve-poison-flask');
+    expect(BALANCE_PRESETS['new-weapon-lab'].upgrades).toContain('evolve-tesla-coil');
     expect(BALANCE_PRESETS['weapon-identity-lab'].upgrades).toEqual(
       expect.arrayContaining([
         'bone-scythe-committed-reap',

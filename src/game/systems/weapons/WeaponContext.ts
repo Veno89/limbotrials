@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import type { WeaponId, WeaponRuntimeState, EnemyDefinition } from '../../types/gameTypes';
 import type { RunState } from '../RunState';
 import type { JuiceSystem } from '../JuiceSystem';
@@ -12,6 +12,7 @@ import type { HazardZoneSystem } from '../HazardZoneSystem';
 import type { SpatialEntity } from '../SpatialGrid';
 import type { ScytheSweepProfile } from '../scytheRules';
 import type { ImpactFragmentSystem } from '../ImpactFragmentSystem';
+import type { VvfxPlayback } from '../../vfx/VvfxSystem';
 
 export interface WeaponContext {
   readonly scene: Phaser.Scene;
@@ -27,6 +28,7 @@ export interface WeaponContext {
   readonly evolutions: WeaponEvolutionSystem;
   readonly hazardZones: HazardZoneSystem;
   readonly impactFragments: ImpactFragmentSystem;
+  readonly vfx: VvfxPlayback;
   readonly nearbyCache: SpatialEntity[];
   
   readonly scytheFacingAngle: number;

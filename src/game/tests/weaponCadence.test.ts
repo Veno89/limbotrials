@@ -85,4 +85,47 @@ describe('weapon cadence identities', () => {
     });
     expect(flask.levelGrowth.some((modifier) => modifier.stat === 'projectileCount')).toBe(false);
   });
+
+  it('makes Tesla Coil a clustered multi-target weapon with explicit VFX ownership', () => {
+    const tesla = WEAPONS['tesla-coil'];
+    expect(tesla).toMatchObject({
+      behavior: 'tesla-coil',
+      texture: 'weapon-tesla-coil',
+      iconTexture: 'weapon-tesla-coil',
+      vfx: {
+        attack: {
+          effectId: 'chain-lightning',
+          beamFit: 'crop',
+          thicknessScale: 0.67,
+          maxDurationMs: 500,
+        },
+        chain: {
+          effectId: 'tesla-chain-link',
+          beamFit: 'crop',
+          thicknessScale: 0.75,
+          maxDurationMs: 500,
+        },
+        chainStartDelayMs: 420,
+        chainStepDelayMs: 70,
+      },
+    });
+    expect(tesla.baseStats).toMatchObject({
+      damage: 42,
+      cooldownMs: 2800,
+      range: 680,
+      area: 260,
+      targetCount: 3,
+    });
+    expect((tesla.baseStats.damage * tesla.baseStats.targetCount * 1000) / tesla.baseStats.cooldownMs).toBe(45);
+    expect(
+      Object.values(WEAPONS)
+        .filter((weapon) => weapon.vfx?.attack.effectId === 'chain-lightning')
+        .map((weapon) => weapon.id),
+    ).toEqual(['tesla-coil']);
+    expect(
+      Object.values(WEAPONS)
+        .filter((weapon) => weapon.vfx?.chain.effectId === 'tesla-chain-link')
+        .map((weapon) => weapon.id),
+    ).toEqual(['tesla-coil']);
+  });
 });

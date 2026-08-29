@@ -35,7 +35,7 @@ src/game/
 - `ChestSystem`: bounded player-relative reliquary spawning, proximity opening, objective data, and despawn behavior.
 - `LootRevealSystem`: non-modal soul-lock burst, curved reward travel, and player-side loot receipt after a reliquary opens.
 - `BossAttackSystem`: the Warden's six telegraphed attack patterns and focused boss-only telegraph, lane, and hazard helpers.
-- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for twenty-five weapons.
+- `WeaponSystem`: weapon cooldowns and data-driven behavior dispatch for thirty-two weapons.
 - `WeaponEvolutionSystem`: level-seven capstone effects.
 - `WeaponUpgradeEffectSystem`: focused authored weapon effects for projectile splintering, spreading area blasts, delayed judgment echoes, and status application triggers.
 - `StatusEffectSystem`: data-defined enemy status lifetimes, stack refreshes, compact debuff icons, and damage-over-time ticks with weapon attribution.
@@ -55,6 +55,7 @@ src/game/
 - `UpgradeOfferSystem`: queued standard/curse choices, rerolls, and skip rewards.
 - `ArenaShrineSystem`: proximity interaction for the arena's blood shrine.
 - `JuiceSystem`: visual feedback hooks, warning replacement, and throttled screen shake.
+- `VvfxSystem`: scene-scoped catalog, preload, point/Beam placement, centralized warnings, active-effect ownership, and shutdown cleanup for authored Runtime JSON.
 - `AudioSystem`: shared procedural placeholder tones and ambient audio.
 - `EnemySeparationSystem`: local spatial-hash crowd repulsion.
 - `HudSystem`: fixed-camera run information.
@@ -88,6 +89,28 @@ advance gameplay.
 Phaser scene time remains appropriate for frame-level combat cooldowns, projectile
 lifetimes, telegraph resolution, and presentation callbacks because those systems
 are internally scene-bound and pause with the scene.
+
+## Authored VVFX effects
+
+`vfx/discoveredVvfxCatalog.ts` discovers
+`vfx/effects/*.vvfx-runtime.json` at build time. The filename without
+`.vvfx-runtime.json` is the stable effect ID. Catalog creation validates and
+normalizes every export through `@vvfx/phaser-runtime`, records whether a Beam
+layer is present, and reports collisions or malformed files instead of letting
+individual weapons interpret JSON.
+
+`VvfxSystem` preloads each effect once per scene and owns every live runtime
+handle until completion or scene shutdown. Weapon behavior chooses only its
+placement contract: `spawnAt` for an authored point effect or `spawnBetween`
+for a Beam-capable effect. Beam playback may crop short links, adjust thickness,
+and cap an authored tail without mutating the export. Replacing a stable Runtime
+JSON file therefore updates its visual while leaving weapon selection, damage,
+upgrades, and timing logic data-driven in the game.
+
+Gameplay remains authoritative. If visual playback fails, errors are reported
+once and combat still resolves. When an effect has a meaningful authored impact
+moment, the behavior's delayed damage should use that moment explicitly; Meteor
+Hammer's current export lands at 450 ms.
 
 ## Threat Scaling
 

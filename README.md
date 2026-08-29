@@ -11,7 +11,8 @@ browser.
 ## Current Features
 
 - Three playable characters with distinct starter weapons, stat profiles, and unlock conditions
-- Twenty-five auto-weapons with explicit level-seven evolutions and evolved specializations
+- Thirty-two auto-weapons with explicit level-seven evolutions and evolved specializations
+- Authored VVFX Runtime JSON playback for point and endpoint-fitted weapon effects, including Meteor Hammer and Tesla Coil
 - Sixteen enemy definitions, independently capped combat roles, authored encounters, elites, and a six-attack three-phase boss
 - Bounded adaptive threat scaling based on run time and player power
 - Run-only artifacts, themed reliquaries, curses, rare powerups, and a blood shrine
@@ -82,11 +83,27 @@ src/game/scenes/ Phaser scene composition and lifecycle
 src/game/systems/Focused gameplay systems
 src/game/tests/  Pure-logic Vitest coverage
 src/game/ui/     HUD and presentation components
+src/game/vfx/    Auto-discovered authored VVFX Runtime JSON and its Phaser bridge
 ```
 
 The architecture favors typed data definitions and focused systems over generic
 scripting or monolithic scene files. Start with
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before extending gameplay.
+
+## Authored VVFX workflow
+
+The game installs the private `@vvfx/phaser-runtime` tarball from `vendor/` and
+automatically catalogs files named
+`src/game/vfx/effects/*.vvfx-runtime.json`. A stable filename is the gameplay
+effect ID: `meteor-strike.vvfx-runtime.json` is played as `meteor-strike`.
+
+To update an existing effect, export Runtime JSON from VVFX and replace the
+file with the same name. No generated Phaser tween or per-export helper needs
+to be copied. New point effects use `VvfxSystem.spawnAt(...)`; effects with at
+least one Beam layer may use `spawnBetween(...)` for world-space endpoints.
+Embedded artwork works immediately, while `assetKeysByEffect` can map assets to
+textures already preloaded by the game when duplicate decoding becomes worth
+avoiding.
 
 ## Documentation
 

@@ -242,7 +242,7 @@ export class ImpactFragmentSystem {
     }
   }
 
-  public update(_time: number): void {
+  public update(): void {
     // We don't strictly need a manual update loop since tweens and physics bodies
     // handle the movement, rotation, and fading.
   }

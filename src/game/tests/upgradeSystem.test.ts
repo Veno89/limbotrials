@@ -28,7 +28,7 @@ function seededRandom(seed: number): () => number {
 
 describe('categorized upgrade system', () => {
   it('defines unlock, level, and evolution progression for every weapon', () => {
-    expect(Object.keys(WEAPONS)).toHaveLength(31);
+    expect(Object.keys(WEAPONS)).toHaveLength(32);
     for (const weapon of Object.values(WEAPONS)) {
       const progression = Object.values(UPGRADES).filter((upgrade) => upgrade.targetWeapon === weapon.id);
       expect(Object.values(UPGRADES).some((upgrade) => upgrade.unlockWeapon === weapon.id)).toBe(
@@ -64,6 +64,24 @@ describe('categorized upgrade system', () => {
     expect(run.upgrades.apply('bone-scythe-area')).toBe(true);
     expect(run.weapons.getState('bone-scythe').level).toBe(3);
     expect(run.weapons.getState('bone-scythe').stats.area).toBeGreaterThan(before.area);
+  });
+
+  it('drives Tesla Coil from unlock through focused growth and Storm Crown', () => {
+    const run = new RunState(createDefaultSave());
+
+    expect(run.upgrades.apply('unlock-tesla-coil')).toBe(true);
+    for (let index = 0; index < 4; index += 1) {
+      expect(run.upgrades.apply('level-tesla-coil')).toBe(true);
+    }
+    expect(run.upgrades.apply('tesla-coil-induction')).toBe(true);
+    expect(run.weapons.getState('tesla-coil').level).toBe(EVOLUTION_READY_LEVEL);
+
+    expect(run.upgrades.apply('evolve-tesla-coil')).toBe(true);
+    const evolved = run.weapons.getState('tesla-coil');
+    expect(evolved.level).toBe(MAX_WEAPON_LEVEL);
+    expect(evolved.stats.damage).toBeCloseTo(42 * 1.14 ** 6);
+    expect(evolved.stats.targetCount).toBe(10);
+    expect(evolved.stats.area).toBeCloseTo(260 * 1.22 * 1.25);
   });
 
   it('adds a longer pre-evolution progression and offers evolution at readiness', () => {

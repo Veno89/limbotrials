@@ -668,6 +668,45 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       description: 'Increases burst radius significantly.',
     },
   },
+  'tesla-coil': {
+    id: 'tesla-coil',
+    behavior: 'tesla-coil',
+    name: 'Tesla Coil',
+    description: 'Discharges into a nearby enemy, then leaps through clustered foes.',
+    texture: 'weapon-tesla-coil',
+    iconTexture: 'weapon-tesla-coil',
+    baseStats: stats({
+      damage: 42,
+      cooldownMs: 2800,
+      range: 680,
+      area: 260,
+      targetCount: 3,
+    }),
+    levelGrowth: [
+      { stat: 'damage', mode: 'multiply', value: 1.14 },
+      { stat: 'targetCount', mode: 'add', value: 1 },
+    ],
+    vfx: {
+      attack: {
+        effectId: 'chain-lightning',
+        beamFit: 'crop',
+        thicknessScale: 0.67,
+        maxDurationMs: 500,
+      },
+      chain: {
+        effectId: 'tesla-chain-link',
+        beamFit: 'crop',
+        thicknessScale: 0.75,
+        maxDurationMs: 500,
+      },
+      chainStartDelayMs: 420,
+      chainStepDelayMs: 70,
+    },
+    evolution: {
+      name: 'Storm Crown',
+      description: 'The current reaches farther and claims an additional soul.',
+    },
+  },
 };
 
 /**

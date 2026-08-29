@@ -38,4 +38,14 @@ describe('stats panel model', () => {
     expect(axe?.details).toContain('ORBIT');
     expect(axe?.details).not.toContain('PIERCE');
   });
+
+  it('labels Tesla Coil acquisition range, hop range, and target count clearly', () => {
+    const run = new RunState(createDefaultSave());
+    run.weapons.add('tesla-coil');
+
+    const tesla = buildStatsPanelModel(run).weapons.find((weapon) => weapon.id === 'tesla-coil');
+    expect(tesla?.details).toContain('HOP 260');
+    expect(tesla?.details).toContain('RANGE 680');
+    expect(tesla?.details).toContain('TARGETS 3');
+  });
 });

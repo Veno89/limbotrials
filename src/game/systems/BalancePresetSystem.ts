@@ -1,4 +1,4 @@
-import Phaser from 'phaser';
+import type Phaser from 'phaser';
 import { ARENA_HEIGHT, ARENA_WIDTH } from '../constants';
 import {
   BALANCE_PRESETS,
@@ -8,6 +8,9 @@ import {
 import type { BalancePresetId } from '../types/gameTypes';
 import type { EnemySystem } from './EnemySystem';
 import type { RunState } from './RunState';
+
+const clamp = (value: number, minimum: number, maximum: number): number =>
+  Math.min(maximum, Math.max(minimum, value));
 
 export function applyBalancePreset(
   id: Exclude<BalancePresetId, 'standard'>,
@@ -32,8 +35,8 @@ export function applyBalancePreset(
       const radius = group.radius + (index % 3) * 28;
       enemies.spawn(
         group.enemyId,
-        Phaser.Math.Clamp(player.x + Math.cos(angle) * radius, 60, ARENA_WIDTH - 60),
-        Phaser.Math.Clamp(player.y + Math.sin(angle) * radius, 60, ARENA_HEIGHT - 60),
+        clamp(player.x + Math.cos(angle) * radius, 60, ARENA_WIDTH - 60),
+        clamp(player.y + Math.sin(angle) * radius, 60, ARENA_HEIGHT - 60),
         run.elapsedMs,
       );
     }

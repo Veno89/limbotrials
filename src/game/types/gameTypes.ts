@@ -33,7 +33,8 @@ export type WeaponId =
   | 'exploding-revolver'
   | 'infernal-blunderbuss'
   | 'spike-trap'
-  | 'pouch-of-chaos';
+  | 'pouch-of-chaos'
+  | 'tesla-coil';
 export type WeaponBehavior =
   | 'scythe'
   | 'targeted-projectile'
@@ -49,7 +50,8 @@ export type WeaponBehavior =
   | 'burst-fire'
   | 'deployable-trap'
   | 'meteor-strike'
-  | 'frozen-orb';
+  | 'frozen-orb'
+  | 'tesla-coil';
 export type UpgradeCategory =
   | 'weapon'
   | 'weapon-level'
@@ -97,6 +99,7 @@ export type UpgradeId =
   | 'unlock-infernal-blunderbuss'
   | 'unlock-spike-trap'
   | 'unlock-pouch-of-chaos'
+  | 'unlock-tesla-coil'
   | 'level-bone-scythe'
   | 'level-soul-bolt'
   | 'level-hellfire-sigil'
@@ -128,6 +131,7 @@ export type UpgradeId =
   | 'level-infernal-blunderbuss'
   | 'level-spike-trap'
   | 'level-pouch-of-chaos'
+  | 'level-tesla-coil'
   | 'evolve-bone-scythe'
   | 'evolve-soul-bolt'
   | 'evolve-hellfire-sigil'
@@ -159,6 +163,7 @@ export type UpgradeId =
   | 'evolve-infernal-blunderbuss'
   | 'evolve-spike-trap'
   | 'evolve-pouch-of-chaos'
+  | 'evolve-tesla-coil'
   | 'bone-scythe-area'
   | 'bone-scythe-crit'
   | 'soul-bolt-projectiles'
@@ -211,6 +216,9 @@ export type UpgradeId =
   | 'bellringer-damage'
   | 'crowfeather-pierce'
   | 'crowfeather-crit'
+  | 'tesla-coil-induction'
+  | 'tesla-coil-overclock'
+  | 'tesla-coil-forked-current'
   | 'stat-vigor'
   | 'stat-movement'
   | 'stat-pickup'
@@ -648,6 +656,16 @@ export interface JournalDiscoveryState extends JournalEntryCollection {
   seen: JournalEntryCollection;
 }
 
+export interface WeaponBeamVfxDefinition {
+  effectId: string;
+  /** Keeps short connections readable without compressing the source artwork. */
+  beamFit: 'stretch' | 'crop';
+  /** Multiplies authored Beam thickness without changing endpoint length. */
+  thicknessScale: number;
+  /** Stops playback after the authored visible portion instead of an idle export tail. */
+  maxDurationMs: number;
+}
+
 export interface WeaponDefinition {
   id: WeaponId;
   behavior: WeaponBehavior;
@@ -657,6 +675,12 @@ export interface WeaponDefinition {
   iconTexture: string;
   baseStats: WeaponStats;
   levelGrowth: WeaponModifier[];
+  vfx?: {
+    attack: WeaponBeamVfxDefinition;
+    chain: WeaponBeamVfxDefinition;
+    chainStartDelayMs: number;
+    chainStepDelayMs: number;
+  };
   evolution: {
     name: string;
     description: string;

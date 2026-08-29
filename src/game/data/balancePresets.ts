@@ -129,13 +129,11 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
   'new-weapon-lab': {
     id: 'new-weapon-lab',
     name: 'NEW WEAPON LAB',
-    description: 'Evolution-ready Ashen Longbow, Bloodletter Axe, Dirge Staff, and Poison Flask against mixed pressure.',
+    description: 'Evolution-ready newer weapons, including Tesla Coil, against mixed pressure.',
     elapsedMs: 180000,
-    weapons: ['ashen-longbow', 'bloodletter-axe', 'dirge-staff', 'poison-flask'],
+    // The character starter already occupies one of the five weapon slots.
+    weapons: ['bloodletter-axe', 'dirge-staff', 'poison-flask', 'tesla-coil'],
     upgrades: [
-      ...repeated('level-ashen-longbow', 2),
-      'ashen-longbow-volley',
-      ...repeated('level-ashen-longbow', 2),
       ...repeated('level-bloodletter-axe', 2),
       'bloodletter-axe-count',
       ...repeated('level-bloodletter-axe', 2),
@@ -146,6 +144,10 @@ export const BALANCE_PRESETS: Record<Exclude<BalancePresetId, 'standard'>, Balan
       'poison-flask-area',
       ...repeated('level-poison-flask', 2),
       'evolve-poison-flask',
+      ...repeated('level-tesla-coil', 2),
+      'tesla-coil-induction',
+      ...repeated('level-tesla-coil', 2),
+      'evolve-tesla-coil',
     ],
     replenishEveryMs: 600,
     spawns: [

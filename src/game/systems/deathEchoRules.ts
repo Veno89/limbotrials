@@ -7,6 +7,7 @@ import type {
   WeaponId,
 } from '../types/gameTypes';
 import { getCurseTierById } from '../data/curse';
+import { WEAPONS } from '../data/weapons';
 
 export type DeathEchoAbility = 'bolt' | 'rupture' | 'charge' | 'aura';
 
@@ -27,19 +28,7 @@ export interface DeathEchoSpawnPlan {
 }
 
 const VALID_CLASS_IDS = new Set<CharacterId>(['haunted', 'the-penitent', 'ashwalker']);
-const VALID_WEAPON_IDS = new Set<WeaponId>([
-  'bone-scythe',
-  'soul-bolt',
-  'hellfire-sigil',
-  'grave-lance',
-  'wailing-shards',
-  'cinder-reliquary',
-  'ashen-longbow',
-  'bloodletter-axe',
-  'dirge-staff',
-  'poison-flask',
-  'sanguine-needle',
-]);
+const VALID_WEAPON_IDS = new Set<WeaponId>(Object.keys(WEAPONS) as WeaponId[]);
 const VALID_DAMAGE_SOURCES = new Set<PlayerDamageSourceId>([
   'lost-soul',
   'grave-crawler',

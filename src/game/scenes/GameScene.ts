@@ -62,6 +62,7 @@ import type { ShopOfferDefinition } from '../data/shop';
 import type { ShopPurchaseResult } from './ShopScene';
 import { ArenaFloorSystem } from '../systems/ArenaFloorSystem';
 import type { GameHudScene } from './GameHudScene';
+import { VvfxSystem } from '../vfx/VvfxSystem';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -109,6 +110,7 @@ export class GameScene extends Phaser.Scene {
   private devInvincible = false;
   private companions!: CompanionSystem;
   private impactFragments!: ImpactFragmentSystem;
+  private vfx!: VvfxSystem;
 
   constructor() {
     super('GameScene');
@@ -183,6 +185,8 @@ export class GameScene extends Phaser.Scene {
 
     this.impactFragments = new ImpactFragmentSystem(this);
     this.juice = new JuiceSystem(this, save.settings.screenShake, save.settings.particles);
+    this.vfx = new VvfxSystem(this);
+    void this.vfx.preload();
     this.lootReveal = new LootRevealSystem(this, this.player, this.juice);
     this.enemies = new EnemySystem(
       this,
@@ -239,6 +243,7 @@ export class GameScene extends Phaser.Scene {
       this.conditionalUpgrades,
       this.statuses,
       this.impactFragments,
+      this.vfx,
     );
     this.companions = new CompanionSystem(
       this,

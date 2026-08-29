@@ -69,7 +69,11 @@ function weaponDisplay(run: RunState, synergies: WeaponSynergySystem, id: Weapon
     `REAP ${seconds(crimsonOrbit.hitCooldownMs)}`,
     `SIZE ${Math.round(crimsonOrbit.axeSize)}`,
   ] : [
-    areaBehavior ? `AREA ${Math.round(stats.area)}` : '',
+    definition.behavior === 'tesla-coil'
+      ? `HOP ${Math.round(stats.area)}`
+      : areaBehavior
+        ? `AREA ${Math.round(stats.area)}`
+        : '',
     !['scythe', 'pulse'].includes(definition.behavior) ? `RANGE ${Math.round(stats.range)}` : '',
     stats.projectileCount > 1 ? `PROJECTILES ${Math.floor(stats.projectileCount)}` : '',
     stats.targetCount > 1 ? `TARGETS ${Math.floor(stats.targetCount)}` : '',

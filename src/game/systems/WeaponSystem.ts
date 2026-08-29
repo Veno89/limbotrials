@@ -38,6 +38,7 @@ import { BoneScytheTalentRuntimeSystem } from './BoneScytheTalentRuntimeSystem';
 import { ScytheProcessionSystem } from './ScytheProcessionSystem';
 import type { WeaponContext } from './weapons/WeaponContext';
 import { WEAPON_BEHAVIORS } from './weapons/WeaponBehaviors';
+import type { VvfxPlayback } from '../vfx/VvfxSystem';
 
 export interface ProjectileRuntime {
   weaponId: WeaponId;
@@ -85,6 +86,7 @@ export class WeaponSystem implements WeaponContext {
     private readonly conditionalUpgrades: ConditionalUpgradeSystem,
     private readonly statuses: StatusEffectSystem,
     public readonly impactFragments: ImpactFragmentSystem,
+    public readonly vfx: VvfxPlayback,
   ) {
     this.projectiles = scene.physics.add.group();
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
