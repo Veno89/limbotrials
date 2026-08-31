@@ -9,7 +9,7 @@ human session that supplied the evidence. Older successful runs are historical.
 - [ ] Working tree/release revision is identified and intended files are present.
 - [ ] Dependency install from the lockfile succeeds.
 - [ ] `npm run validate:content` succeeds with no unresolved required resource.
-- [ ] `npm run assets:backlog:check` reports no manifest/backlog drift.
+- [ ] `npm run assets:backlog:check` reports no registered-source/checklist drift.
 - [ ] `npm run balance:diagnostics` completes and every warning is reviewed.
 - [ ] `npm run lint` succeeds; existing warnings are recorded separately.
 - [ ] `npm run typecheck` succeeds.
@@ -28,10 +28,10 @@ report a formatting gate unless one is introduced.
 
 ## Demo-Critical Owner Content
 
-- [ ] Every item in the **Minimum playable/demo-critical** asset-backlog section
-  is delivered or explicitly approved in its fallback form.
-- [ ] Every item in **Required presentation polish** is delivered or accepted for
-  this demo milestone.
+- [ ] Every manifest entry tagged `minimum-playable` is represented by a completed
+  creative-checklist concept or explicitly approved in its fallback form.
+- [ ] Every manifest entry tagged `presentation-polish` is delivered or accepted
+  for this demo milestone.
 - [ ] All shipped art, fonts, VVFX dependencies, audio, and music have confirmed
   rights, credits, and provenance.
 - [ ] Procedural audio is replaced or explicitly approved as the demo audio.
@@ -40,8 +40,8 @@ report a formatting gate unless one is introduced.
 - [ ] Title/store art, screenshots, and trailer are produced if the distribution
   channel requires them.
 
-Optional variation and post-demo backlog items are not demo blockers unless the
-release scope is explicitly expanded.
+Manifest entries tagged `optional-variation` or `post-demo` are not demo blockers
+unless the release scope is explicitly expanded.
 
 ## Manual Gameplay And Presentation
 

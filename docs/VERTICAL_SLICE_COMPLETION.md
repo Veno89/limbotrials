@@ -79,8 +79,11 @@ The game must remain playable with existing owner-created art and development
 fallbacks, but a public demo still requires the owner to create or explicitly
 approve the demo-critical art listed in
 [ASSET_PRODUCTION_BACKLOG.md](ASSET_PRODUCTION_BACKLOG.md). That generated
-backlog is the canonical ordered list and includes exact filenames, dimensions,
-frames, orientation, pivot, transparency, and runtime-presentation coverage.
+document is the canonical owner-facing creative checklist: it groups recognizable
+subjects and supplies concise, theme-consistent design prompts. Exact filenames,
+dimensions, frames, orientation, pivot, transparency, attachments, and
+runtime-presentation coverage remain canonical in `src/game/data/assets.ts` and
+are qualified with the technical templates and Content Lab.
 
 These are presentation and rights blockers, not reasons to hardcode temporary
 asset paths into gameplay. No AI-generated or downloaded visual assets should be

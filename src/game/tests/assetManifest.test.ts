@@ -15,6 +15,10 @@ import {
 import type { AssetManifest, VisualAssetDefinition } from '../assets/assetTypes';
 import { ARTIFACTS } from '../data/artifacts';
 import {
+  ASSET_CHECKLIST_CATEGORIES,
+  ASSET_CREATIVE_CONCEPTS,
+} from '../data/assetCreativeBriefs';
+import {
   ASSET_MANIFEST,
   ASSETS,
   AUDIO_ASSET_MANIFEST,
@@ -188,7 +192,55 @@ describe('asset manifest', () => {
     ))).toBe(true);
   });
 
-  it('publishes production specs for test art and the exact first five backlog tasks', () => {
+  it('covers every production asset exactly once with a themed creative concept', () => {
+    const expectedAssetIds = new Set([
+      ...VISUAL_ASSETS.filter(({ production }) => production).map(({ id }) => id),
+      ...AUDIO_ASSET_MANIFEST.map(({ id }) => id),
+    ]);
+    const knownCategories = new Set<string>(ASSET_CHECKLIST_CATEGORIES);
+    const conceptIds = new Set<string>();
+    const assignedAssetIds = new Set<string>();
+
+    for (const concept of ASSET_CREATIVE_CONCEPTS) {
+      expect(concept.id.trim(), 'creative concept ID').not.toBe('');
+      expect(conceptIds.has(concept.id), `duplicate concept ${concept.id}`).toBe(false);
+      conceptIds.add(concept.id);
+      expect(concept.displayName.trim(), concept.id).not.toBe('');
+      expect(concept.creativeBrief.trim(), concept.id).not.toBe('');
+      expect(knownCategories.has(concept.category), concept.id).toBe(true);
+      expect(concept.assetIds.length, concept.id).toBeGreaterThan(0);
+
+      for (const assetId of concept.assetIds) {
+        expect(expectedAssetIds.has(assetId), `${concept.id} -> ${assetId}`).toBe(true);
+        expect(assignedAssetIds.has(assetId), `duplicate assignment ${assetId}`).toBe(false);
+        assignedAssetIds.add(assetId);
+      }
+    }
+
+    expect([...assignedAssetIds].sort()).toEqual([...expectedAssetIds].sort());
+    expect(ASSET_CREATIVE_CONCEPTS.length).toBeLessThan(expectedAssetIds.size);
+    expect(
+      ASSET_CREATIVE_CONCEPTS
+        .filter(({ startHere }) => startHere)
+        .flatMap(({ assetIds }) => assetIds)
+        .filter((assetId) => [
+          'boss-warden',
+          'reliquary-chest',
+          'enemy-brute',
+          'enemy-sentinel',
+          'enemy-ember-imp',
+        ].includes(assetId))
+        .sort(),
+    ).toEqual([
+      'boss-warden',
+      'enemy-brute',
+      'enemy-ember-imp',
+      'enemy-sentinel',
+      'reliquary-chest',
+    ]);
+  });
+
+  it('publishes production specs for test art and preserves the start-here priority', () => {
     const testArt = VISUAL_ASSETS.filter(({ source }) => source?.filePath.startsWith('assets/test/'));
     expect(testArt.length).toBeGreaterThan(0);
     expect(testArt.every(({ production }) => Boolean(production))).toBe(true);

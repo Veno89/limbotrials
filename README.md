@@ -48,8 +48,8 @@ Open the local URL printed by Vite.
 | --- | --- |
 | `npm run dev` | Start the Vite development server |
 | `npm run validate:content` | Validate registered assets, fallbacks, effects, and content links |
-| `npm run assets:backlog` | Regenerate the actionable owner-art backlog from registered usage |
-| `npm run assets:backlog:check` | Fail when the generated backlog has drifted from the manifest |
+| `npm run assets:backlog` | Regenerate the categorized owner-art checklist from registered concepts |
+| `npm run assets:backlog:check` | Fail when the generated checklist has drifted from its registered sources |
 | `npm run balance:diagnostics` | Print deterministic balance diagnostics; does not judge fun or final balance |
 | `npm run typecheck` | Run strict TypeScript validation |
 | `npm run lint` | Run ESLint |
@@ -93,11 +93,14 @@ debug controls.
 Gameplay refers to stable asset IDs instead of filenames. To replace an existing
 fallback or owner asset:
 
-1. Open [the generated asset backlog](docs/ASSET_PRODUCTION_BACKLOG.md) and use
-   its exact canvas, frame, orientation, pivot, transparency, and filename spec.
-2. Start from a guide in `assets/templates/` when one exists. The guides contain
-   only technical boundaries and labels.
-3. Deliver to the backlog's production target, add one explicit Vite `?url`
+1. Choose a concept from [the generated asset checklist](docs/ASSET_PRODUCTION_BACKLOG.md).
+   It provides the owner-facing name and short themed design prompt without
+   duplicating implementation metadata.
+2. Read the matching row in `src/game/data/assets.ts` for the exact target path,
+   canvas, frames, orientation, pivot, transparency, attachments, and other
+   runtime requirements. Start from a guide in `assets/templates/` when one
+   exists; the guides contain only technical boundaries and labels.
+3. Deliver to the manifest's production target, add one explicit Vite `?url`
    import, and update the `source` on that same stable-ID manifest row. Overwrite
    an existing file in place only when intentionally retaining its current path.
    Primitive/alias rows (including the first five tasks) accept the new
@@ -105,8 +108,8 @@ fallback or owner asset:
    beside the repository does not bundle it; do not add an ad hoc gameplay preload.
 4. Update the manifest's dimensions, frame metadata, attachment points, fallback,
    and provenance if the delivered asset differs from the specification.
-5. Run `npm run validate:content`, open the Content Lab, then run the normal
-   verification gates.
+5. Regenerate the checklist, run `npm run validate:content`, open the Content
+   Lab, then run the normal verification gates.
 
 Missing optional art resolves to a declared development fallback. Missing
 required art emits one clear diagnostic instead of one warning per spawn.
@@ -114,7 +117,7 @@ Gameplay already owns hit flash, game-specific tints/statuses, and registered
 effect attachments where configured. Additional outline, shadow, glow, recoil,
 hover, spawn/death, trail, and impact helpers are opt-in and can be qualified in
 Content Lab; its toggles do not imply every entity uses them. Do not bake runtime
-effects into final art unless the backlog explicitly requests it.
+effects into final art; keep those effects owned by the runtime presentation.
 
 For audio, deliver the WAV at the manifest entry's `productionTargetFilePath`,
 import it with Vite's `?url` suffix in `src/game/data/assets.ts`, and pass that
@@ -150,7 +153,7 @@ deterministic ordering.
 ```text
 assets/                 Owner-created source art and technical templates
 docs/                   Design, completion, production, and test documentation
-scripts/                Validation, diagnostics, backlog, and browser automation
+scripts/                Validation, diagnostics, checklist, and browser automation
 src/game/assets/        Typed manifest, validation, and runtime resolution
 src/game/balance/       Pure headless diagnostic models
 src/game/data/          Data-defined gameplay content
@@ -166,7 +169,7 @@ Start with [Architecture](docs/ARCHITECTURE.md) before extending gameplay.
 ## Documentation
 
 - [Vertical slice completion](docs/VERTICAL_SLICE_COMPLETION.md)
-- [Asset production backlog](docs/ASSET_PRODUCTION_BACKLOG.md)
+- [Asset creation checklist](docs/ASSET_PRODUCTION_BACKLOG.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Balance testing workflow](docs/BALANCE_TESTING.md)
 - [Testing strategy](docs/TESTING.md)

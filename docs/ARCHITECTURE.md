@@ -428,19 +428,21 @@ task.
 
 ### Add Or Replace An Asset
 
-1. Use the exact production spec in
-   `docs/ASSET_PRODUCTION_BACKLOG.md`; start with a guide under
-   `assets/templates/` when available.
-2. Create the final owner asset at the registered target path. Technical guides
-   are templates only; do not introduce generated/downloaded AI artwork.
+1. Choose the owner-facing name and themed prompt in
+   `docs/ASSET_PRODUCTION_BACKLOG.md`, then read the matching technical production
+   spec in `src/game/data/assets.ts`. Start with a guide under `assets/templates/`
+   when available.
+2. Create the final owner asset at the manifest's registered target path.
+   Technical guides are templates only; do not introduce generated/downloaded AI
+   artwork.
 3. Update the existing manifest entry's explicit import and metadata, or add one
    new stable ID before content references it. For a primitive/alias production
    row, add the imported `{ filePath, url }` as its `source`; keep the stable ID
    and fallback in place.
 4. Keep attachment names stable so weapons/effects continue to resolve their
    source and target points.
-5. Run `npm run validate:content`, regenerate the backlog, and inspect the asset
-   in Content Lab before the normal typecheck/test/build/smoke gates.
+5. Regenerate the creative checklist, run `npm run validate:content`, and inspect
+   the asset in Content Lab before the normal typecheck/test/build/smoke gates.
 
 ### Add Or Replace A Gameplay Effect
 

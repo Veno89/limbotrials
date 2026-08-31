@@ -32,8 +32,9 @@ missing. It is not yet public-demo ready. See
 
 - Centralized gameplay visuals and audio cues behind typed stable IDs, metadata,
   validation, runtime resolution, and safe development fallbacks.
-- Added a generated, usage-based owner-art backlog and technical drawing
-  templates so art can be replaced without editing gameplay code.
+- Added a generated, categorized owner-art checklist with short themed prompts,
+  backed by manifest technical specs and drawing templates so art can be replaced
+  without editing gameplay code.
 - Added reusable, opt-in code presentation helpers for restrained flashes,
   outlines, shadows, recoil, squash/stretch, hover, spawn/death treatment, status
   overlays, tint/mirroring, glow/pulse, trails, and impact attachments.
@@ -56,12 +57,13 @@ They do not certify final presentation or balance.
 
 ## Owner-Art And Audio Blockers
 
-- Produce or approve the demo-critical and required-polish entries in
-  [ASSET_PRODUCTION_BACKLOG.md](ASSET_PRODUCTION_BACKLOG.md), in its listed order.
+- Produce or approve the milestone-scoped concepts in
+  [ASSET_PRODUCTION_BACKLOG.md](ASSET_PRODUCTION_BACKLOG.md), beginning with those
+  marked **Start here**.
 - Validate delivered art in Content Lab against registered dimensions, frames,
   pivot, attachments, transparency, mirroring, and collision/readability guides.
 - Approve the existing single-frame/placeholder presentation or replace it where
-  the backlog marks it demo-critical.
+  the technical manifest marks it `minimum-playable`.
 - Replace or explicitly approve procedural sound effects and ambience/music.
 - Confirm ownership, licensing, and credits for every shipped visual, audio,
   font, and VVFX dependency.
@@ -110,7 +112,8 @@ not replace them.
 
 ## Next Recommended Work
 
-Create and integrate the first demo-critical owner asset from the generated
-backlog, inspect it in Content Lab, then complete a standard run and compare its
-archived report with the deterministic diagnostics. Repeat one asset and one
-playtest decision at a time so presentation and balance changes remain attributable.
+Create and integrate the first **Start here** concept from the generated creative
+checklist, using its matching manifest row for the technical delivery contract.
+Inspect it in Content Lab, then complete a standard run and compare its archived
+report with the deterministic diagnostics. Repeat one asset and one playtest
+decision at a time so presentation and balance changes remain attributable.

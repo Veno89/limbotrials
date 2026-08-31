@@ -4,9 +4,15 @@ This legacy checklist is deprecated because it drifted from actual gameplay use
 and did not provide production-ready specifications.
 
 Use [ASSET_PRODUCTION_BACKLOG.md](ASSET_PRODUCTION_BACKLOG.md) as the canonical,
-generated asset queue. It is ordered by demo impact and records the required
-filename, folder, dimensions, frames, orientation, pivot, transparency, gameplay
-use, and presentation already supplied by runtime code.
+generated owner-facing creative checklist. It groups assets by subject and gives
+each concept a plain-language name plus a short prompt consistent with the game's
+funerary grimdark direction.
 
-Run `npm run assets:backlog` after changing registered content or asset metadata.
+Exact paths, dimensions, frames, orientation, pivot, transparency, attachments,
+and runtime-presentation requirements remain canonical in
+`src/game/data/assets.ts`. Use the technical SVG templates and Content Lab when
+preparing and qualifying a delivered file.
+
+Run `npm run assets:backlog` after changing registered content, creative briefs,
+or asset metadata.
 Do not maintain a second handwritten asset inventory here.

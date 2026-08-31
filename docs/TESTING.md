@@ -21,7 +21,7 @@ readiness.
 
 ```bash
 npm run validate:content     # Asset/effect/content registry integrity
-npm run assets:backlog:check # Generated backlog agrees with the manifest
+npm run assets:backlog:check # Generated creative checklist agrees with registered sources
 npm run balance:diagnostics  # Deterministic numeric diagnostic report
 npm run typecheck            # Strict TypeScript checks
 npm run lint                 # ESLint
