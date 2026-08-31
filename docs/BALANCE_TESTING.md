@@ -1,8 +1,11 @@
-# Balance Testing
+# Balance Testing And Content Inspection
 
 ## Purpose
 
-The balance system turns play sessions into comparable evidence. It records outcomes without changing combat rules and keeps the latest completed report in a separate local-storage entry.
+The balance system turns play sessions into comparable evidence. It records
+outcomes without changing combat rules and keeps the latest completed report in a
+separate local-storage entry. Pure headless diagnostics and development presets
+help select what to inspect; neither declares the game fun or balanced.
 
 ## Recorded Data
 
@@ -38,7 +41,8 @@ local **Last Balance Report** menu screen has been retired.
 - Weapon-targeted choices should visibly advance that weapon; level-six weapons should present an evolution option on the next standard offer
 - Random powerups begin after `1:00` and cannot spawn more often than every `1:30`; elite powerups remain guaranteed
 - Ground soul-remnant objects: maximum `90`; excess rewards consolidate into existing remnants
-- Active reliquaries: maximum `2`; first spawn `25-35` seconds; later interval `65-85` seconds; lifetime `60` seconds
+- Active reliquaries: maximum `1`; first spawn `55-75` seconds; later interval
+  `155-190` seconds; lifetime `75` seconds
 - Active enemy ground hazards: maximum `30`
 - Active threat tier: maximum `10`; time is the minimum tier and player progression may only push it upward
 
@@ -56,18 +60,54 @@ These are comparison targets, not guaranteed outcomes. Record deviations across 
 - `F8`: Toggle live balance telemetry
 - `F9`: Weapon Identity Lab
 - `F10`: Upgrade Effects Lab
+- `F11`: Open the Content Lab
+- `Shift+R`: Reset the current standard run or focused preset encounter
+- `[` / `]`: Lower or raise game speed
+- `\`: Restore `1x` game speed
+- `V`: Trigger the registered Tesla semantic effect at the player and nearest
+  valid target
+- `F`: Toggle gameplay collision and attachment-point guides
+- `I`: Force victory and open results
 - `H`: Spawn a reliquary immediately
 - `Y`: Open the nearest reliquary immediately
 - `G`: Grant a shield immediately
 - `U`: Grant Grave Frenzy immediately
-- `O`: End the current run and open results quickly
-- `` ` `` or `F12`: Open local Dev Mode. The Weapons tab adds a selected weapon, advances individual levels or directly to level six, applies its evolution, and exposes its focused upgrades; Advanced, Artifacts, and Spawns retain exact content tools.
+- `O`: Force loss and open results
+- `` ` `` or `F12`: Open local Dev Mode. The Weapons tab adds a selected weapon,
+  advances individual levels or directly to level six, applies its evolution,
+  and exposes its focused upgrades; Advanced, Artifacts, and Spawns retain exact
+  content tools.
 
 Preset scenarios use fixed builds, run clocks, enemy groups, and spawn positions. Their authored enemy groups continuously replenish toward fixed target populations so damage output can be measured under sustained pressure. Ambient waves and authored run events are disabled during presets, and preset rewards never affect permanent save progression.
 
-The Dev Mode overlay is Vite-dev-only. Its preferences are stored in browser
-localStorage, while optional scratch preset files matching `dev-mode*.local.json`
-are ignored by git.
+The Content Lab can also be opened directly with `?content-lab=1`. It previews
+registered entities, attacks, projectiles, impacts, statuses, animations, and
+VVFX effects without changing standard-run content. It provides playback/frame
+controls, slow motion, zoom/background choices, bounds/origin/pivot/attachment and
+collision guides, presentation toggles, mirror/tint variants, repeated-effect
+lifecycle checks, live-object counts, and the current stable ID.
+
+Dev Mode and Content Lab are excluded from normal production bundles. They are
+available in Vite development or in an explicitly enabled production-mode test
+bundle built with `VITE_ENABLE_DEV_TOOLS=true`. Dev preferences are stored in
+browser localStorage, while optional scratch preset files matching
+`dev-mode*.local.json` are ignored by git.
+
+## Headless Diagnostics
+
+Run:
+
+```bash
+npm run balance:diagnostics
+```
+
+The report compares theoretical weapon damage ranges/DPS, representative enemy
+time-to-kill, player damage intake, wave duration/pressure, upgrade values, and
+configurations that appear impossible or trivial under the model's assumptions.
+It is deterministic and browser-independent. It does not model player skill,
+movement, crowd geometry, targeting efficiency, visual clarity, or subjective
+game feel. Treat each warning as a playtest question, not an automatic tuning
+change.
 
 ## Report Tabs
 
@@ -92,7 +132,8 @@ are ignored by git.
 ### Artifacts And Chests
 
 1. Record chest spawn and expiry times for five full runs.
-2. Confirm no more than two chests coexist and no duplicate artifact appears in one run.
+2. Confirm no more than one reliquary is active and no duplicate artifact appears
+   in one run.
 3. Confirm the direction/distance/countdown tracker leads to every spawned reliquary and the first spawn is noticed.
 4. Confirm the labeled artifact row and every acquired-artifact tooltip remain usable during combat.
 5. Walk into reliquaries under low and high pressure; confirm the soul-lock burst, curved reward travel, and receipt are visible without obscuring threats or interrupting movement.

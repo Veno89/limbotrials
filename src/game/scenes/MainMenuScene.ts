@@ -7,6 +7,7 @@ import { addButton, addTitle } from '../ui/uiHelpers';
 import { FEATURE_FLAGS } from '../config/featureFlags';
 import { availableTalentPoints } from '../systems/TalentTreeSystem';
 import { unseenJournalCount } from '../systems/JournalDiscoverySystem';
+import { markBrowserFlowScene } from './sceneDiagnostics';
 
 export class MainMenuScene extends Phaser.Scene {
   constructor() {
@@ -14,6 +15,7 @@ export class MainMenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    markBrowserFlowScene(this, 'main-menu');
     const save = loadSave();
     audio.configure(save.settings);
     audio.stopAmbience();

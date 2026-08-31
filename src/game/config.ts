@@ -12,7 +12,6 @@ import { PreloadScene } from './scenes/PreloadScene';
 import { SettingsScene } from './scenes/SettingsScene';
 import { UpgradeScene } from './scenes/UpgradeScene';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
-import { DevModeScene } from './scenes/DevModeScene';
 import { ShopScene } from './scenes/ShopScene';
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
@@ -52,6 +51,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
     PauseScene,
     GameOverScene,
     VictoryScene,
-    ...(import.meta.env.DEV ? [DevModeScene] : []),
   ],
 };

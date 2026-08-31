@@ -3,6 +3,7 @@ import { GAME_HEIGHT, GAME_WIDTH } from '../constants';
 import { returnFromMenu } from '../systems/MenuNavigationSystem';
 import { addButton, addTitle } from '../ui/uiHelpers';
 import type { GameScene } from './GameScene';
+import { markBrowserFlowScene } from './sceneDiagnostics';
 
 export class PauseScene extends Phaser.Scene {
   constructor() {
@@ -10,6 +11,7 @@ export class PauseScene extends Phaser.Scene {
   }
 
   create(): void {
+    markBrowserFlowScene(this, 'pause', 'gameplay');
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.82).setOrigin(0).setInteractive();
     const pauseButton = { height: 46, fontSize: 16 } as const;
     addTitle(this, GAME_WIDTH / 2, 215, 'THE TRIAL WAITS', 35);

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <rect width="256" height="256" fill="none"/>
+  <rect x="0.5" y="0.5" width="255" height="255" fill="none" stroke="#ff4fd8" stroke-width="1"/>
+  <rect x="16" y="16" width="224" height="224" fill="none" stroke="#64d9ff" stroke-width="1" stroke-dasharray="8 5"/>
+  <path d="M128 0V256M0 128H256" fill="none" stroke="#ffd166" stroke-width="1" stroke-dasharray="5 5"/>
+  <circle cx="128" cy="128" r="8" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <circle cx="128" cy="128" r="56" fill="none" stroke="#ff735f" stroke-width="2" stroke-dasharray="6 4"/>
+  <path d="M118 232H138M128 222V242" fill="none" stroke="#8dff8a" stroke-width="2"/>
+  <text x="8" y="18" fill="#ff4fd8" font-family="monospace" font-size="10">256x256 transparent boss frame</text>
+  <text x="136" y="123" fill="#ffd166" font-family="monospace" font-size="9">origin .5,.5</text>
+  <text x="136" y="190" fill="#ff735f" font-family="monospace" font-size="9">56px gameplay radius</text>
+  <text x="8" y="250" fill="#64d9ff" font-family="monospace" font-size="9">16px safe area; face right; keep glow and hit flash out of source art</text>
+</svg>

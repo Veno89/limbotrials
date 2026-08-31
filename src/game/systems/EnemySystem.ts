@@ -22,6 +22,7 @@ import { cursePressureForEnemy } from './cursePressureRules';
 const EMPTY_SPRITE_SET: ReadonlySet<Phaser.Physics.Arcade.Image> = new Set();
 
 interface EnemyRuntime {
+  spawnGeneration: number;
   definition: EnemyDefinition;
   health: number;
   maxHealth: number;
@@ -56,6 +57,7 @@ export class EnemySystem {
   private readonly separation = new EnemySeparationSystem();
   private readonly separationTargets: SpatialEntity[] = [];
   private bossSprite?: Phaser.Physics.Arcade.Image;
+  private nextSpawnGeneration = 1;
   private updateIndex = 0;
   private elapsedMs = 0;
   public onEnemyRemoved?: (sprite: Phaser.Physics.Arcade.Image) => void;
@@ -159,6 +161,7 @@ export class EnemySystem {
     body.checkCollision.none = true;
     body.setMaxVelocity(Math.max(pressuredDefinition.speed * 1.8, 520));
     this.enemies.set(sprite, {
+      spawnGeneration: this.allocateSpawnGeneration(),
       definition: pressuredDefinition,
       health: maxHealth,
       maxHealth,
@@ -321,6 +324,15 @@ export class EnemySystem {
     return this.enemies.get(sprite)?.definition;
   }
 
+  /**
+   * Identifies the current logical enemy occupying a pooled sprite. The value
+   * changes every time a sprite is assigned a new spawn, even when the enemy
+   * definition is unchanged.
+   */
+  getSpawnGeneration(sprite: Phaser.Physics.Arcade.Image): number | undefined {
+    return this.enemies.get(sprite)?.spawnGeneration;
+  }
+
   count(id?: EnemyId): number {
     if (!id) {
       return this.enemies.size;
@@ -415,6 +427,7 @@ export class EnemySystem {
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     body.setMaxVelocity(0);
     this.enemies.set(sprite, {
+      spawnGeneration: this.allocateSpawnGeneration(),
       definition,
       health: definition.maxHealth,
       maxHealth: definition.maxHealth,
@@ -428,6 +441,12 @@ export class EnemySystem {
       entity: { sprite, radius: definition.radius, definition },
       tier: 1,
     });
+  }
+
+  private allocateSpawnGeneration(): number {
+    const generation = this.nextSpawnGeneration;
+    this.nextSpawnGeneration += 1;
+    return generation;
   }
 
   private bossPhase(runtime: EnemyRuntime): number {

@@ -36,9 +36,17 @@ import {
 import { ScytheWakeSystem } from './ScytheWakeSystem';
 import { BoneScytheTalentRuntimeSystem } from './BoneScytheTalentRuntimeSystem';
 import { ScytheProcessionSystem } from './ScytheProcessionSystem';
-import type { WeaponContext } from './weapons/WeaponContext';
+import type {
+  WeaponAttachmentPointName,
+  WeaponAttachmentResolver,
+  WeaponAttachmentSprite,
+  WeaponContext,
+  WeaponSequenceController,
+} from './weapons/WeaponContext';
 import { WEAPON_BEHAVIORS } from './weapons/WeaponBehaviors';
 import type { VvfxPlayback } from '../vfx/VvfxSystem';
+import type { VvfxPoint } from '../vfx/VvfxSystem';
+import type { GameplayEffectPlayback } from '../vfx/GameplayEffectSystem';
 
 export interface ProjectileRuntime {
   weaponId: WeaponId;
@@ -74,6 +82,10 @@ export class WeaponSystem implements WeaponContext {
   public readonly scytheProcessions: ScytheProcessionSystem;
   public readonly nearbyCache: import('./SpatialGrid').SpatialEntity[] = [];
   private crimsonOrbitActive = false;
+  private readonly activeSequences = new Set<WeaponSequenceController>();
+  private readonly targetIdentities = new WeakMap<object, string>();
+  private nextTargetIdentity = 1;
+  private effectSequenceSerial = 0;
   public scytheFacingAngle = Math.PI / 2;
 
   constructor(
@@ -87,6 +99,8 @@ export class WeaponSystem implements WeaponContext {
     private readonly statuses: StatusEffectSystem,
     public readonly impactFragments: ImpactFragmentSystem,
     public readonly vfx: VvfxPlayback,
+    public readonly effects: GameplayEffectPlayback,
+    private readonly resolveAttachment?: WeaponAttachmentResolver,
   ) {
     this.projectiles = scene.physics.add.group();
     this.evolutions = new WeaponEvolutionSystem(scene, enemies, run, juice);
@@ -121,9 +135,11 @@ export class WeaponSystem implements WeaponContext {
       juice,
       (...args) => this.statuses.applyToEnemy(...args),
     );
+    this.scene.events.once(Phaser.Scenes.Events.SHUTDOWN, this.handleSceneShutdown);
   }
 
   update(time: number): void {
+    this.updateSequences(time);
     const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
     if (playerBody.velocity.lengthSq() > 1) {
       this.scytheFacingAngle = Math.atan2(playerBody.velocity.y, playerBody.velocity.x);
@@ -188,6 +204,46 @@ export class WeaponSystem implements WeaponContext {
 
   getActiveSynergies(): string[] {
     return this.synergies.active().map((synergy) => synergy.name.toUpperCase());
+  }
+
+  attachmentPoint(
+    sprite: WeaponAttachmentSprite,
+    name: WeaponAttachmentPointName,
+  ): VvfxPoint {
+    const resolved = this.resolveAttachment?.(sprite, name);
+    if (resolved && Number.isFinite(resolved.x) && Number.isFinite(resolved.y)) {
+      return resolved;
+    }
+    return { x: sprite.x, y: sprite.y };
+  }
+
+  targetIdentity(sprite: Phaser.Physics.Arcade.Image): string {
+    const spawnGeneration = this.enemies.getSpawnGeneration(sprite);
+    if (spawnGeneration !== undefined) {
+      return `enemy-spawn-${String(spawnGeneration).padStart(8, '0')}`;
+    }
+    let identity = this.targetIdentities.get(sprite);
+    if (!identity) {
+      identity = `enemy-${String(this.nextTargetIdentity).padStart(8, '0')}`;
+      this.nextTargetIdentity += 1;
+      this.targetIdentities.set(sprite, identity);
+    }
+    return identity;
+  }
+
+  nextEffectSeed(namespace: string): number {
+    this.effectSequenceSerial += 1;
+    let hash = 2166136261;
+    const input = `${namespace}:${this.effectSequenceSerial}`;
+    for (let index = 0; index < input.length; index += 1) {
+      hash ^= input.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  }
+
+  trackSequence(sequence: WeaponSequenceController): void {
+    this.activeSequences.add(sequence);
   }
 
   private fire(id: WeaponId, state: WeaponRuntimeState, time: number): void {
@@ -744,4 +800,19 @@ export class WeaponSystem implements WeaponContext {
       }
     }
   }
+
+  private updateSequences(time: number): void {
+    for (const sequence of [...this.activeSequences]) {
+      if (!sequence.update(time)) {
+        this.activeSequences.delete(sequence);
+      }
+    }
+  }
+
+  private readonly handleSceneShutdown = (): void => {
+    for (const sequence of this.activeSequences) {
+      sequence.cancel();
+    }
+    this.activeSequences.clear();
+  };
 }

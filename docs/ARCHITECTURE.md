@@ -4,14 +4,18 @@
 
 ```text
 src/game/
+  assets/     Typed visual/audio manifest contracts, validation, and resolution
+  balance/    Browser-independent diagnostic models
   config/     Feature switches and shared balance limits
   data/       Typed content declarations: enemies, weapons, upgrades, waves, meta upgrades
+  presentation/ Optional reusable code-driven sprite presentation
   scenes/     Scene flow and high-level orchestration
   systems/    Focused gameplay and pure-logic systems
   tests/      Vitest coverage for pure rules
   types/      Shared game contracts
   ui/         Reusable UI helpers and HUD
   utils/      Shared pure modifier and clamping utilities
+  vfx/        Semantic gameplay-effect registry and VVFX Runtime JSON bridge
 ```
 
 `GameScene` owns the run lifecycle and composes focused systems. It does not contain weapon, movement, spawn, pickup, save, damage, or HUD implementation details.
@@ -23,6 +27,11 @@ src/game/
 - `BalanceTelemetry`: pure event aggregation and one-minute balance reporting.
 - `BalancePresetSystem`: applies data-defined focused test scenarios.
 - `DebugControlsSystem`: development shortcuts and live-overlay coordination.
+- `AssetResolver`: resolves stable visual IDs to explicit file imports or declared
+  primitive/asset fallbacks and transforms named attachment points into world
+  coordinates.
+- `assetValidation`: validates the visual/audio manifest, fallback graph, frames,
+  dimensions, animation, collision, attachments, and live content references.
 - `DevModeSettings`: localStorage-backed dev-only preferences such as invincibility; no personal dev preset data is committed.
 - `devWeaponModel`: pure weapon-to-unlock/level/evolution/focused-upgrade mapping for local dev tools.
 - `JournalDiscoverySystem`: save-backed content discovery for the player journal, including sanitization and run-summary inference.
@@ -55,22 +64,33 @@ src/game/
 - `UpgradeOfferSystem`: queued standard/curse choices, rerolls, and skip rewards.
 - `ArenaShrineSystem`: proximity interaction for the arena's blood shrine.
 - `JuiceSystem`: visual feedback hooks, warning replacement, and throttled screen shake.
-- `VvfxSystem`: scene-scoped catalog, preload, point/Beam placement, centralized warnings, active-effect ownership, and shutdown cleanup for authored Runtime JSON.
-- `AudioSystem`: shared procedural placeholder tones and ambient audio.
+- `GameplayEffectRegistry`: typed semantic sequences and roles over raw VVFX file
+  IDs, placement contracts, depth, timing, feedback, and code fallbacks.
+- `VvfxSystem`: scene-scoped catalog, preload, point/Beam placement, deterministic
+  seed overrides, managed playback handles, centralized warnings, active-effect
+  diagnostics, moving endpoint updates, cancellation, and shutdown cleanup.
+- `SpritePresentationSystem`: opt-in, configurable code-driven hit flash, outline,
+  shadow, recoil, squash/stretch, hover, spawn/death, status, tint/mirror,
+  glow/pulse, trail, and impact presentation.
+- `AudioSystem`: manifest file playback for SFX/ambience with live volume updates,
+  bounded SFX cleanup, one-file ambience ownership, and deduplicated procedural
+  fallback when an imported source cannot play.
 - `EnemySeparationSystem`: local spatial-hash crowd repulsion.
 - `HudSystem`: fixed-camera run information.
 - `JournalScene`: player-facing encyclopedia for discovered weapons, evolutions, artifacts, enemies, bosses, buffs, and debuffs. Unknown entries render as `???`.
 - `DevModeScene`: Vite-dev-only test overlay for invincibility, exact upgrade/artifact grants, weapon grants, powerups, enemy spawns, and a high-health target dummy.
+- `ContentLabScene`: development-only registry browser for assets, animation,
+  guides, presentation variants, gameplay effects, and lifecycle/load checks.
 - `DevWeaponPanel`: weapon-centric local test controls for adding, leveling, evolution preparation, evolution, and focused upgrades.
 - `ArtifactBar`: acquired-artifact icons, rarity frames, and tooltips.
 - `ChestObjectiveHud`: direction, distance, and remaining lifetime for the nearest active reliquary.
 - `PlayerStatusVisualSystem`: player-following shield state and generic timed-powerup duration bars.
 
-The reliquary uses the dedicated transparent asset at `assets/sprites/items/reliquary_chest.png`. General armor and artifact icons continue using their existing item textures; the reliquary texture key is not reused as a generic icon.
-
-Haunted's directional source sheet lives at `assets/sprites/playersprites/Haunted_walk_sheet.png`. `PlayerVisualSystem` currently selects one stable, sword-readable front, back, left, or right frame and applies a restrained spectral hover while the original physics image remains the authoritative collision and targeting object.
-
-Generated walk cycles are not integrated unless every adjacent pose has a meaningfully different limb silhouette, opposite steps are symmetric, and the complete weapon remains readable in every frame. The rejected generated sheets relied on repeated poses, produced a limp, and allowed inconsistent sword occlusion.
+Gameplay code does not assume a legacy asset path is authoritative. The manifest
+identifies the currently approved source, provenance, replacement target, and
+fallback for each stable ID. Character sprites are currently single-image
+presentation with restrained code-driven motion where configured; no generated
+directional walk sheet is part of the active asset contract.
 - `WeaponActionBar`: data-driven equipped-weapon slots and cooldown presentation.
 - `StatsPanel`: reusable live global/per-weapon build dropdown shared by gameplay and upgrade scenes.
 - `BalanceDebugOverlay`: development-only live sample metrics.
@@ -99,18 +119,38 @@ normalizes every export through `@vvfx/phaser-runtime`, records whether a Beam
 layer is present, and reports collisions or malformed files instead of letting
 individual weapons interpret JSON.
 
-`VvfxSystem` preloads each effect once per scene and owns every live runtime
-handle until completion or scene shutdown. Weapon behavior chooses only its
-placement contract: `spawnAt` for an authored point effect or `spawnBetween`
-for a Beam-capable effect. Beam playback may crop short links, adjust thickness,
-and cap an authored tail without mutating the export. Replacing a stable Runtime
-JSON file therefore updates its visual while leaving weapon selection, damage,
-upgrades, and timing logic data-driven in the game.
+`GameplayEffectRegistry.ts` is the gameplay-facing boundary. A typed sequence
+maps semantic roles to raw Runtime JSON IDs, placement, depth, duration, Beam
+fitting, and a safe code fallback. Weapons and enemies request the sequence/role;
+they never inspect layer composition or depend directly on an export filename.
+
+Tesla Coil's `tesla-chain` sequence is the reference integration. It defines
+`initialDischarge`, `beam`, `targetElectricity`, `impact`, and `finalChain` roles.
+The first two roles currently map to the authored `chain-lightning` and
+`tesla-chain-link` Beam exports. Target electricity, impact, and the optional
+final response can use restrained primitive pulse fallbacks until dedicated
+exports are supplied. Replacing a role in the registry requires no weapon change.
+
+`VvfxSystem` preloads each effect once per scene and owns every managed runtime
+handle until completion, cancellation, or scene shutdown. Managed handles expose
+play, pause, restart, stop, frame stepping, position/end-point updates, and live
+diagnostics. A caller may provide a deterministic seed and depth. Beam playback
+may crop short links, adjust thickness, and cap an authored tail without mutating
+the export; non-Beam layers retain their authored size and behavior.
+
+When an entity moves, orchestration resolves its named manifest attachment point
+and updates the managed position or Beam endpoints. A missing attachment falls
+back to the entity center. Screen-space callers convert through the active camera
+before passing coordinates; the Runtime JSON bridge remains world-coordinate
+based.
 
 Gameplay remains authoritative. If visual playback fails, errors are reported
-once and combat still resolves. When an effect has a meaningful authored impact
-moment, the behavior's delayed damage should use that moment explicitly; Meteor
-Hammer's current export lands at 450 ms.
+once and the semantic code fallback plays while combat still resolves. Asking to
+fit endpoints onto an export without a usable Beam produces one deduplicated
+development warning and midpoint playback; it does not stretch non-Beam artwork.
+When an effect has a meaningful authored impact moment, the behavior's delayed
+damage should use that moment explicitly; Meteor Hammer's current export lands at
+450 ms.
 
 ## Threat Scaling
 
@@ -243,12 +283,22 @@ rather than duplicating data-file traversal in scene code. Each category also ow
 a save-backed seen list; main-menu and category badges count discovered entries
 that have not yet been viewed.
 
-Local dev mode is available only under `import.meta.env.DEV`. The overlay applies
-real `RunState` upgrades, artifacts, weapons, powerups, and enemy spawns so test
-setups exercise the same paths as normal play. Persisted dev preferences use
-browser localStorage; optional local preset files are ignored by git. Weapon
-progression controls derive their definitions through `devWeaponModel` rather than
+Dev Mode and Content Lab are registered only when `import.meta.env.DEV` is true,
+or when a production-mode diagnostic build explicitly sets
+`VITE_ENABLE_DEV_TOOLS=true`. Normal production builds do not statically include
+their scene code. The production-bundle scan enforces this boundary.
+
+The Dev Mode overlay applies real `RunState` upgrades, artifacts, weapons,
+powerups, enemy spawns, encounter resets, speed changes, and outcomes so test
+setups exercise the same paths as normal play. Persisted preferences use browser
+localStorage; optional local preset files are ignored by git. Weapon progression
+controls derive their definitions through `devWeaponModel` rather than
 maintaining a second hardcoded progression map.
+
+Content Lab reads the same asset and gameplay-effect registries as gameplay. It
+does not maintain a second preview-only inventory. Its repeated-playback and
+live-object diagnostics are supporting lifecycle evidence, while hands-on review
+is still required for pivots, scale, animation, visual clarity, and final art.
 
 Pause-menu submenus use a typed return target through `MenuNavigationSystem`.
 Journal and Settings replace the pause overlay while `GameScene` remains paused,
@@ -291,7 +341,8 @@ the anonymous run-analytics write boundary.
 
 1. Add its ID to `EnemyId`.
 2. Add a definition in `data/enemies.ts`.
-3. Preload its texture in `PreloadScene`.
+3. Reference a stable manifest asset ID; do not add an ad hoc preload or direct
+   filename import.
 4. Add the ID to the desired role session in `data/waves.ts`.
 5. Add it to an authored event or weighted elite pool when it should headline a specific run phase.
 6. Add `spawnRequirements` only when the enemy is gated by curse tier, curse level, or curse tags.
@@ -336,7 +387,7 @@ Only genuinely new behavior should require an `EnemySystem` change.
 ## Add A Character
 
 1. Add its typed ID and definition in `data/characters.ts`.
-2. Add its preload asset key.
+2. Add or reuse a stable manifest asset ID and its collision/attachment metadata.
 3. Add default migrated run stats in `SaveSystem`.
 4. Add and test its unlock condition.
 
@@ -344,11 +395,61 @@ Only genuinely new behavior should require an `EnemySystem` change.
 
 1. Add its ID and definition, base stats, behavior, and level growth in `data/weapons.ts`.
 2. Reuse an existing behavior or add its focused firing method in `WeaponSystem`.
-3. Add a categorized weapon unlock definition.
-4. Add level, evolution, focused-upgrade, balance-preset, and cadence coverage when the weapon introduces a new role.
+3. Assign stable manifest icon/projectile IDs and a semantic gameplay-effect
+   sequence when authored presentation is needed.
+4. Add a categorized weapon unlock definition.
+5. Add level, evolution, focused-upgrade, balance-preset, and cadence coverage when the weapon introduces a new role.
 
 Weapon behavior is the one content area that intentionally uses strategies in code because projectile, radial, and delayed-area attacks have different runtime needs.
 
 ## Assets
 
-`data/assets.ts` imports the selected supplied art as Vite asset URLs. Development and production therefore load the same files, while production copies only art referenced by the playable slice.
+`data/assets.ts` exports `ASSET_MANIFEST`, `VISUAL_ASSET_MANIFEST`, and
+`AUDIO_ASSET_MANIFEST`; this is the only preload inventory. Every visual definition carries
+a stable ID, explicit Vite file import when a source exists, category/use,
+dimensions and frames, animation, origin/scale/depth, mirror/tint rules, collision,
+attachments, exact named runtime display contracts, requirement status,
+provenance, fallback, and optional production specification. Audio entries use
+the same stable-ID boundary, declare their canonical owner-delivery path, and
+retain a procedural development fallback when no source file is installed.
+
+`PreloadScene` iterates resolved file entries, while primitive fallbacks are
+created under the requested stable key. `AssetResolver` follows asset-reference
+fallbacks without leaking the substitute ID to gameplay and converts normalized
+attachment metadata to world coordinates with flip/rotation support. Validation
+reports duplicate IDs, missing files, invalid dimensions/frame ranges/animation,
+invalid collision/origins, absent required attachments, unknown fallbacks, and
+fallback cycles. Diagnostics are sorted and emitted once.
+
+Development and production load the same explicitly imported source files, so
+Vite copies only registered art reachable from the playable slice. A missing
+fallback preserves developer playability; it does not satisfy a required final-art
+task.
+
+### Add Or Replace An Asset
+
+1. Use the exact production spec in
+   `docs/ASSET_PRODUCTION_BACKLOG.md`; start with a guide under
+   `assets/templates/` when available.
+2. Create the final owner asset at the registered target path. Technical guides
+   are templates only; do not introduce generated/downloaded AI artwork.
+3. Update the existing manifest entry's explicit import and metadata, or add one
+   new stable ID before content references it. For a primitive/alias production
+   row, add the imported `{ filePath, url }` as its `source`; keep the stable ID
+   and fallback in place.
+4. Keep attachment names stable so weapons/effects continue to resolve their
+   source and target points.
+5. Run `npm run validate:content`, regenerate the backlog, and inspect the asset
+   in Content Lab before the normal typecheck/test/build/smoke gates.
+
+### Add Or Replace A Gameplay Effect
+
+1. Export Runtime JSON to `vfx/effects/<stable-id>.vvfx-runtime.json`.
+2. Map that raw ID to a typed semantic sequence role in
+   `GameplayEffectRegistry.ts`; declare placement, depth, timing, Beam fitting,
+   and fallback there.
+3. Reference only the semantic sequence in gameplay data/code.
+4. Validate Beam/dependency contracts, then inspect playback, repetition,
+   attachment updates, and cleanup in Content Lab.
+5. Add focused deterministic tests for any new target, timing, cancellation, or
+   damage rule. Do not place those gameplay rules inside the visual registry.

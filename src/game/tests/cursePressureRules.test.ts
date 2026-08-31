@@ -25,11 +25,11 @@ describe('curse pressure rules', () => {
   it('makes curse-gated enemies substantially tougher than ambient enemies at high curse', () => {
     const highCurse = snapshot(125, ['unmarked', 'touched', 'marked', 'condemned', 'forsaken']);
     const ambient = cursePressureForEnemy(ENEMIES['lost-soul'], highCurse);
-    const husk = cursePressureForEnemy(ENEMIES['wretched-runt'], highCurse);
+    const stalker = cursePressureForEnemy(ENEMIES['sinbound-stalker'], highCurse);
 
-    expect(husk.healthMultiplier).toBeGreaterThan(ambient.healthMultiplier * 2);
-    expect(husk.damageMultiplier).toBeGreaterThan(ambient.damageMultiplier);
-    expect(husk.tint).toBeDefined();
+    expect(stalker.healthMultiplier).toBeGreaterThan(ambient.healthMultiplier * 2);
+    expect(stalker.damageMultiplier).toBeGreaterThan(ambient.damageMultiplier);
+    expect(stalker.tint).toBeDefined();
     expect(ambient.tint).toBeDefined();
   });
 

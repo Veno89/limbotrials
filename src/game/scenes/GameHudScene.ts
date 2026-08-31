@@ -19,6 +19,7 @@ export interface GameHudSceneData {
   chests?: ChestSystem;
   shop?: ShopSystem;
   juice: JuiceSystem;
+  getGameplayTime?: () => number;
 }
 
 export class GameHudScene extends Phaser.Scene {
@@ -51,7 +52,7 @@ export class GameHudScene extends Phaser.Scene {
         onOpenJournal: () => this.openJournal(),
       },
     );
-    if (import.meta.env.DEV) {
+    if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_TOOLS === 'true') {
       this.debugOverlay = new BalanceDebugOverlay(this, this.dataRef.run, this.dataRef.enemies);
     }
     this.dataRef.juice.setWarningSink((text, color) => this.showWarning(text, color));
@@ -66,6 +67,7 @@ export class GameHudScene extends Phaser.Scene {
   }
 
   update(time: number): void {
+    time = this.dataRef.getGameplayTime?.() ?? time;
     this.hud?.update(time);
     this.debugOverlay?.update(time);
   }

@@ -12,7 +12,7 @@ const stats = (values: Partial<WeaponStats> & Pick<WeaponStats, 'damage' | 'cool
   ...values,
 });
 
-export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
+const WEAPON_DEFINITIONS: Record<WeaponId, WeaponDefinition> = {
   'bone-scythe': {
     id: 'bone-scythe',
     behavior: 'scythe',
@@ -686,28 +686,23 @@ export const WEAPONS: Record<WeaponId, WeaponDefinition> = {
       { stat: 'damage', mode: 'multiply', value: 1.14 },
       { stat: 'targetCount', mode: 'add', value: 1 },
     ],
-    vfx: {
-      attack: {
-        effectId: 'chain-lightning',
-        beamFit: 'crop',
-        thicknessScale: 0.67,
-        maxDurationMs: 500,
-      },
-      chain: {
-        effectId: 'tesla-chain-link',
-        beamFit: 'crop',
-        thicknessScale: 0.75,
-        maxDurationMs: 500,
-      },
-      chainStartDelayMs: 420,
-      chainStepDelayMs: 70,
-    },
+    presentationId: 'tesla-chain',
     evolution: {
       name: 'Storm Crown',
       description: 'The current reaches farther and claims an additional soul.',
     },
   },
 };
+
+/**
+ * UI icons use stable semantic IDs so owner art can replace them without
+ * changing weapon behavior or reusing world/projectile textures in menus.
+ */
+export const WEAPONS = Object.fromEntries(
+  (Object.entries(WEAPON_DEFINITIONS) as Array<[WeaponId, WeaponDefinition]>).map(
+    ([id, definition]) => [id, { ...definition, iconTexture: `icon-weapon-${id}` }],
+  ),
+) as Record<WeaponId, WeaponDefinition>;
 
 /**
  * Weapons that do not yet have authored focused upgrades.

@@ -6,6 +6,7 @@ import { EDICTS } from '../data/edicts';
 import { loadSave, writeSave } from '../systems/SaveSystem';
 import type { CharacterId, EdictId } from '../types/gameTypes';
 import { addButton, addTitle } from '../ui/uiHelpers';
+import { markBrowserFlowScene } from './sceneDiagnostics';
 
 export class CharacterSelectScene extends Phaser.Scene {
   constructor() {
@@ -13,6 +14,7 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
 
   create(): void {
+    markBrowserFlowScene(this, 'character-select');
     const save = loadSave();
     let selected: CharacterId = save.unlockedCharacters.includes(save.selectedCharacter)
       ? save.selectedCharacter

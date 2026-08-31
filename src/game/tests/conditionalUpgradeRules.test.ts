@@ -33,7 +33,7 @@ describe('conditional upgrade rules', () => {
   });
 
   it('marks curse-gated enemies and the player Echo for bonus souls', () => {
-    expect(echoMarkSoulReward(ENEMIES['wretched-runt'])).toBe(3);
+    expect(echoMarkSoulReward(ENEMIES['sinbound-stalker'])).toBe(3);
     expect(echoMarkSoulReward(ENEMIES['player-echo'])).toBe(25);
     expect(echoMarkSoulReward(ENEMIES['lost-soul'])).toBe(0);
   });

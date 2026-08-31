@@ -8,8 +8,9 @@ import type { ArtifactId, EnemyId, PowerupId, UpgradeId, WeaponId } from '../typ
 import type { RunState } from '../systems/RunState';
 import { DevWeaponPanel } from '../ui/DevWeaponPanel';
 import { addTitle } from '../ui/uiHelpers';
+import type { GameplayEffectRole } from '../vfx/GameplayEffectRegistry';
 
-type DevModeTab = 'loadout' | 'upgrades' | 'artifacts' | 'spawns';
+type DevModeTab = 'loadout' | 'upgrades' | 'artifacts' | 'spawns' | 'tools';
 
 export interface DevModeSceneData {
   run: RunState;
@@ -25,6 +26,13 @@ export interface DevModeSceneData {
   openShop: () => void;
   healFull: () => void;
   grantShield: () => void;
+  getGameSpeed: () => number;
+  setGameSpeed: (scale: number) => void;
+  getGameplayGuides: () => boolean;
+  toggleGameplayGuides: () => void;
+  triggerEffect: (role: GameplayEffectRole) => void;
+  resetEncounter: () => void;
+  forceOutcome: (victory: boolean) => void;
   resumeGame: () => void;
 }
 
@@ -47,6 +55,12 @@ export class DevModeScene extends Phaser.Scene {
   }
 
   create(): void {
+    document.body.dataset.devMode = 'open';
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      delete document.body.dataset.devMode;
+      delete document.body.dataset.devGameSpeed;
+      delete document.body.dataset.devGameplayGuides;
+    });
     this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x020405, 0.78).setOrigin(0).setInteractive();
     this.add
       .rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, 1700, 950, COLORS.panel, 0.98)
@@ -75,6 +89,8 @@ export class DevModeScene extends Phaser.Scene {
   }
 
   private render(): void {
+    document.body.dataset.devGameSpeed = String(this.dataRef.getGameSpeed());
+    document.body.dataset.devGameplayGuides = String(this.dataRef.getGameplayGuides());
     this.content?.destroy(true);
     // Align the container to the top-left of the modal
     this.content = this.add.container(GAME_WIDTH / 2 - 850, GAME_HEIGHT / 2 - 475);
@@ -96,8 +112,10 @@ export class DevModeScene extends Phaser.Scene {
         (artifact) => `${artifact.name} (${artifact.rarity})`,
         (artifact) => this.applyArtifact(artifact.id),
       );
-    } else {
+    } else if (this.tab === 'spawns') {
       this.renderSpawns();
+    } else {
+      this.renderTools();
     }
     
     this.addButton(1550, 890, 200, 'CLOSE', () => this.close());
@@ -109,10 +127,11 @@ export class DevModeScene extends Phaser.Scene {
       ['upgrades', 'Advanced'],
       ['artifacts', 'Artifacts'],
       ['spawns', 'Spawns'],
+      ['tools', 'Tools'],
     ];
     tabs.forEach(([id, label], index) => {
       const selected = this.tab === id;
-      this.addButton(250 + index * 220, 130, 200, label.toUpperCase(), () => {
+      this.addButton(190 + index * 190, 130, 174, label.toUpperCase(), () => {
         this.tab = id;
         this.page = 0;
         this.render();
@@ -122,7 +141,7 @@ export class DevModeScene extends Phaser.Scene {
 
   private renderHotkeys(): void {
     this.content?.add(
-      this.add.text(1300, 130, 'HOTKEYS: [ESC] CLOSE DEV MODE  |  [F8] TOGGLE TELEMETRY HUD', {
+      this.add.text(1370, 130, 'F11 CONTENT LAB  |  F8 TELEMETRY', {
         fontFamily: 'Consolas, monospace',
         fontSize: '12px',
         color: '#70828a',
@@ -185,6 +204,72 @@ export class DevModeScene extends Phaser.Scene {
       (enemy) => `${enemy.name} (${enemy.behavior})`,
       (enemy) => this.spawnEnemy(enemy.id),
       280,
+    );
+  }
+
+  private renderTools(): void {
+    this.content?.add(
+      this.add.text(130, 195, 'SIMULATION SPEED', {
+        fontFamily: 'Cinzel, serif', fontSize: '15px', color: '#d7bd82',
+      }),
+    );
+    ([0.25, 0.5, 1, 2, 4] as const).forEach((speed, index) => {
+      this.addButton(220 + index * 220, 250, 190, `${speed}X`, () => {
+        this.dataRef.setGameSpeed(speed);
+        this.setStatus(`Game speed set to ${speed}x.`);
+        this.render();
+      }, this.dataRef.getGameSpeed() === speed);
+    });
+    this.addButton(1320, 250, 260, 'RESET ENCOUNTER', () => {
+      this.scene.stop();
+      this.dataRef.resetEncounter();
+    }, true);
+
+    this.content?.add(
+      this.add.text(130, 330, 'SEMANTIC TESLA EFFECT PREVIEW', {
+        fontFamily: 'Cinzel, serif', fontSize: '15px', color: '#d7bd82',
+      }),
+    );
+    const roles: Array<[GameplayEffectRole, string]> = [
+      ['initialDischarge', 'DISCHARGE'],
+      ['beam', 'CHAIN BEAM'],
+      ['targetElectricity', 'TARGET ELECTRICITY'],
+      ['impact', 'IMPACT'],
+      ['finalChain', 'FINAL CHAIN'],
+    ];
+    roles.forEach(([role, label], index) => {
+      this.addButton(220 + index * 270, 385, 245, label, () => {
+        this.scene.stop();
+        this.dataRef.resumeGame();
+        this.dataRef.triggerEffect(role);
+      });
+    });
+
+    this.addButton(260, 500, 320, `GUIDES: ${this.dataRef.getGameplayGuides() ? 'ON' : 'OFF'}`, () => {
+      this.dataRef.toggleGameplayGuides();
+      this.setStatus(`Collision and attachment guides ${this.dataRef.getGameplayGuides() ? 'enabled' : 'disabled'}.`);
+      this.render();
+    }, this.dataRef.getGameplayGuides());
+    this.addButton(630, 500, 320, 'FORCE VICTORY', () => {
+      this.scene.stop();
+      this.dataRef.forceOutcome(true);
+    }, true);
+    this.addButton(1000, 500, 320, 'FORCE LOSS', () => {
+      this.scene.stop();
+      this.dataRef.forceOutcome(false);
+    }, true);
+
+    this.content?.add(
+      this.add.text(130, 590, [
+        'DIRECT HOTKEYS WHILE PLAYING',
+        '[Shift+R] reset encounter     [[ / ]] game speed',
+        '[\\] reset 1x                [V] named Tesla effect',
+        '[F] collision/attachment guides',
+        '[I] force victory             [O] force loss',
+        '[F11] Content Lab             [F12 / `] Dev Mode',
+      ].join('\n'), {
+        fontFamily: 'Consolas, monospace', fontSize: '14px', color: '#9fb8c2', lineSpacing: 8,
+      }),
     );
   }
 

@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { markBrowserFlowScene } from './sceneDiagnostics';
 import { ARENA_HEIGHT, ARENA_WIDTH, COLORS } from '../constants';
 import { ARTIFACTS, getAvailableArtifacts, rollArtifact } from '../data/artifacts';
 import { EnemySpawnSystem } from '../systems/EnemySpawnSystem';
@@ -63,6 +64,13 @@ import type { ShopPurchaseResult } from './ShopScene';
 import { ArenaFloorSystem } from '../systems/ArenaFloorSystem';
 import type { GameHudScene } from './GameHudScene';
 import { VvfxSystem } from '../vfx/VvfxSystem';
+import { GameplayEffectSystem } from '../vfx/GameplayEffectSystem';
+import type { GameplayEffectRole } from '../vfx/GameplayEffectRegistry';
+import { VISUAL_ASSETS } from '../data/assets';
+import { resolveSpriteAssetAttachment } from '../assets/AssetResolver';
+
+const DEV_TOOLS_ENABLED =
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_TOOLS === 'true';
 
 interface GameSceneData {
   balancePresetId?: BalancePresetId;
@@ -111,6 +119,11 @@ export class GameScene extends Phaser.Scene {
   private companions!: CompanionSystem;
   private impactFragments!: ImpactFragmentSystem;
   private vfx!: VvfxSystem;
+  private gameplayEffects!: GameplayEffectSystem;
+  private debugGameSpeed = 1;
+  private gameplayGuidesEnabled = false;
+  private gameplayGuideGraphics?: Phaser.GameObjects.Graphics;
+  private gameplayClockMs = 0;
 
   constructor() {
     super('GameScene');
@@ -124,6 +137,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    markBrowserFlowScene(this, 'gameplay');
     this.ended = false;
     this.presetSpawner = undefined;
     this.chests = undefined;
@@ -132,9 +146,17 @@ export class GameScene extends Phaser.Scene {
     this.deathEcho = undefined;
     this.curseEvents = undefined;
     this.invulnerableUntil = 0;
-    this.devInvincible = import.meta.env.DEV ? loadDevModeSettings().invincible : false;
+    this.devInvincible = DEV_TOOLS_ENABLED ? loadDevModeSettings().invincible : false;
     this.nextShieldAt = Number.POSITIVE_INFINITY;
     this.nextBalanceSampleAt = 0;
+    this.debugGameSpeed = 1;
+    this.gameplayGuidesEnabled = false;
+    this.gameplayGuideGraphics = undefined;
+    this.time.timeScale = 1;
+    this.tweens.timeScale = 1;
+    this.physics.world.timeScale = 1;
+    this.anims.globalTimeScale = 1;
+    this.gameplayClockMs = this.time.now;
     const save = loadSave();
     this.discoverySave = save;
     audio.configure(save.settings);
@@ -186,6 +208,7 @@ export class GameScene extends Phaser.Scene {
     this.impactFragments = new ImpactFragmentSystem(this);
     this.juice = new JuiceSystem(this, save.settings.screenShake, save.settings.particles);
     this.vfx = new VvfxSystem(this);
+    this.gameplayEffects = new GameplayEffectSystem(this, this.vfx);
     void this.vfx.preload();
     this.lootReveal = new LootRevealSystem(this, this.player, this.juice);
     this.enemies = new EnemySystem(
@@ -244,6 +267,8 @@ export class GameScene extends Phaser.Scene {
       this.statuses,
       this.impactFragments,
       this.vfx,
+      this.gameplayEffects,
+      (sprite, name) => resolveSpriteAssetAttachment(VISUAL_ASSETS, sprite, name),
     );
     this.companions = new CompanionSystem(
       this,
@@ -395,7 +420,7 @@ export class GameScene extends Phaser.Scene {
     this.input.keyboard?.on('keydown-ESC', pauseListener);
     
     let devListener: ((event: KeyboardEvent) => void) | undefined;
-    if (import.meta.env.DEV) {
+    if (DEV_TOOLS_ENABLED) {
       this.debugControls = new DebugControlsSystem(
         this,
         this.run,
@@ -403,12 +428,25 @@ export class GameScene extends Phaser.Scene {
         this.offers,
         this.chests,
         this.powerups,
-        () => this.grantShield(),
-        () => this.endRun(false),
-        () => this.toggleDebugOverlay(),
+        {
+          grantShield: () => this.grantShield(),
+          forceLoss: () => this.forceDebugOutcome(false),
+          forceVictory: () => this.forceDebugOutcome(true),
+          toggleTelemetry: () => this.toggleDebugOverlay(),
+          resetEncounter: () => this.resetDebugEncounter(),
+          setGameSpeed: (scale) => this.setDebugGameSpeed(scale),
+          triggerNamedEffect: () => this.triggerDebugEffect('beam'),
+          toggleGameplayGuides: () => this.toggleGameplayGuides(),
+        },
       );
       devListener = (event: KeyboardEvent) => {
-        if (event.code === 'Backquote' || event.code === 'IntlBackslash' || event.key === '§' || event.key === '½') {
+        if (
+          event.code === 'F12' ||
+          event.code === 'Backquote' ||
+          event.code === 'IntlBackslash' ||
+          event.key === '§' ||
+          event.key === '½'
+        ) {
           event.preventDefault();
           this.openDevMode();
         }
@@ -424,6 +462,7 @@ export class GameScene extends Phaser.Scene {
       if (this.scene.isActive('GameHudScene') || this.scene.isPaused('GameHudScene')) {
         this.scene.stop('GameHudScene');
       }
+      this.anims.globalTimeScale = 1;
       this.juice.destroy();
     });
   }
@@ -432,7 +471,11 @@ export class GameScene extends Phaser.Scene {
     if (this.ended) {
       return;
     }
-    this.run.elapsedMs += delta;
+    const gameplayDelta = delta * this.debugGameSpeed;
+    this.gameplayClockMs += gameplayDelta;
+    this.time.now = this.gameplayClockMs;
+    time = this.gameplayClockMs;
+    this.run.elapsedMs += gameplayDelta;
     this.movement.update(time);
     this.playerVisuals.update(time);
     if (this.balancePresetId === 'standard') {
@@ -455,6 +498,7 @@ export class GameScene extends Phaser.Scene {
     this.updateShield(this.run.elapsedMs);
     this.playerStatusVisuals.update(time);
     this.debugControls?.update(time);
+    this.drawGameplayGuides();
     if (this.run.elapsedMs >= this.nextBalanceSampleAt) {
       this.nextBalanceSampleAt = this.run.elapsedMs + 1000;
       this.run.balance.samplePressure(
@@ -483,6 +527,7 @@ export class GameScene extends Phaser.Scene {
       chests: this.chests,
       shop: this.shop,
       juice: this.juice,
+      getGameplayTime: () => this.gameplayClockMs,
     });
     this.scene.bringToTop('GameHudScene');
   }
@@ -612,7 +657,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private openDevMode(): void {
-    if (!import.meta.env.DEV || this.scene.isActive('DevModeScene')) {
+    if (!DEV_TOOLS_ENABLED || this.scene.isActive('DevModeScene')) {
       return;
     }
     this.pauseHudScene();
@@ -659,20 +704,153 @@ export class GameScene extends Phaser.Scene {
       spawnChest: () => this.chests?.spawnNow(this.run.elapsedMs),
       openShop: () => {
         this.scene.stop('DevModeScene');
-        this.time.delayedCall(0, () => {
-          this.shop?.spawnNow(this.run.elapsedMs);
-          this.openShop();
-        });
+        this.scene.resume();
+        this.resumeHudScene();
+        this.shop?.spawnNow(this.run.elapsedMs);
+        this.openShop();
       },
       healFull: () => {
         this.run.resources.health = this.run.stats.current.maxHealth;
       },
       grantShield: () => this.grantShield(),
+      getGameSpeed: () => this.debugGameSpeed,
+      setGameSpeed: (scale: number) => this.setDebugGameSpeed(scale),
+      getGameplayGuides: () => this.gameplayGuidesEnabled,
+      toggleGameplayGuides: () => this.toggleGameplayGuides(),
+      triggerEffect: (role: GameplayEffectRole) => this.triggerDebugEffect(role),
+      resetEncounter: () => this.resetDebugEncounter(),
+      forceOutcome: (victory: boolean) => this.forceDebugOutcome(victory),
       resumeGame: () => {
         this.scene.resume();
         this.resumeHudScene();
       },
     });
+  }
+
+  private setDebugGameSpeed(scale: number): void {
+    const normalized = Phaser.Math.Clamp(scale, 0.25, 4);
+    this.debugGameSpeed = normalized;
+    this.time.timeScale = normalized;
+    this.tweens.timeScale = normalized;
+    this.physics.world.timeScale = 1 / normalized;
+    this.anims.globalTimeScale = normalized;
+    const hudScene = this.scene.get('GameHudScene');
+    hudScene.time.timeScale = normalized;
+    hudScene.tweens.timeScale = normalized;
+    this.juice.warning(`DEV SPEED ${normalized}x`, '#69d9ff');
+  }
+
+  private resetDebugEncounter(): void {
+    const restartData: GameSceneData = {
+      balancePresetId: this.balancePresetId,
+      characterId: this.run.characterId,
+      isNgPlus: this.isNgPlus,
+      edicts: [...this.edicts],
+    };
+    this.setDebugGameSpeed(1);
+    this.scene.stop('DevModeScene');
+    this.scene.restart(restartData);
+  }
+
+  private forceDebugOutcome(victory: boolean): void {
+    this.setDebugGameSpeed(1);
+    this.scene.stop('DevModeScene');
+    if (this.scene.isPaused()) {
+      this.scene.resume();
+    }
+    this.resumeHudScene();
+    this.endRun(victory);
+  }
+
+  private triggerDebugEffect(role: GameplayEffectRole): void {
+    const target = this.enemies.findNearest(this.player.x, this.player.y, 1_000);
+    const fixedEnd = target
+      ? undefined
+      : { x: this.player.x + 240, y: this.player.y };
+    const start = () =>
+      resolveSpriteAssetAttachment(VISUAL_ASSETS, this.player, 'weapon-origin') ?? {
+        x: this.player.x,
+        y: this.player.y,
+      };
+    const end = () => {
+      if (target?.active) {
+        return (
+          resolveSpriteAssetAttachment(VISUAL_ASSETS, target, 'chain-target') ?? {
+            x: target.x,
+            y: target.y,
+          }
+        );
+      }
+      return fixedEnd;
+    };
+
+    if (role === 'initialDischarge' || role === 'beam') {
+      this.gameplayEffects.playBeam('tesla-chain', role, {
+        start,
+        end,
+        seed: this.run.elapsedMs,
+      });
+    } else {
+      this.gameplayEffects.playPoint('tesla-chain', role, {
+        point: end,
+        follow: Boolean(target),
+        seed: this.run.elapsedMs,
+      });
+    }
+    audio.play('soul-bolt');
+    const point = end();
+    if (point) {
+      this.juice.ring(point.x, point.y, role === 'finalChain' ? 70 : 42, COLORS.soul, 220);
+    }
+    this.juice.warning(`TESLA: ${role.toUpperCase()}`, '#69d9ff');
+  }
+
+  private toggleGameplayGuides(): void {
+    this.gameplayGuidesEnabled = !this.gameplayGuidesEnabled;
+    if (!this.gameplayGuidesEnabled) {
+      this.gameplayGuideGraphics?.clear().setVisible(false);
+    }
+    this.juice.warning(
+      this.gameplayGuidesEnabled ? 'GAMEPLAY GUIDES ON' : 'GAMEPLAY GUIDES OFF',
+      '#69d9ff',
+    );
+  }
+
+  private drawGameplayGuides(): void {
+    if (!this.gameplayGuidesEnabled) {
+      return;
+    }
+    const graphics = this.gameplayGuideGraphics ??= this.add.graphics().setDepth(2_000);
+    graphics.clear().setVisible(true);
+
+    const playerBody = this.player.body;
+    if (playerBody) {
+      graphics.lineStyle(2, 0x7dff97, 0.95);
+      graphics.strokeRect(playerBody.x, playerBody.y, playerBody.width, playerBody.height);
+    }
+    this.drawAttachmentGuides(graphics, this.player);
+
+    this.enemies.forEach((sprite, definition) => {
+      graphics.lineStyle(2, definition.boss ? 0xff5f6d : 0xffc857, 0.9);
+      graphics.strokeCircle(sprite.x, sprite.y, definition.radius);
+      this.drawAttachmentGuides(graphics, sprite);
+    });
+  }
+
+  private drawAttachmentGuides(
+    graphics: Phaser.GameObjects.Graphics,
+    sprite: Phaser.GameObjects.Image,
+  ): void {
+    const attachments = [
+      ['weapon-origin', 0x7dff97],
+      ['chain-source', 0x69d9ff],
+      ['chain-target', 0xff70cf],
+    ] as const;
+    for (const [name, color] of attachments) {
+      const point = resolveSpriteAssetAttachment(VISUAL_ASSETS, sprite, name);
+      if (!point) continue;
+      graphics.fillStyle(color, 1).fillCircle(point.x, point.y, 4);
+    }
   }
 
   private pauseRun(): void {

@@ -8,7 +8,7 @@ describe('balance presets', () => {
     const presets = Object.values(BALANCE_PRESETS);
     expect(presets).toHaveLength(8);
     for (const preset of presets) {
-      expect(preset.elapsedMs).toBeGreaterThan(0);
+      expect(preset.elapsedMs).toBeGreaterThanOrEqual(0);
       expect(preset.replenishEveryMs).toBeGreaterThan(0);
       expect(preset.spawns.length).toBeGreaterThan(0);
       expect(preset.spawns.some((spawn) => (spawn.maintainCount ?? 0) > 0)).toBe(true);
@@ -17,8 +17,17 @@ describe('balance presets', () => {
     }
   });
 
-  it('includes dedicated evolution, curse, and boss scenarios', () => {
-    expect(BALANCE_PRESETS['scythe-evolution'].upgrades).toContain('evolve-bone-scythe');
+  it('includes all-enemy, curse, boss, and focused build scenarios', () => {
+    expect(BALANCE_PRESETS['scythe-evolution']).toMatchObject({
+      name: 'ALL ENEMIES LAB',
+      elapsedMs: 0,
+      weapons: ['ashen-longbow'],
+    });
+    expect(
+      BALANCE_PRESETS['scythe-evolution'].spawns.every(
+        (spawn) => spawn.count === 1 && spawn.maintainCount === 1 && spawn.batchSize === 1,
+      ),
+    ).toBe(true);
     expect(BALANCE_PRESETS['curse-pressure'].upgrades).toContain('curse-blood-price');
     expect(BALANCE_PRESETS['boss-endgame'].spawns.some((spawn) => spawn.enemyId === 'limbo-warden')).toBe(true);
     expect(BALANCE_PRESETS['crimson-orbit-lab'].upgrades).toContain('evolve-bloodletter-axe');

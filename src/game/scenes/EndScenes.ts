@@ -8,6 +8,7 @@ import { archiveRunLocally } from '../../analytics/localRunArchiveService';
 import { createRunSubmissionSession } from '../../analytics/runSubmissionService';
 import { ResultLeaderboardForm } from '../ui/ResultLeaderboardForm';
 import { requestReturnToSite } from '../gameExitEvents';
+import { markBrowserFlowScene } from './sceneDiagnostics';
 
 abstract class EndScene extends Phaser.Scene {
   private summary!: RunSummary;
@@ -19,6 +20,7 @@ abstract class EndScene extends Phaser.Scene {
   }
 
   create(): void {
+    markBrowserFlowScene(this, this.victory ? 'result-victory' : 'result-loss');
     this.add
       .image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'menu-background')
       .setDisplaySize(GAME_WIDTH, GAME_HEIGHT)

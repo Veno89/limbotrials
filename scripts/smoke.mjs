@@ -1,10 +1,16 @@
 import { existsSync } from 'node:fs';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rm } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
-import { createServer } from 'vite';
+import { createServer, preview } from 'vite';
 
 process.env.VITE_DISABLE_RUN_ARCHIVE = 'true';
 
+const production = process.argv.includes('--production');
+const port = production ? 4174 : 4173;
+const outputDirectory = `.smoke/${production ? 'production' : 'development'}`;
+const errors = [];
+const GAME_WIDTH = 1920;
+const GAME_HEIGHT = 1080;
 const browserCandidates = [
   process.env.CHROME_PATH,
   'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
@@ -14,277 +20,220 @@ const browserCandidates = [
   '/usr/bin/chromium',
 ].filter(Boolean);
 const browserPath = browserCandidates.find((candidate) => existsSync(candidate));
-const outputDirectory = '.smoke';
-const errors = [];
 
 if (!browserPath) {
   throw new Error('No supported Chrome or Edge executable found. Set CHROME_PATH to run the smoke test.');
 }
 
+// Each run owns its mode-specific directory. Clearing it up-front prevents a
+// partial failure from leaving later screenshots that belong to an older run.
+await rm(outputDirectory, { recursive: true, force: true });
 await mkdir(outputDirectory, { recursive: true });
-const server = await createServer({
-  server: { host: '127.0.0.1', port: 4173 },
-});
+const server = production
+  ? await preview({ preview: { host: '127.0.0.1', port, strictPort: true } })
+  : await createServer({ server: { host: '127.0.0.1', port, strictPort: true } });
+
+if (!production) {
+  await server.listen();
+}
 
 let browser;
 try {
-  await server.listen();
   browser = await chromium.launch({ executablePath: browserPath, headless: true });
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-  page.on('pageerror', (error) => errors.push(error.message));
+  page.on('pageerror', (error) => errors.push(`pageerror: ${error.message}`));
   page.on('console', (message) => {
     if (message.type() === 'error') {
-      errors.push(message.text());
+      errors.push(`console: ${message.text()}`);
     }
   });
 
-  await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
-  await page.waitForTimeout(1200);
-  await page.screenshot({ path: `${outputDirectory}/landing-page.png`, fullPage: true });
-  await page.locator('[data-start-game]').first().click();
-  await page.locator('canvas').waitFor({ state: 'visible', timeout: 15000 });
-  await page.waitForTimeout(2500);
-  await page.screenshot({ path: `${outputDirectory}/menu.png` });
-  await page.mouse.click(640, 472);
-  await page.waitForTimeout(500);
-  await page.mouse.click(895, 355);
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: `${outputDirectory}/settings.png` });
-  await page.mouse.click(640, 668);
-  await page.waitForTimeout(500);
-  await page.mouse.click(640, 292);
-  await page.waitForTimeout(700);
-  await page.screenshot({ path: `${outputDirectory}/character-select.png` });
-  await page.mouse.click(640, 585);
-  await page.waitForTimeout(3000);
-  await page.keyboard.press('Escape');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/pause.png` });
-  await page.mouse.click(640, 352);
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/pause-journal.png` });
-  await page.mouse.click(640, 678);
-  await page.waitForTimeout(350);
-  await page.mouse.click(640, 412);
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/pause-settings.png` });
-  await page.mouse.click(895, 175);
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/pause-settings-restarted.png` });
-  await page.mouse.click(640, 668);
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/pause-settings-return.png` });
-  await page.mouse.click(640, 292);
-  await page.waitForTimeout(350);
-  await page.keyboard.press('Backquote');
-  await page.waitForTimeout(350);
-  await page.mouse.click(425, 488);
-  await page.waitForTimeout(250);
-  await page.mouse.click(720, 407);
-  await page.waitForTimeout(250);
-  await page.mouse.click(720, 455);
-  await page.waitForTimeout(350);
-  await page.mouse.click(930, 455);
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/dev-weapon-progression.png` });
-  await page.mouse.click(830, 146);
-  await page.waitForTimeout(250);
-  await page.mouse.click(250, 272);
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/blood-market.png` });
-  await page.mouse.click(260, 543);
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/blood-market-purchase.png` });
-  await page.mouse.click(640, 678);
-  await page.waitForTimeout(350);
-  await page.keyboard.press('h');
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/chest-objective.png` });
-  await page.keyboard.press('y');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/loot-reveal.png` });
-  await page.waitForTimeout(750);
-  await page.screenshot({ path: `${outputDirectory}/artifact-hud.png` });
-  await page.mouse.move(48, 132);
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/artifact-tooltip.png` });
-  await page.keyboard.press('g');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/shield-visual.png` });
-  await page.keyboard.press('u');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/temporary-buff.png` });
-  await page.keyboard.down('d');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/haunted-hover-right.png` });
-  await page.keyboard.up('d');
-  await page.keyboard.down('w');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/haunted-hover-back.png` });
-  await page.keyboard.up('w');
-  await page.keyboard.press('F6');
-  await page.waitForTimeout(1200);
-  await page.keyboard.press('F8');
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: `${outputDirectory}/balance-live.png` });
-  await page.keyboard.press('F8');
-  await page.keyboard.press('l');
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/evolution.png` });
-  for (let index = 0; index < 5; index += 1) {
-    await page.keyboard.press('1');
-    await page.waitForTimeout(300);
-  }
-  await page.keyboard.press('k');
-  await page.keyboard.press('j');
-  await page.waitForTimeout(1200);
-  await page.screenshot({ path: `${outputDirectory}/action-bar.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: `${outputDirectory}/stats-gameplay.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(250);
-  await page.keyboard.press('l');
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/upgrade.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(400);
-  await page.screenshot({ path: `${outputDirectory}/stats-upgrade.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(250);
-  await page.mouse.move(640, 385);
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: `${outputDirectory}/upgrade-hover.png` });
-  for (const movementKey of ['w', 'a', 's', 'd']) {
-    await page.keyboard.press(movementKey);
-  }
-  await page.waitForTimeout(300);
-  await page.screenshot({ path: `${outputDirectory}/upgrade-after-wasd.png` });
-  await page.mouse.click(775, 642);
-  await page.waitForTimeout(500);
-  await page.keyboard.press('l');
-  await page.waitForTimeout(500);
-  await page.keyboard.press('1');
-  await page.waitForTimeout(500);
-  await page.keyboard.press('c');
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/curse.png` });
-  await page.keyboard.press('1');
-  await page.waitForTimeout(500);
-  await page.keyboard.press('F7');
-  await page.waitForTimeout(2200);
-  await page.keyboard.press('g');
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: `${outputDirectory}/crimson-orbit.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/crimson-orbit-stats.png` });
-  await page.keyboard.press('Tab');
-  await page.keyboard.press('n');
-  for (let index = 0; index < 8; index += 1) {
-    await page.keyboard.press('1');
-    await page.waitForTimeout(120);
-  }
-  await page.keyboard.press('F9');
-  await page.waitForTimeout(2600);
-  await page.keyboard.press('g');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/weapon-identity-lab.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/weapon-identity-stats.png` });
-  await page.keyboard.press('Tab');
-  for (let index = 0; index < 7; index += 1) {
-    await page.waitForTimeout(900);
-    await page.keyboard.press('g');
-    await page.keyboard.press('1');
-    await page.waitForTimeout(120);
-    await page.screenshot({ path: `${outputDirectory}/weapon-identity-${index}.png` });
-  }
-  for (let index = 0; index < 8; index += 1) {
-    await page.keyboard.press('1');
-    await page.waitForTimeout(120);
-  }
-  await page.keyboard.press('F10');
-  await page.waitForTimeout(700);
-  await page.keyboard.press('g');
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/upgrade-effects-stats.png` });
-  await page.keyboard.press('Tab');
-  await page.waitForTimeout(1800);
-  await page.keyboard.press('g');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/upgrade-effects-lab.png` });
-  await page.keyboard.press('F8');
-  await page.waitForTimeout(350);
-  await page.screenshot({ path: `${outputDirectory}/upgrade-effects-threat.png` });
-  await page.keyboard.press('F8');
-  for (let index = 0; index < 6; index += 1) {
-    await page.waitForTimeout(700);
-    await page.keyboard.press('g');
-    await page.keyboard.press('1');
-    await page.waitForTimeout(120);
-    await page.screenshot({ path: `${outputDirectory}/upgrade-effects-${index}.png` });
-  }
-  await page.keyboard.press('F3');
-  await page.waitForTimeout(1600);
-  for (let index = 0; index < 7; index += 1) {
-    await page.keyboard.press('g');
-    await page.waitForTimeout(250);
-    await page.screenshot({ path: `${outputDirectory}/elite-charge-${index}.png` });
-  }
-  await page.keyboard.press('F4');
-  await page.waitForTimeout(1800);
-  await page.screenshot({ path: `${outputDirectory}/arena.png` });
-  for (let index = 0; index < 28; index += 1) {
-    await page.keyboard.press('g');
-    await page.keyboard.press('1');
-    await page.waitForTimeout(500);
-  }
-  await page.keyboard.press('g');
-  await page.keyboard.press('1');
-  await page.waitForTimeout(250);
-  await page.screenshot({ path: `${outputDirectory}/warden-rebuild.png` });
-  await page.keyboard.press('p');
-  const averageFps = await page.evaluate(
-    () =>
-      new Promise((resolve) => {
-        let frames = 0;
-        const startedAt = performance.now();
-        const sample = (time) => {
-          frames += 1;
-          if (time - startedAt >= 4000) {
-            resolve((frames * 1000) / (time - startedAt));
-            return;
-          }
-          requestAnimationFrame(sample);
-        };
-        requestAnimationFrame(sample);
-      }),
-  );
-  await page.screenshot({ path: `${outputDirectory}/stress.png` });
-  console.log(`200-enemy stress sample: ${Number(averageFps).toFixed(1)} average FPS.`);
-  for (let index = 0; index < 5; index += 1) {
-    await page.keyboard.press('1');
-    await page.waitForTimeout(250);
-  }
-  await page.keyboard.press('o');
-  await page.waitForTimeout(800);
-  await page.screenshot({ path: `${outputDirectory}/results.png` });
+  const canvas = page.locator('canvas');
+  const clickGame = async (logicalX, logicalY) => {
+    const box = await canvas.boundingBox();
+    if (!box) {
+      throw new Error('The Phaser canvas is not visible.');
+    }
+    await page.mouse.click(
+      box.x + (logicalX / GAME_WIDTH) * box.width,
+      box.y + (logicalY / GAME_HEIGHT) * box.height,
+    );
+  };
+  const waitForDataset = async (key, expected) => {
+    await page.waitForFunction(
+      ({ datasetKey, value }) => document.body.dataset[datasetKey] === value,
+      { datasetKey: key, value: expected },
+      { timeout: 10_000 },
+    );
+  };
+  const waitForDatasetAbsent = async (key) => {
+    await page.waitForFunction(
+      (datasetKey) => document.body.dataset[datasetKey] === undefined,
+      key,
+      { timeout: 5_000 },
+    );
+  };
+  const assertDatasetAbsent = async (key, label) => {
+    const value = await page.evaluate((datasetKey) => document.body.dataset[datasetKey], key);
+    if (value !== undefined) errors.push(`${label}: expected body.dataset.${key} to be absent, got ${value}.`);
+  };
+  const assertGameSurface = async (label) => {
+    const canvasCount = await canvas.count();
+    const state = await page.evaluate(() => ({
+      gameRunning: document.body.classList.contains('game-running'),
+      exitButton: Boolean(document.querySelector('[data-exit-game]')),
+    }));
+    const box = canvasCount === 1 ? await canvas.boundingBox() : null;
+    if (canvasCount !== 1) errors.push(`${label}: expected one Phaser canvas, found ${canvasCount}.`);
+    if (!box || box.width <= 0 || box.height <= 0) errors.push(`${label}: Phaser canvas is not visibly laid out.`);
+    if (!state.gameRunning) errors.push(`${label}: body is missing the game-running state.`);
+    if (!state.exitButton) errors.push(`${label}: game exit control is missing.`);
+  };
 
-  const canvasCount = await page.locator('canvas').count();
-  if (canvasCount !== 1) {
-    errors.push(`Expected one Phaser canvas, found ${canvasCount}.`);
+  await page.goto(`http://127.0.0.1:${port}`, { waitUntil: 'networkidle' });
+  await page.screenshot({ path: `${outputDirectory}/01-landing.png`, fullPage: true });
+  await page.locator('[data-start-game]').first().click();
+  await canvas.waitFor({ state: 'visible', timeout: 15_000 });
+  await page.waitForTimeout(1_500);
+  await waitForDataset('limboScene', 'main-menu');
+  await assertGameSurface(`${production ? 'Production' : 'Development'} main menu`);
+  await page.screenshot({ path: `${outputDirectory}/02-main-menu.png` });
+
+  // Phaser renders at 1920x1080 and scales to the viewport. Always translate
+  // logical scene coordinates through the current canvas bounds.
+  await clickGame(960, 652);
+  await waitForDataset('limboScene', 'settings');
+  await page.screenshot({ path: `${outputDirectory}/03-settings.png` });
+  await clickGame(960, 1028);
+  await waitForDataset('limboScene', 'main-menu');
+  await clickGame(960, 472);
+  await waitForDataset('limboScene', 'character-select');
+  await page.screenshot({ path: `${outputDirectory}/04-character-select.png` });
+  await clickGame(960, 765);
+  await waitForDataset('limboScene', 'gameplay');
+  await page.waitForTimeout(1_500);
+  await assertGameSurface(`${production ? 'Production' : 'Development'} gameplay`);
+  await page.screenshot({ path: `${outputDirectory}/05-gameplay.png` });
+
+  await page.keyboard.press('Escape');
+  await waitForDataset('limboScene', 'pause');
+  await page.screenshot({ path: `${outputDirectory}/06-pause.png` });
+  await clickGame(960, 292);
+  await waitForDataset('limboScene', 'gameplay');
+
+  if (!production) {
+    const openDevToolsTab = async () => {
+      await page.keyboard.press('F12');
+      await waitForDataset('devMode', 'open');
+      await clickGame(1060, 195);
+      await page.waitForTimeout(100);
+    };
+
+    await openDevToolsTab();
+    await clickGame(990, 315);
+    await waitForDataset('devGameSpeed', '2');
+    await clickGame(370, 565);
+    await waitForDataset('devGameplayGuides', 'true');
+    await page.screenshot({ path: `${outputDirectory}/07-dev-tools.png` });
+
+    // Exercise a named semantic Tesla role and verify the tool overlay yielded
+    // control back to the live gameplay scene.
+    await clickGame(600, 450);
+    await waitForDatasetAbsent('devMode');
+    await assertGameSurface('Gameplay after DevMode Tesla role');
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: `${outputDirectory}/08-dev-tesla-role.png` });
+
+    // Reset is meaningful only if a fresh encounter can reopen DevMode with
+    // simulation controls restored to their scene defaults.
+    await openDevToolsTab();
+    await clickGame(1430, 315);
+    await waitForDatasetAbsent('devMode');
+    await waitForDataset('limboScene', 'gameplay');
+    await page.waitForTimeout(500);
+    await openDevToolsTab();
+    await waitForDataset('devGameSpeed', '1');
+    await waitForDataset('devGameplayGuides', 'false');
+    await page.screenshot({ path: `${outputDirectory}/09-dev-reset-verified.png` });
+    await page.keyboard.press('Escape');
+    await waitForDatasetAbsent('devMode');
+
+    await page.keyboard.press('F11');
+    await waitForDataset('contentLab', 'open');
+    await page.screenshot({ path: `${outputDirectory}/10-content-lab.png` });
+    for (let index = 0; index < 7; index += 1) {
+      await page.keyboard.press('Period');
+      await page.waitForTimeout(100);
+    }
+    await page.waitForTimeout(600);
+    await page.keyboard.press('Minus');
+    await page.keyboard.press('Space');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('q');
+    await page.keyboard.press('Space');
+    await page.waitForTimeout(350);
+    await page.screenshot({ path: `${outputDirectory}/10-content-lab-vvfx-controls.png` });
+    await page.keyboard.press('Escape');
+    await waitForDatasetAbsent('contentLab');
+    await assertGameSurface('Gameplay after Content Lab');
+    await page.keyboard.press('o');
+    await waitForDataset('limboScene', 'result-loss');
+    await page.waitForTimeout(300);
+    const resultFormBox = await page.locator('.result-name-form').boundingBox();
+    const resultCanvasBox = await canvas.boundingBox();
+    if (!resultFormBox || !resultCanvasBox) {
+      errors.push('Result screen: run-data form or canvas is not visibly laid out.');
+    } else {
+      const formCenterX = resultFormBox.x + resultFormBox.width / 2;
+      const canvasCenterX = resultCanvasBox.x + resultCanvasBox.width / 2;
+      const horizontalTolerance = resultCanvasBox.width * 0.02;
+      const normalizedTop = (resultFormBox.y - resultCanvasBox.y) / resultCanvasBox.height;
+      const normalizedBottom = (resultFormBox.y + resultFormBox.height - resultCanvasBox.y) / resultCanvasBox.height;
+      if (Math.abs(formCenterX - canvasCenterX) > horizontalTolerance) {
+        errors.push('Result screen: run-data form is not centered over the game canvas.');
+      }
+      if (normalizedTop < 0.48 || normalizedBottom > 0.72) {
+        errors.push('Result screen: run-data form overlaps the summary or action-button regions.');
+      }
+    }
+    await page.screenshot({ path: `${outputDirectory}/11-results.png` });
+  } else {
+    await page.keyboard.press('F12');
+    await page.waitForTimeout(250);
+    await assertDatasetAbsent('devMode', 'Production DevMode gate');
+    await page.keyboard.press('F11');
+    await page.waitForTimeout(250);
+    await assertDatasetAbsent('contentLab', 'Production Content Lab gate');
+    await waitForDataset('limboScene', 'gameplay');
+    await assertGameSurface('Production gameplay after dev-tool shortcuts');
   }
+
+  if ((await canvas.count()) !== 1) {
+    errors.push(`Expected one Phaser canvas before exit, found ${await canvas.count()}.`);
+  }
+  await page.locator('[data-exit-game]').click();
+  await canvas.waitFor({ state: 'detached', timeout: 5_000 });
+  await page.locator('[data-start-game]').first().waitFor({ state: 'visible', timeout: 5_000 });
+  const returnedToSite = await page.evaluate(() => !document.body.classList.contains('game-running'));
+  if (!returnedToSite) errors.push('Exit flow left the body in the game-running state.');
+  await assertDatasetAbsent('limboScene', 'Exit scene marker cleanup');
+  await page.screenshot({ path: `${outputDirectory}/12-returned-to-site.png`, fullPage: true });
+} catch (error) {
+  errors.push(`smoke: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`);
 } finally {
   await browser?.close();
-  await server.close();
+  if (production) {
+    await new Promise((resolve, reject) => {
+      server.httpServer.close((error) => (error ? reject(error) : resolve()));
+    });
+  } else {
+    await server.close();
+  }
 }
 
 if (errors.length > 0) {
   console.error(errors.join('\n'));
   process.exitCode = 1;
 } else {
-  console.log('Smoke test passed. Captured menu, pause navigation, dev weapon progression, gameplay, and results.');
+  console.log(`${production ? 'Production' : 'Development'} smoke test passed. Evidence: ${outputDirectory}`);
 }

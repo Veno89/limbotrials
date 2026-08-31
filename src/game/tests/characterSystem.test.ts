@@ -22,7 +22,7 @@ describe('character system', () => {
     const ashwalker = new RunState(save, 'standard', 'ashwalker');
     expect(ashwalker.stats.current.maxHealth).toBe(75);
     expect(ashwalker.stats.current.moveSpeed).toBe(275);
-    expect([...ashwalker.weapons.equipped]).toEqual(['soul-bolt']);
+    expect([...ashwalker.weapons.equipped]).toEqual(['ashen-longbow']);
   });
 
   it('evaluates visible character unlock milestones', () => {

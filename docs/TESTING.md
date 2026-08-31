@@ -1,96 +1,144 @@
 # Testing Strategy
 
-## Running Tests
+## Evidence Boundaries
+
+The repository uses several complementary checks. Keep their conclusions
+separate:
+
+- **Static:** content validation, TypeScript, ESLint, and production-bundle scans.
+- **Automated behavior:** Vitest and scripted Chromium/Edge smoke flows.
+- **Diagnostic:** deterministic balance summaries and development laboratory runs.
+- **Observed:** direct browser interaction, screenshots, console review, and
+  viewport checks.
+- **Subjective:** game feel, balance, readability, audio, accessibility risk, and
+  final-art approval.
+
+A green automated gate does not by itself prove visual quality, accessibility,
+security, performance on target hardware, fun, final balance, or public-demo
+readiness.
+
+## Commands
 
 ```bash
-# Full validation suite (same as CI)
-npm run typecheck   # Strict TypeScript type-checking
-npm run lint        # ESLint with recommended + TS rules
-npm test            # Vitest unit and integration tests
-npm run build       # Production build verification
-
-# Browser smoke tests (requires Playwright)
-npm run smoke       # Headless browser smoke test: menu, settings, gameplay, end screens
+npm run validate:content     # Asset/effect/content registry integrity
+npm run assets:backlog:check # Generated backlog agrees with the manifest
+npm run balance:diagnostics  # Deterministic numeric diagnostic report
+npm run typecheck            # Strict TypeScript checks
+npm run lint                 # ESLint
+npm test                     # Vitest suite
+npm run build                # Typecheck and Vite production build
+npm run check:prod-bundle    # Normal bundle excludes development scenes
+npm run smoke:dev            # Scripted development-flow browser smoke
+npm run smoke:prod           # Scripted built-production browser smoke
+npm run verify               # Aggregate non-browser source/content/build gate
+npm run verify:release       # Full local gate including both browser smokes
 ```
 
-## Test Organization
+There is no formatter script in the current repository. Do not claim formatting
+was verified unless a formatter and command are added later.
 
-Tests live in `src/game/tests/` and cover pure-logic systems that do not depend on the Phaser runtime. Each test file maps to one or more system files.
+## Content Validation
 
-### Naming Convention
+`npm run validate:content` checks the registries that bridge content and runtime:
 
-- `<systemName>.test.ts` — unit tests for a specific system
-- `<featureName>.test.ts` — integration tests spanning multiple related systems
+- Stable visual/audio asset IDs and explicit imported source files
+- Duplicate IDs
+- Expected dimensions, frame geometry/ranges, and animation configuration
+- Required attachment points and finite origins, scales, and collision footprints
+- Required/optional status and valid fallback chains without cycles
+- Gameplay texture references resolving through the manifest
+- Stable authored VVFX IDs, semantic gameplay-effect roles, dependencies, Beam
+  placement contracts, and safe fallbacks
 
-### What Is Tested
+Runtime missing-resource messages are deduplicated so repeated spawns do not flood
+the console. A development fallback proves the loop can continue; it does not turn
+missing demo-critical owner art into a completed asset.
 
-| Area | Coverage | Files |
-|------|----------|-------|
-| Save system | Load, migrate, corrupt data recovery, version upgrades | `saveSystem.test.ts` |
-| Damage calculation | Crit rolls, multipliers, boss damage, floor of 1 | `damageSystem.test.ts` |
-| Upgrade system | Offer selection, stack limits, weapon levels, evolution gating | `upgradeSystem.test.ts` |
-| Progression | XP curves, level-up thresholds | `progression.test.ts` |
-| Threat scaling | Tier calculation, health/damage multipliers | `threatRules.test.ts` |
-| Wave spawning | Tier selection, population caps, boss triggers | `waves.test.ts` |
-| Curse system | Tier thresholds, gain results, crossed tiers | `curseSystem.test.ts` |
-| Artifact system | Roll logic, no-duplicate, rarity weighting, tier filtering | `artifactSystem.test.ts` |
-| Character unlocks | Condition checking, save integration | `characterUnlocks.test.ts` |
-| Talent tree | Allocation, refund, point limits, save round-trip | `talentTreeSystem.test.ts` |
-| Balance telemetry | Report generation, weapon results, timeline | `balanceTelemetry.test.ts` |
-| Balance report store | localStorage persistence and retrieval | `balanceReportStore.test.ts` |
-| Weapon rules | Bloodletter throw calculation, scythe sweep geometry | `weaponRules.test.ts` |
-| Curse mutation | Cursed reward generation, pattern selection | `cursedRewardMutation.test.ts` |
-| Status effects | Bleed/poison application, tick damage, expiration | `statusEffects.test.ts` |
-| Leaderboard | Score parsing, bounds validation | `leaderboard.test.ts` |
-| Death echo | Snapshot creation, profile generation | `deathEcho.test.ts` |
-| Journal discovery | Entry tracking, sanitization | `journalDiscovery.test.ts` |
+## Vitest Coverage
 
-### What Is NOT Tested (requires Phaser runtime)
+Tests under `src/game/tests/` import browser-independent rules. Coverage includes:
 
-- Scene lifecycle (create, update, shutdown, restart)
-- Physics collisions and projectile movement
-- Visual effects (tweens, particles, screen shake)
-- HUD rendering and layout
-- Audio system
-- Input handling (keyboard, mouse)
+- Save migration, local progression, journal discovery, and run summaries
+- Damage, XP, upgrade selection, stack limits, weapon levels, and evolution gates
+- Threat, waves, encounters, curses, artifacts, characters, talent trees,
+  statuses, Death Echoes, and leaderboard validation
+- Weapon geometry/behavior rules and focused upgrade effects
+- Asset manifest validation, resolver/fallback behavior, and effect-registry
+  contracts
+- Deterministic chain-lightning target selection, tie-breaking, range/repeat
+  rules, cancellation decisions, and lifecycle ownership
+- Headless balance diagnostic calculations and impossible/trivial configuration
+  flags
 
-These are covered by the browser smoke test (`scripts/smoke.mjs`) which runs a headless Playwright session through the full game flow.
+Keep pure logic outside modules that initialize Phaser or touch `window`; Node
+tests should not need a browser simply to validate a selection or lifecycle rule.
 
-## Smoke Test
+## Headless Balance Diagnostics
 
-The smoke test (`npm run smoke`) launches the game in a headless browser and verifies:
+`npm run balance:diagnostics` reports theoretical damage ranges/DPS,
+representative enemy time-to-kill, player damage intake, wave duration/pressure,
+upgrade value outliers, and impossible or trivial configurations.
 
-1. Landing page renders and game launches
-2. Main menu, settings, and character select scenes load
-3. A run starts and gameplay objects appear
-4. Pause and resume work
-5. Game over and victory scenes display correctly
-6. Return-to-site flow works
-7. Leaderboard form appears on standard runs
+The report is a deterministic review aid. It does not simulate player movement,
+targeting efficiency, crowd geometry, input skill, visual clarity, or fun. Use it
+to identify candidates for a real playtest, then compare archived full-run
+telemetry before changing balance.
 
-Screenshots are saved to `.smoke/` (gitignored).
+## Browser Smoke
 
-## CI Pipeline
+The smoke script uses `playwright-core` with an installed Chrome, Edge, or
+Chromium executable. Set `CHROME_PATH` when auto-detection is insufficient.
 
-The GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push to `main` and all PRs:
+The development smoke verifies the website/game boundary, menu, settings,
+character selection, run start, pause/resume, Dev Mode simulation controls and
+guides, a named Tesla role, Content Lab access, a forced loss/result, and return
+to the website. The production
+smoke exercises the built site and normal game flow while ensuring ordinary
+production output does not expose development scenes. Captures are written under
+`.smoke/development/` and `.smoke/production/`.
 
-1. `npm ci` — clean install
-2. `npm run typecheck` — strict TypeScript
-3. `npm run lint` — ESLint
-4. `npm test` — Vitest
-5. `npm run build` — production build
+The script maps logical `1920x1080` game coordinates through the live canvas
+bounds. It checks scene reachability and browser errors, not subjective rendering
+quality. Review captures and repeat important paths hands-on before release.
 
-## Adding New Tests
+## Content Lab Checks
 
-1. Create `src/game/tests/<name>.test.ts`
-2. Import only pure-logic modules (no Phaser dependencies)
-3. Use `describe`/`it`/`expect` from Vitest
-4. Mock any runtime dependencies (e.g., `Math.random` for deterministic rolls)
-5. Run `npm test` to verify
+Run `npm run dev`, begin a trial, and press `F11`, or load the local app with
+`?content-lab=1`. For each newly added or replaced asset/effect:
 
-## Known Coverage Gaps
+1. Select its stable ID and verify the displayed metadata.
+2. Inspect origin/pivot, attachment, bounds, and collision guides.
+3. Exercise play, pause, restart, frame step, configured FPS, and slow motion.
+4. Inspect mirror, tint/palette, hit flash, outline, shadow, glow, and status
+   variants that the manifest permits.
+5. Repeat the effect and confirm its live-object count returns to baseline.
+6. Test against multiple backgrounds and useful zoom levels.
 
-- No regression test for scene restart listener cleanup
-- No test for `endRun()` save consistency across tab scenarios
-- `BalanceReportScene` is defined but not registered in the scene config (dead code)
-- No integration test for the full upgrade offer → apply → queue drain cycle with scene shutdown
+Content Lab and Dev Mode are development-only by default. A production-mode test
+bundle must opt in with `VITE_ENABLE_DEV_TOOLS=true`; normal production validation
+must leave them out.
+
+## CI
+
+`.github/workflows/ci.yml` is the executable source of truth for hosted checks.
+It installs from the lockfile, runs `npm run verify`, exercises both development
+tooling and production browser flows, and retains both sets of smoke captures as
+an artifact. Treat those screenshots and console checks as automated evidence,
+not hands-on qualification.
+
+## Manual Release Matrix
+
+Before a public demo, perform and record:
+
+- Multiple complete fifteen-minute runs, including victory and death
+- All three characters and representative level-seven/evolved five-weapon builds
+- Curses, reliquaries/artifacts, all powerups, blood shrine, Blood Market, Death
+  Echo, late encounters, and several Warden attacks/phases
+- Chrome, Edge, Firefox, and Safari where supported
+- Laptop, standard 16:9, and ultrawide layouts
+- Keyboard focus, pause/submenu return, restart, save migration, and return-to-site
+- Final owner-art readability, audio mix, photosensitivity risk, console/network
+  logs, deployed analytics, leaderboard behavior, and Supabase access boundaries
+
+Record **Passed**, **Failed**, **Blocked**, and **Untested** explicitly. Do not
+collapse unavailable browsers or services into a pass.

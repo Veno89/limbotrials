@@ -1,126 +1,116 @@
 # Progress
 
-## Completed
+## Current Milestone
 
-- Created the Phaser 4.1 browser project from the original asset-only workspace.
-- Integrated supplied menu, player, enemy, boss, projectile, item, floor, prop, and light-source art.
-- Implemented a complete start-run-to-death-or-victory loop.
-- Added eleven weapons, categorized progression definitions, ten regular enemies, two elites, and one boss.
-- Added run rewards, versioned local save data, and three permanent upgrades.
-- Added strict type checking, linting, 128 automated tests, production build, and a Chrome smoke test.
-- Added save-backed feedback and volume settings plus procedural placeholder audio.
-- Added spatial-hash enemy separation and a phased Warden soul-prison attack.
-- Reduced the production build from roughly 106 MB to roughly 22 MB by shipping only referenced art.
-- Expanded browser smoke coverage across the menu, settings screen, and boss arena.
-- Added a repeatable development-only 200-enemy stress spawn and browser FPS sample.
-- Improved relic cards with rank context, rarity treatment, and `1`/`2`/`3` keyboard selection.
-- Added visible Bone Scythe sweeps and Hellfire Sigil telegraphs.
-- Added an adaptive action bar that creates, removes, and re-centers weapon slots with live cooldown overlays.
-- Changed the starting weapon to Bone Scythe and added a clearer multi-blade spectral sweep.
-- Added Grave Lance, Wailing Shards, and Cinder Reliquary for six total weapons.
-- Added Ashen Longbow, Bloodletter Axe, and Dirge Staff with distinct volley, returning, and multi-target behaviors.
-- Added a reusable live stats dropdown for gameplay and upgrade decisions.
-- Rebuilt level-up progression into Weapons, Weapon Levels, Weapon Upgrades, and Stats.
-- Added per-weapon levels/stats, early weapon-offer weighting, and a five-weapon loadout cap.
-- Added three movement-changing enemy behaviors and authored encounter beats.
-- Added explicit level-seven evolution choices, loadout synergies, and per-weapon result statistics.
-- Added separate curse events, rerolls, skip rewards, rare powerups, and a blood shrine.
-- Added perfect-dodge cooldown rewards and a third Warden attack with timed escalation.
-- Added a reroll-focused permanent unlock and upgraded save data to version 3.
-- Added source-aware balance telemetry, one-minute pressure buckets, and exact upgrade-choice history.
-- Added eight focused balance presets, a live development overlay, detailed run reports, and JSON export; the later Supabase analytics flow replaced the local main-menu report screen.
-- Simplified the main menu around Begin Trial, Meta Upgrades, Journal, and Settings, with count badges for unspent talent points and unseen journal discoveries.
-- Refined Main Menu and Pause into compact vertical layouts, centralized their smaller button presentation, and kept pause submenus returning to the paused run.
-- Fixed pause-menu Journal and Settings navigation with callback-free return targets, safe Settings restarts, and Escape returns.
-- Enlarged XP globes and replaced instant Soul Vacuum collection with a staggered accelerating suction stream that preserves normal pickup processing.
-- Rebuilt local Dev Mode's primary workflow around weapon selection, exact level advancement, evolution readiness, evolution, live stats, and focused weapon upgrades while retaining advanced content tools.
-- Reworked waves around bounded target populations and batched replenishment, with continuously replenishing balance presets.
-- Extended the standard trial to fifteen minutes with role-capped ambient sessions, nine authored encounter beats, a fourteen-minute Warden entrance, lower normal-enemy XP, and bounded pickup consolidation.
-- Reworked weapon-targeted upgrades to advance weapon levels, guaranteed evolution choices for level-six weapons, adjusted the XP curve, bounded random powerups with cooldowns, reduced fodder contact damage, smoothed pressure tiers, and fixed pressure sampling after scene restarts.
-- Added phased enemy replacement, five new enemy definitions, a second elite, archer/stalker behaviors, varied late-run encounters, and explicit Warden-spawn telemetry.
-- Added expansion feature flags, shared balance limits, reusable stat clamping, and typed artifact special-effect handlers.
-- Added red enemy projectile/telegraph language, capped active hazards, and distinct Plague Crawler, Ember Imp, and Grave Defiler visuals.
-- Completed run-only artifacts and chests with tier filtering, weighted no-duplicate rewards, save-backed unlocks, and an artifact HUD.
-- Added Haunted, The Penitent, and Ashwalker with character selection, stat profiles, starter weapons, unlock tracking, and result notices.
-- Upgraded save data to version 5 with safe defaults for character and artifact progression.
-- Made reliquaries discoverable with a nearby spawn ring, world label, spawn warning, and direction/distance/countdown tracker.
-- Labeled the artifact HUD, fixed its hover targets and tooltip bounds, removed HUD-clipping gameplay zoom, and restrained repeated screen shake and warning overlap.
-- Extended pre-evolution weapon progression to level six, advanced evolutions to level seven, and lifted Bone Scythe baseline and evolved follow-up damage without nerfing any weapon.
-- Added player-following shield feedback, generic timed-buff duration bars, explicit powerup pickup explanations, and a compact relative-scale reliquary pulse.
-- Added a dedicated transparent reliquary chest asset and a non-modal walk-in loot ritual with soul-lock fragments, curved reward travel, and a player-side receipt.
-- Removed the reliquary's persistent circle and added an experimental high-definition Haunted walk sheet with four directions, three stride poses per direction, and a presentation-only animation controller.
-- Replaced the first Haunted sheet after playtest feedback exposed near-static limbs; the stricter replacement uses opposite contact strides, raised-knee passing poses, visible arm changes, and sequential smoke captures.
-- Rejected the generated walk cycles after further review exposed repeated poses, limping cadence, and inconsistent sword occlusion; Haunted now uses stable directional frames with an intentional spectral hover.
-- Unified run-bound scheduling around active run time for reliquaries, shield refresh, temporary buffs, powerups, encounters, elites, and boss entrance.
-- Added bounded time-and-player-power threat tiers, spawn-time non-boss health and damage scaling, live threat display, and tier-transition telemetry.
-- Rebuilt the Limbo Warden with 120,000 base health, readable phase transitions, phase-aware attack selection, and Shattered Judgment, Cathedral Rupture, and Condemned Star alongside its original three attacks.
-- Replaced Bloodletter Axe's evolved return behavior with Crimson Orbit, then strengthened it to three-to-five continuous axes with bounded count, radius, size, rotation, and repeated-hit cadence.
-- Added a dedicated Crimson Orbit balance lab, continuous-orbit stats presentation, focused rule tests, and browser captures for the evolution and its live build details.
-- Corrected elite charges to traverse their full red telegraphed route and corrected unevolved Bloodletter Axe to complete its maximum-range outbound throw before returning.
-- Removed the reliquary's floating world label and replaced its boxed objective window with a compact compass, distance, and timer line.
-- Applied the first existing-weapon cadence pass: faster Soul Bolt fire and slower, substantially heavier Hellfire Sigil, Grave Lance, and Dirge Staff attacks.
-- Completed the existing-weapon cadence pass with a dependable Bone Scythe, denser Wailing Shards, a very slow large Cinder Reliquary pulse, and a deliberate fixed-count Ashen Longbow volley.
-- Added the first behavior-changing upgrade family: four rare one-stack cadence tradeoffs that exchange higher impact or projectile density for longer downtime, with max stacks enforced by `RunState`.
-- Added the F9 Weapon Identity Lab, stats and full-cadence browser captures, and focused cadence, preset, and upgrade-rule coverage.
-- Added typed authored upgrade effects: Soul Bolt splinters into nearby souls, Hellfire spreads into delayed side blasts, and Dirge judgments leave delayed echoes.
-- Added Forbidden Tutelage with visible XP gain and explicit bounded threat-power cost, plus the F10 Upgrade Effects Lab and deterministic effect-rule coverage.
-- Added Headsman's Procession so Bloodletter projectile count creates multiple returning throws and strengthens Crimson Orbit from three baseline axes up to five with wider bounded coverage.
-- Kept unused focused weapon upgrades eligible after evolution as clearly labeled level-seven specializations, with level six reserved for explicit evolution and the F7 Crimson Orbit Lab applying axe-count stacks after evolution.
-- Added a thematic Tailwind landing page, lazy game launch/return flow, public Supabase damage and kill leaderboards, and bounded server-only score submission through a Netlify Function.
-- Added a non-destructive leaderboard health endpoint and conservative Netlify Function packaging after live deployment diagnostics exposed a missing function route and an uncreated Supabase leaderboard table.
-- Added private Supabase run analytics, combined bounded run submissions, visible result-screen submission status, and persistent typed leaderboard names.
-- Added idempotent run submissions so anonymous analytics can become a named public score without duplication when older or diagnostic flows submit without a name.
-- Added a run-level curse system with data-defined tiers, cursed upgrade/artifact mutation, curse-gated enemies, a high-curse Warden pressure hook, HUD/result/balance reporting, and saved Player Death Echo snapshots that can return as a simplified future-run enemy.
-- Added the first conditional upgrade family batch: moving damage, dash-window damage, shield-to-offense conversion, elite-hunter damage and soul rewards, and cursed Echo/curse-gated prey rewards.
-- Added a focused curse-pressure pass: curse-specific enemy and Warden spawn scaling, cursed enemy tinting, threshold and recurring curse surge events, a HUD curse meter, a player curse aura, and Cinder Reliquary containment after full-run data showed runaway pulse area and damage.
-- Replaced the first AI-generated weapon presentation assets with handmade test sprites for eight weapons, plus a handmade crawler test sprite and a cleaned `assets/test` layout.
-- Softened action-bar cooldown labels so the gradient remains the primary cooldown read without covering the new weapon sprites.
-- Reworked the end screen around player actions: main menu, same-character retry, a styled name-gated **Upload Run** panel that records analytics and leaderboard score together, and a quit path back to the landing page.
-- Added structured cursed-reward analytics so uploaded runs record authored/generated curse choices, curse gain, before/after tiers, timing, pattern, and downside separately from timeline strings.
-- Replaced the flat legacy meta upgrades with a first large character talent-tree foundation: save version 7 wipes old soul progression, each character earns legacy-soul talent points from played runs, and the new tree UI supports path-gated allocation, choice locks, refunds, and typed run-start effects.
-- Started the artifact identity pass: reliquaries now appear much less often, at most one can be active, and redesigned regular artifacts combine stronger modifiers with typed runtime effects for kills, dashes, pickups, shields, powerups, and one-time claim rewards.
-- Swapped ground XP remnants and Wailing Shards to handmade test assets, added data-defined bleed and poison status profiles, and introduced Crimson Harvest as a Bone Scythe bleed upgrade with compact enemy debuff icons and source-attributed DOT ticks.
-- Added Poison Flask as the first new weapon-roster expansion: lobbed bottles deal impact damage, leave acid pools, and evolve into Virulent Mire pools that last longer and apply poison.
-- Added a save-backed Limbo Journal with `???` undiscovered entries for weapons, evolutions, artifacts, enemies, bosses, buffs, and debuffs, plus a local-only dev overlay for invincibility, exact content grants, enemy spawning, and target-dummy testing.
-- Added the wandering Blood Market with the supplied shop asset, timed chance-based spawns, a paused HP-currency purchase screen, shop-only reward filtering, two exclusive effect artifacts, and the fully progressing Sanguine Needle weapon.
-- Replaced the AI-generated arena floor with five handmade tiles, weighted heavily toward tiles one and two with sparse non-clustering decorative variants.
-- Reworked Bone Scythe into a directional 180-degree reap and replaced Haunted Reaper's generic pierce capstone with The Final Reaping, which upgrades the entire scythe attack profile to 360 degrees.
-- Redesigned the approved Haunted Reaper talents around Bone Scythe identity: weapon-scoped damage and critical bonuses, full-health opening strikes, a cadence/area tradeoff, full-duration Bleed consumption, spectral wakes, and low-health execution damage. Bone Scythe base damage was reduced to preserve talent and Bleed impact.
-- Completed Haunted Reaper's remaining identity nodes: Harvest Steps now rolls once per successful reap for a visible three-second movement burst, Crooked Reach rewards outer-half hits with damage and inward pull, and Grave Procession launches a travelling crescent every fifth primary reap.
-- Completed a comprehensive production-readiness hardening pass: cleaned up root fix scripts, removed test pollution, hardened GameScene restart listeners and save race conditions, guarded UpgradeOfferSystem against stopped scenes, and enabled stricter ESLint production rules.
+Limbo Trials is an instrumented vertical-slice candidate built around one
+standard fifteen-minute run. The code path covers character selection, a
+five-weapon build, level-seven evolutions, waves and authored encounters,
+curses/rewards, the fourteen-minute Warden, death or victory, results, local
+progression, journal discovery, and run analytics.
 
-- Upgraded the game's baseline resolution from 1280x720 to 1920x1080, maintaining the 16:9 aspect ratio and dynamically centering UI elements.
-- Comprehensively redesigned the Dev Mode Console (1700x950) with a multi-column grid, split-view loadout details, and properly formatted scrollable areas.
-- Redesigned the Live Balance Overlay (F8) to support the 1080p density.
-- Added the `Gravecleaver` weapon (fast, short-range melee slash) and updated `The Penitent` to use it as their starter weapon.
-- Refactored HUD elements, moving the Weapon Arsenal bar to sit immediately above the XP bar and cleaning up redundant `ARTIFACTS:` and `UPGRADES:` text labels.
-- Increased the dash ghost trail duration and made the trail system universally applicable to all characters.
-- Fixed an object pooling bug in `EnemySystem` where recycled enemy sprites failed to update their textures, restoring visual variety for late-game enemies, ranged mobs, elites, and the Limbo Warden.
+The slice is structurally complete and remains playable while final owner art is
+missing. It is not yet public-demo ready. See
+[VERTICAL_SLICE_COMPLETION.md](VERTICAL_SLICE_COMPLETION.md) for the scope and
+[RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for qualification gates.
 
-## Current State
+## Functional Slice
 
-The prototype is playable and instrumented for repeatable full-run balance sessions. The fifteen-minute run now includes three playable characters with character-specific legacy talent trees, less frequent but stronger run-only artifact rewards from tracked reliquaries, a timed Blood Market, hazard specialists, independently capped ambient roles, bounded threat escalation, curse-responsive reward and spawn pressure, visible curse escalation, conditional upgrade hooks, a first enemy status-effect foundation, thirty-two weapons, authored VVFX Runtime JSON for Meteor Hammer and Tesla Coil, nine authored encounter beats, a six-attack, three-phase Limbo Warden encounter beginning at fourteen minutes, a save-backed discovery journal, local-only dev test controls, live Supabase run analytics with full JSON summaries and structured cursed-reward rows, and a first-pass Death Echo callback from the latest failed run. Content values are provisional.
+- Three playable characters with distinct starters, stats, unlocks, and talent
+  trees
+- Thirty-two weapons, up to five equipped, with levels, focused upgrades,
+  synergies, and explicit level-seven evolutions
+- Twenty-two enemies across phased, role-capped ambient waves; nine authored
+  encounters; elites; curse pressure; and a saved Death Echo
+- Reliquaries, fifty artifacts, three powerups, a blood shrine, and the timed
+  Blood Market
+- Bounded time/player-power threat scaling and source-aware balance telemetry
+- A six-attack, three-phase Limbo Warden entering at `14:00`
+- Death/victory results, versioned local saves, journal discovery, local playtest
+  archives, and optional bounded Supabase submissions
 
-The latest instrumented automated stress sample with 200 additional enemies, five active weapons, behavior enemies, balance telemetry, and Haunted's stable directional hover averaged 100.1 FPS in headless Chrome on the development machine.
+## Completion-Engineering Pass
 
-## Known Issues
+- Centralized gameplay visuals and audio cues behind typed stable IDs, metadata,
+  validation, runtime resolution, and safe development fallbacks.
+- Added a generated, usage-based owner-art backlog and technical drawing
+  templates so art can be replaced without editing gameplay code.
+- Added reusable, opt-in code presentation helpers for restrained flashes,
+  outlines, shadows, recoil, squash/stretch, hover, spawn/death treatment, status
+  overlays, tint/mirroring, glow/pulse, trails, and impact attachments.
+- Added a development-only Content Lab for registry browsing, guide overlays,
+  playback control, presentation variants, effect repetition, and lifecycle
+  inspection.
+- Added a typed semantic gameplay-effect registry over authored VVFX IDs, with
+  safe fallbacks and scene-owned handles.
+- Completed Tesla Coil's gameplay-side chain orchestration around discharge,
+  chain beam, target electricity, impact, and optional final response roles.
+- Added deterministic target/range/repeat/tie rules and cancellation when a
+  delayed segment's source or target is no longer valid.
+- Added pure balance diagnostics for damage, time-to-kill, incoming damage, wave
+  pressure/duration, upgrade outliers, and impossible/trivial configurations.
+- Hardened development access and browser automation for the `1920x1080` logical
+  canvas and kept Dev Mode/Content Lab out of normal production output.
 
-- The Penitent, Ashwalker, and enemy art remain single-frame concept art; Haunted has stable directional hover frames but no accepted walk cycle.
-- Procedural audio is intentionally temporary and should be replaced with authored effects and music.
-- New higher-density spawn targets, XP pacing, weapon values, and boss health still need repeated full-run playtesting.
-- The new lower-frequency artifact cadence, stronger artifact effects, character profiles, and hazard pressure need repeated full-run playtesting.
-- Standard-run survivability, the longer pre-evolution curve, and the completed cadence targets need repeated human playtesting before broad weapon power reductions.
-- Threat health and damage scaling, elite pressure, and the rebuilt Warden's target fight duration need repeated completed-build playtesting.
-- Curse reward frequency, tier thresholds, the new curse surge pressure, cursed enemy stat scaling, and Death Echo spawn timing need repeated human playtesting.
-- Conditional upgrade values and offer frequency need full-run tuning against safe and high-curse builds.
-- Crimson Harvest bleed values, Poison Flask pool readability/damage, debuff icon readability, and future player-status hooks need playtesting before wider status-effect content.
-- Talent node values, point thresholds, and the first tree UI need playtesting before deeper visual polish.
-- Journal layout, discovery timing, and dev overlay ergonomics need hands-on local validation.
-- Blood Market spawn cadence, HP prices, exclusive reward strength, and stall readability need full-run playtesting.
-- The Phaser engine bundle triggers Vite's large-chunk warning.
-- Visual effect object pooling is not implemented yet; effects are intentionally modest.
-- Profile each future directional sheet before expanding the animation approach to other characters.
+These changes resolve the remaining production-tooling and fallback blockers.
+They do not certify final presentation or balance.
 
-## Next Recommended Task
+## Owner-Art And Audio Blockers
 
-Playtest Poison Flask pool readability, evolved poison application, and Crimson Harvest bleed values, then use uploaded run data to tune status damage before adding the next new weapon.
+- Produce or approve the demo-critical and required-polish entries in
+  [ASSET_PRODUCTION_BACKLOG.md](ASSET_PRODUCTION_BACKLOG.md), in its listed order.
+- Validate delivered art in Content Lab against registered dimensions, frames,
+  pivot, attachments, transparency, mirroring, and collision/readability guides.
+- Approve the existing single-frame/placeholder presentation or replace it where
+  the backlog marks it demo-critical.
+- Replace or explicitly approve procedural sound effects and ambience/music.
+- Confirm ownership, licensing, and credits for every shipped visual, audio,
+  font, and VVFX dependency.
+
+Gameplay already supplies configured hit flash, tint/status, and effect
+attachments where used. Optional glow, shadow, recoil, hover, spawn/death, trail,
+and impact helpers are available for deliberate integration and Content Lab
+qualification; they are not globally applied. Final art should not duplicate an
+effect that its production specification marks as runtime-owned.
+
+## Manual Playtest Blockers
+
+- Repeated complete runs across all three characters and representative evolved
+  five-weapon builds
+- Progression, survivability, enemy pressure, upgrade value, curse tradeoffs,
+  reliquary/artifact cadence, Blood Market value, and Warden-duration tuning
+- High-density readability of enemies, projectiles, hazards, statuses, chain
+  lightning, impacts, and camera feedback
+- Direct Chrome, Edge, Firefox, and Safari checks at laptop, 16:9, and ultrawide
+  sizes, including focus, pause/submenus, restart, and return-to-site
+- Final-art, audio-mix, photosensitivity, deployed save migration, analytics,
+  leaderboard, and Supabase boundary review
+- External playtest feedback from a private distribution build
+
+Automated tests, smoke runs, and headless reports support these sessions; they do
+not replace them.
+
+## Known Technical Constraints
+
+- Phaser remains the dominant bundle and may trigger Vite's large-chunk warning.
+- Procedural audio is temporary.
+- Content and tuning values remain provisional until the manual sessions above.
+- Normal production builds intentionally exclude Content Lab and Dev Mode unless
+  `VITE_ENABLE_DEV_TOOLS=true` is explicitly set for a test build.
+- The repository currently has no formatter command.
+
+## Post-Demo Queue
+
+- Additional characters, weapons, enemies, bosses, biomes, artifacts, and
+  presentation variants
+- Dual evolutions, buildings, deeper New Game Plus/difficulty, and expanded
+  meta-progression
+- Controller support, desktop packaging, platform integration, and storefront
+  work
+- Any general VVFX product expansion not required by a named Limbo Trials effect
+
+## Next Recommended Work
+
+Create and integrate the first demo-critical owner asset from the generated
+backlog, inspect it in Content Lab, then complete a standard run and compare its
+archived report with the deterministic diagnostics. Repeat one asset and one
+playtest decision at a time so presentation and balance changes remain attributable.

@@ -48,4 +48,8 @@ async function startGame(): Promise<void> {
   }
 }
 
-void showLandingPage();
+const openContentLabDirectly = (
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_DEV_TOOLS === 'true'
+) && new URLSearchParams(window.location.search).get('content-lab') === '1';
+
+void (openContentLabDirectly ? startGame() : showLandingPage());

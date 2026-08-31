@@ -38,7 +38,7 @@ describe('weapon cadence identities', () => {
   it('makes Wailing Shards a dense medium-cadence radial safety burst', () => {
     expect(WEAPONS['wailing-shards']).toMatchObject({
       texture: 'weapon-wailing-shards',
-      iconTexture: 'weapon-wailing-shards',
+      iconTexture: 'icon-weapon-wailing-shards',
     });
     expect(WEAPONS['wailing-shards'].baseStats).toMatchObject({
       damage: 20,
@@ -73,7 +73,7 @@ describe('weapon cadence identities', () => {
     expect(flask).toMatchObject({
       behavior: 'lobbed-projectile',
       texture: 'weapon-poison-flask',
-      iconTexture: 'weapon-poison-flask',
+      iconTexture: 'icon-weapon-poison-flask',
     });
     expect(flask.baseStats).toMatchObject({
       damage: 26,
@@ -86,28 +86,13 @@ describe('weapon cadence identities', () => {
     expect(flask.levelGrowth.some((modifier) => modifier.stat === 'projectileCount')).toBe(false);
   });
 
-  it('makes Tesla Coil a clustered multi-target weapon with explicit VFX ownership', () => {
+  it('makes Tesla Coil a clustered multi-target weapon with semantic presentation ownership', () => {
     const tesla = WEAPONS['tesla-coil'];
     expect(tesla).toMatchObject({
       behavior: 'tesla-coil',
       texture: 'weapon-tesla-coil',
-      iconTexture: 'weapon-tesla-coil',
-      vfx: {
-        attack: {
-          effectId: 'chain-lightning',
-          beamFit: 'crop',
-          thicknessScale: 0.67,
-          maxDurationMs: 500,
-        },
-        chain: {
-          effectId: 'tesla-chain-link',
-          beamFit: 'crop',
-          thicknessScale: 0.75,
-          maxDurationMs: 500,
-        },
-        chainStartDelayMs: 420,
-        chainStepDelayMs: 70,
-      },
+      iconTexture: 'icon-weapon-tesla-coil',
+      presentationId: 'tesla-chain',
     });
     expect(tesla.baseStats).toMatchObject({
       damage: 42,
@@ -119,12 +104,7 @@ describe('weapon cadence identities', () => {
     expect((tesla.baseStats.damage * tesla.baseStats.targetCount * 1000) / tesla.baseStats.cooldownMs).toBe(45);
     expect(
       Object.values(WEAPONS)
-        .filter((weapon) => weapon.vfx?.attack.effectId === 'chain-lightning')
-        .map((weapon) => weapon.id),
-    ).toEqual(['tesla-coil']);
-    expect(
-      Object.values(WEAPONS)
-        .filter((weapon) => weapon.vfx?.chain.effectId === 'tesla-chain-link')
+        .filter((weapon) => weapon.presentationId === 'tesla-chain')
         .map((weapon) => weapon.id),
     ).toEqual(['tesla-coil']);
   });

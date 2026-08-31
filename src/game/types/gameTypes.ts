@@ -52,6 +52,7 @@ export type WeaponBehavior =
   | 'meteor-strike'
   | 'frozen-orb'
   | 'tesla-coil';
+export type GameplayEffectSequenceId = 'tesla-chain';
 export type UpgradeCategory =
   | 'weapon'
   | 'weapon-level'
@@ -656,16 +657,6 @@ export interface JournalDiscoveryState extends JournalEntryCollection {
   seen: JournalEntryCollection;
 }
 
-export interface WeaponBeamVfxDefinition {
-  effectId: string;
-  /** Keeps short connections readable without compressing the source artwork. */
-  beamFit: 'stretch' | 'crop';
-  /** Multiplies authored Beam thickness without changing endpoint length. */
-  thicknessScale: number;
-  /** Stops playback after the authored visible portion instead of an idle export tail. */
-  maxDurationMs: number;
-}
-
 export interface WeaponDefinition {
   id: WeaponId;
   behavior: WeaponBehavior;
@@ -675,12 +666,8 @@ export interface WeaponDefinition {
   iconTexture: string;
   baseStats: WeaponStats;
   levelGrowth: WeaponModifier[];
-  vfx?: {
-    attack: WeaponBeamVfxDefinition;
-    chain: WeaponBeamVfxDefinition;
-    chainStartDelayMs: number;
-    chainStepDelayMs: number;
-  };
+  /** Semantic gameplay presentation; Runtime JSON composition lives in the registry. */
+  presentationId?: GameplayEffectSequenceId;
   evolution: {
     name: string;
     description: string;

@@ -13,6 +13,30 @@ import type { SpatialEntity } from '../SpatialGrid';
 import type { ScytheSweepProfile } from '../scytheRules';
 import type { ImpactFragmentSystem } from '../ImpactFragmentSystem';
 import type { VvfxPlayback } from '../../vfx/VvfxSystem';
+import type { VvfxPoint } from '../../vfx/VvfxSystem';
+import type { GameplayEffectPlayback } from '../../vfx/GameplayEffectSystem';
+
+export type WeaponAttachmentPointName =
+  | 'weapon-origin'
+  | 'chain-source'
+  | 'chain-target';
+
+export interface WeaponAttachmentSprite {
+  readonly x: number;
+  readonly y: number;
+  readonly active: boolean;
+}
+
+export type WeaponAttachmentResolver = (
+  sprite: WeaponAttachmentSprite,
+  name: WeaponAttachmentPointName,
+) => VvfxPoint | undefined;
+
+export interface WeaponSequenceController {
+  /** Returns true while the controller still owns future work. */
+  update(time: number): boolean;
+  cancel(): void;
+}
 
 export interface WeaponContext {
   readonly scene: Phaser.Scene;
@@ -29,6 +53,7 @@ export interface WeaponContext {
   readonly hazardZones: HazardZoneSystem;
   readonly impactFragments: ImpactFragmentSystem;
   readonly vfx: VvfxPlayback;
+  readonly effects: GameplayEffectPlayback;
   readonly nearbyCache: SpatialEntity[];
   
   readonly scytheFacingAngle: number;
@@ -41,4 +66,11 @@ export interface WeaponContext {
   damageArc(x: number, y: number, radius: number, weaponId: WeaponId, facingAngle: number, sweepAngle: number): Set<Phaser.Physics.Arcade.Image>;
   damageEnemy(sprite: Phaser.Physics.Arcade.Image, definition: EnemyDefinition, weaponId: WeaponId, damageScale?: number): { killed: boolean };
   getProjectileRuntime(projectile: Phaser.Physics.Arcade.Image): any;
+  attachmentPoint(
+    sprite: WeaponAttachmentSprite,
+    name: WeaponAttachmentPointName,
+  ): VvfxPoint;
+  targetIdentity(sprite: Phaser.Physics.Arcade.Image): string;
+  nextEffectSeed(namespace: string): number;
+  trackSequence(sequence: WeaponSequenceController): void;
 }

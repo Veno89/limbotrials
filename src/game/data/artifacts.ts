@@ -1,7 +1,7 @@
 import type { ArtifactDefinition, ArtifactId, SaveData } from '../types/gameTypes';
 import { BALANCE } from '../config/balanceConfig';
 
-export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
+const ARTIFACT_DEFINITIONS: Record<ArtifactId, ArtifactDefinition> = {
   'pendant-of-vigor': {
     id: 'pendant-of-vigor',
     name: 'Pendant of Vigor',
@@ -595,6 +595,14 @@ export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = {
   },
 };
 
+/** Stable semantic icon IDs keep final art replacement inside the asset manifest. */
+export const ARTIFACTS: Record<ArtifactId, ArtifactDefinition> = Object.fromEntries(
+  Object.entries(ARTIFACT_DEFINITIONS).map(([id, definition]) => [
+    id,
+    { ...definition, iconTexture: `icon-artifact-${id}` },
+  ]),
+) as Record<ArtifactId, ArtifactDefinition>;
+
 export function getAvailableArtifacts(save: SaveData, isNgPlus = false): ArtifactDefinition[] {
   return Object.values(ARTIFACTS).filter((artifact) => {
     if (artifact.source === 'shop') {
@@ -634,4 +642,3 @@ export function rollArtifact(
   }
   return rarities.at(-1)?.candidates.at(-1) ?? null;
 }
-

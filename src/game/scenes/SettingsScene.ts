@@ -9,6 +9,7 @@ import {
 import { loadSave, writeSave } from '../systems/SaveSystem';
 import type { SaveData } from '../types/gameTypes';
 import { addButton, addTitle } from '../ui/uiHelpers';
+import { markBrowserFlowScene } from './sceneDiagnostics';
 
 interface SettingsSceneData {
   returnTarget?: MenuReturnTarget;
@@ -26,6 +27,7 @@ export class SettingsScene extends Phaser.Scene {
   }
 
   create(): void {
+    markBrowserFlowScene(this, 'settings');
     const save = loadSave();
     audio.configure(save.settings);
     this.add

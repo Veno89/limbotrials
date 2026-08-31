@@ -1,34 +1,35 @@
 # Everlasting Oblivion: Limbo Trial
 
-Everlasting Oblivion: Limbo Trial is a browser-playable dark fantasy arena roguelite
-prototype built with Phaser, TypeScript, and Vite.
+Everlasting Oblivion: Limbo Trial is a browser-playable dark-fantasy arena
+roguelite built with Phaser, TypeScript, and Vite.
 
-Choose a condemned soul, survive an escalating fifteen-minute trial, assemble a
-five-weapon build, claim artifacts from reliquaries, and defeat the Limbo Warden.
-Completed runs feed a small permanent-progression system stored locally in the
-browser.
+Choose one of three condemned souls, survive a fifteen-minute trial, assemble up
+to five weapons, claim artifacts from reliquaries, and defeat the Limbo Warden.
+Runs feed local progression, journal discovery, and an instrumented balance
+report.
 
-## Current Features
+The intended vertical slice is structurally complete and playable with safe
+development fallbacks. It is not yet qualified as a public demo: final owner art,
+audio approval, repeated full-run balance sessions, direct multi-browser QA, and
+deployment checks remain. See
+[Vertical Slice Completion](docs/VERTICAL_SLICE_COMPLETION.md) for the exact
+boundary and evidence status.
 
-- Three playable characters with distinct starter weapons, stat profiles, and unlock conditions
-- Thirty-two auto-weapons with explicit level-seven evolutions and evolved specializations
-- Authored VVFX Runtime JSON playback for point and endpoint-fitted weapon effects, including Meteor Hammer and Tesla Coil
-- Sixteen enemy definitions, independently capped combat roles, authored encounters, elites, and a six-attack three-phase boss
-- Bounded adaptive threat scaling based on run time and player power
-- Run-only artifacts, themed reliquaries, curses, rare powerups, and a blood shrine
-- Categorized upgrade offers, rerolls, skip rewards, weapon synergies, and permanent progression
-- Source-aware combat telemetry, multi-tab balance reports, JSON export, and deterministic balance labs
-- Tailwind landing page, public Supabase leaderboard, private run analytics, and bounded Netlify Function submissions
-- Strict TypeScript, Vitest coverage, ESLint, production builds, and a full browser smoke test
+## Current Slice
 
-Development status, known issues, and the next recommended work are tracked in
-[docs/PROGRESS.md](docs/PROGRESS.md).
+- Three playable characters with distinct starters, stats, unlocks, and talent trees
+- Thirty-two auto-weapons, a five-slot loadout, and explicit level-seven evolutions
+- Twenty-two enemy definitions, role-capped waves, nine authored encounters, elites, curses, and a saved Death Echo
+- Reliquaries, fifty run-only artifacts, three powerups, a blood shrine, and the Blood Market
+- A six-attack, three-phase Limbo Warden entering at `14:00` in the standard fifteen-minute run
+- Death/victory results, local progression, journal discovery, run archives, and optional Supabase submission
+- Typed asset/audio and gameplay-effect registries, VVFX Runtime JSON playback, deterministic diagnostics, and development laboratories
 
 ## Requirements
 
 - Node.js 22 or newer
 - npm
-- Chrome, Edge, or Chromium for `npm run smoke`
+- Chrome, Edge, or Chromium for the automated browser smoke
 
 ## Getting Started
 
@@ -46,15 +47,27 @@ Open the local URL printed by Vite.
 | Command | Purpose |
 | --- | --- |
 | `npm run dev` | Start the Vite development server |
+| `npm run validate:content` | Validate registered assets, fallbacks, effects, and content links |
+| `npm run assets:backlog` | Regenerate the actionable owner-art backlog from registered usage |
+| `npm run assets:backlog:check` | Fail when the generated backlog has drifted from the manifest |
+| `npm run balance:diagnostics` | Print deterministic balance diagnostics; does not judge fun or final balance |
 | `npm run typecheck` | Run strict TypeScript validation |
 | `npm run lint` | Run ESLint |
-| `npm test` | Run the pure-logic Vitest suite |
+| `npm test` | Run the Vitest suite |
 | `npm run build` | Type-check and create the production bundle |
-| `npm run smoke` | Run the headless browser gameplay and performance smoke test |
-| `npm run runs:index` | Rebuild local playtest-data indexes after adding run JSON files manually |
+| `npm run check:prod-bundle` | Prove normal production JavaScript excludes development scenes |
+| `npm run smoke:dev` | Exercise the development flow in a headless browser |
+| `npm run smoke:prod` | Exercise the built production flow in a headless browser |
+| `npm run verify` | Run the aggregate non-browser source/content/build gate |
+| `npm run verify:release` | Run `verify` plus development and production browser smokes |
+| `npm run runs:index` | Rebuild local playtest indexes after adding run JSON manually |
 
-The smoke test detects common Chrome and Edge installations. Set `CHROME_PATH` to
-use another executable.
+There is currently no formatter script in `package.json`; do not report a
+formatting gate as passed until one is added. The smoke test detects common Chrome
+and Edge installations. Set `CHROME_PATH` to use another executable.
+
+Automated smoke coverage is useful regression evidence, but it is not a
+substitute for hands-on browser, visual, accessibility, or balance review.
 
 ## Controls
 
@@ -68,59 +81,107 @@ use another executable.
 | `Esc` | Pause |
 | `1`, `2`, `3` | Select an offered upgrade |
 
-Development builds also expose focused balance and debugging shortcuts. See
-[docs/BALANCE_TESTING.md](docs/BALANCE_TESTING.md) for the complete workflow and
-key bindings.
+In a development build, press `F11` to open the Content Lab and Backquote or
+`F12` to open Dev Mode. The lab may also be opened directly with
+`?content-lab=1`. These scenes are excluded from normal production bundles;
+`VITE_ENABLE_DEV_TOOLS=true` is the explicit opt-in for a production-mode test
+bundle. See [Balance Testing](docs/BALANCE_TESTING.md) for focused presets and
+debug controls.
+
+## Owner Asset Workflow
+
+Gameplay refers to stable asset IDs instead of filenames. To replace an existing
+fallback or owner asset:
+
+1. Open [the generated asset backlog](docs/ASSET_PRODUCTION_BACKLOG.md) and use
+   its exact canvas, frame, orientation, pivot, transparency, and filename spec.
+2. Start from a guide in `assets/templates/` when one exists. The guides contain
+   only technical boundaries and labels.
+3. Deliver to the backlog's production target, add one explicit Vite `?url`
+   import, and update the `source` on that same stable-ID manifest row. Overwrite
+   an existing file in place only when intentionally retaining its current path.
+   Primitive/alias rows (including the first five tasks) accept the new
+   `{ filePath, url }` source without losing their fallback. Merely placing a file
+   beside the repository does not bundle it; do not add an ad hoc gameplay preload.
+4. Update the manifest's dimensions, frame metadata, attachment points, fallback,
+   and provenance if the delivered asset differs from the specification.
+5. Run `npm run validate:content`, open the Content Lab, then run the normal
+   verification gates.
+
+Missing optional art resolves to a declared development fallback. Missing
+required art emits one clear diagnostic instead of one warning per spawn.
+Gameplay already owns hit flash, game-specific tints/statuses, and registered
+effect attachments where configured. Additional outline, shadow, glow, recoil,
+hover, spawn/death, trail, and impact helpers are opt-in and can be qualified in
+Content Lab; its toggles do not imply every entity uses them. Do not bake runtime
+effects into final art unless the backlog explicitly requests it.
+
+For audio, deliver the WAV at the manifest entry's `productionTargetFilePath`,
+import it with Vite's `?url` suffix in `src/game/data/assets.ts`, and pass that
+`{ kind: 'file', filePath, url }` source to the matching cue definition. The
+audio system will use the file automatically, follow the existing volume
+controls, and fall back to the registered procedural cue if loading or playback
+fails.
+
+No generated or downloaded AI artwork is part of this workflow.
+
+## Gameplay Effect And VVFX Workflow
+
+Authored Runtime JSON files live in
+`src/game/vfx/effects/*.vvfx-runtime.json`. Their stable filename IDs are mapped
+to semantic gameplay roles in `src/game/vfx/GameplayEffectRegistry.ts`. Gameplay
+asks for a typed sequence and role; it does not inspect Beam layers or raw export
+composition.
+
+To replace an existing effect, export Runtime JSON from VVFX, keep or update the
+registry's stable raw effect ID, and validate it in the Content Lab. To add an
+effect, add the Runtime JSON, register its semantic role, declare dependencies and
+fallback behavior, then run content validation and lifecycle tests.
+
+Tesla Coil is the reference integration. Its presentation roles are initial
+discharge, source-to-target chain beam, electricity across the target, impact,
+and optional final-chain response. The registry declares presentation cadence
+and which visual file or primitive fallback represents each role; combat applies
+that cadence while owning target choice, range, damage, cancellation, and
+deterministic ordering.
 
 ## Project Structure
 
 ```text
-assets/          Source art used by the game
-docs/            Design, architecture, progress, and balance notes
-scripts/         Browser smoke and development automation
-src/game/data/   Data-defined weapons, enemies, upgrades, waves, and artifacts
-src/game/scenes/ Phaser scene composition and lifecycle
-src/game/systems/Focused gameplay systems
-src/game/tests/  Pure-logic Vitest coverage
-src/game/ui/     HUD and presentation components
-src/game/vfx/    Auto-discovered authored VVFX Runtime JSON and its Phaser bridge
+assets/                 Owner-created source art and technical templates
+docs/                   Design, completion, production, and test documentation
+scripts/                Validation, diagnostics, backlog, and browser automation
+src/game/assets/        Typed manifest, validation, and runtime resolution
+src/game/balance/       Pure headless diagnostic models
+src/game/data/          Data-defined gameplay content
+src/game/presentation/  Optional reusable code-driven presentation effects
+src/game/scenes/        Phaser scene composition and lifecycle
+src/game/systems/       Focused gameplay systems
+src/game/tests/         Pure-logic and registry coverage
+src/game/vfx/           Semantic effect registry, VVFX catalog, and runtime bridge
 ```
 
-The architecture favors typed data definitions and focused systems over generic
-scripting or monolithic scene files. Start with
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before extending gameplay.
-
-## Authored VVFX workflow
-
-The game installs the private `@vvfx/phaser-runtime` tarball from `vendor/` and
-automatically catalogs files named
-`src/game/vfx/effects/*.vvfx-runtime.json`. A stable filename is the gameplay
-effect ID: `meteor-strike.vvfx-runtime.json` is played as `meteor-strike`.
-
-To update an existing effect, export Runtime JSON from VVFX and replace the
-file with the same name. No generated Phaser tween or per-export helper needs
-to be copied. New point effects use `VvfxSystem.spawnAt(...)`; effects with at
-least one Beam layer may use `spawnBetween(...)` for world-space endpoints.
-Embedded artwork works immediately, while `assetKeysByEffect` can map assets to
-textures already preloaded by the game when duplicate decoding becomes worth
-avoiding.
+Start with [Architecture](docs/ARCHITECTURE.md) before extending gameplay.
 
 ## Documentation
 
-- [Design](docs/DESIGN.md)
+- [Vertical slice completion](docs/VERTICAL_SLICE_COMPLETION.md)
+- [Asset production backlog](docs/ASSET_PRODUCTION_BACKLOG.md)
 - [Architecture](docs/ARCHITECTURE.md)
-- [Progress and known issues](docs/PROGRESS.md)
 - [Balance testing workflow](docs/BALANCE_TESTING.md)
-- [Next combat expansion](docs/NEXT_COMBAT_EXPANSION.md)
-- [Longer-term roadmap](docs/ROADMAP.md)
+- [Testing strategy](docs/TESTING.md)
+- [Release checklist](docs/RELEASE_CHECKLIST.md)
+- [Progress and known issues](docs/PROGRESS.md)
+- [Design](docs/DESIGN.md)
+- [Run analytics and persistence](docs/RUN_ANALYTICS.md)
 - [Netlify and Supabase deployment](docs/DEPLOYMENT.md)
-- [Run analytics and persistence boundaries](docs/RUN_ANALYTICS.md)
+- [Longer-term roadmap](docs/ROADMAP.md)
 
 ## Repository Notes
 
 - Generated builds, dependencies, local smoke captures, environment files, and
   exported balance reports are intentionally excluded from Git.
-- Copy `.env.example` for local leaderboard configuration; never expose a Supabase
+- Copy `.env.example` for local leaderboard configuration. Never expose a Supabase
   secret key through a `VITE_` variable.
-- The repository does not currently include an open-source license. All rights are
-  reserved unless a license is added later.
+- The repository does not currently include an open-source license. All rights
+  are reserved unless a license is added later.

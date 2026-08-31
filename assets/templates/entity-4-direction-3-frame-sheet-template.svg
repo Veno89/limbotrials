@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="384" height="512" viewBox="0 0 384 512">
+  <defs>
+    <pattern id="frame" width="128" height="128" patternUnits="userSpaceOnUse">
+      <rect x="0.5" y="0.5" width="127" height="127" fill="none" stroke="#ff4fd8" stroke-width="1"/>
+      <rect x="8" y="8" width="112" height="112" fill="none" stroke="#64d9ff" stroke-width="1" stroke-dasharray="4 3"/>
+      <path d="M64 0V128M0 64H128" fill="none" stroke="#ffd166" stroke-width="1" stroke-dasharray="3 3"/>
+      <circle cx="64" cy="64" r="4" fill="none" stroke="#ffffff" stroke-width="1.5"/>
+      <path d="M59 118H69M64 113V123" fill="none" stroke="#8dff8a" stroke-width="1.5"/>
+    </pattern>
+  </defs>
+  <rect width="384" height="512" fill="url(#frame)"/>
+  <g fill="#f5fbff" stroke="#071014" stroke-width="2" paint-order="stroke" font-family="monospace" font-size="8">
+    <text x="4" y="11">RIGHT 0</text><text x="132" y="11">RIGHT 1</text><text x="260" y="11">RIGHT 2</text>
+    <text x="4" y="139">DOWN 0</text><text x="132" y="139">DOWN 1</text><text x="260" y="139">DOWN 2</text>
+    <text x="4" y="267">LEFT 0</text><text x="132" y="267">LEFT 1</text><text x="260" y="267">LEFT 2</text>
+    <text x="4" y="395">UP 0</text><text x="132" y="395">UP 1</text><text x="260" y="395">UP 2</text>
+  </g>
+  <text x="192" y="506" text-anchor="middle" fill="#64d9ff" stroke="#071014" stroke-width="2" paint-order="stroke" font-family="monospace" font-size="8">384x512 sheet | 128x128 frames | 12 frames | suggested 8 FPS loop | transparent</text>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" fill="none"/>
+  <rect x="0.5" y="0.5" width="191" height="191" fill="none" stroke="#ff4fd8" stroke-width="1"/>
+  <rect x="12" y="12" width="168" height="168" fill="none" stroke="#64d9ff" stroke-width="1" stroke-dasharray="6 4"/>
+  <path d="M96 0V192M0 96H192" fill="none" stroke="#ffd166" stroke-width="1" stroke-dasharray="4 4"/>
+  <circle cx="96" cy="96" r="6" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <path d="M89 177H103M96 170V184" fill="none" stroke="#8dff8a" stroke-width="2"/>
+  <text x="6" y="16" fill="#ff4fd8" font-family="monospace" font-size="8">192x192 transparent entity frame</text>
+  <text x="6" y="187" fill="#64d9ff" font-family="monospace" font-size="7">safe area 12px | center/pivot 96,96 | feet guide 96,177</text>
+</svg>

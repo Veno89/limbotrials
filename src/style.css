@@ -109,10 +109,9 @@ input {
 }
 
 #game {
-  display: grid;
+  position: relative;
   width: 100vw;
   height: 100vh;
-  place-items: center;
 }
 
 #game canvas {
